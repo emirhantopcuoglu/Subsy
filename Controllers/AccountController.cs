@@ -51,14 +51,19 @@ namespace Subsy.Controllers
         {
             if (!ModelState.IsValid) { return View(loginViewModel); }
 
-            var result = await _signInManager.PasswordSignInAsync(loginViewModel.Email, loginViewModel.Password, loginViewModel.RememberMe, false);
+            var user = await _userManager.FindByEmailAsync(loginViewModel.Email);
 
-            if (result.Succeeded)
-            {
-                return RedirectToAction("Index", "Home");
+            if (user != null) 
+            { 
+                var result = await _signInManager.PasswordSignInAsync(user.UserName, loginViewModel.Password, loginViewModel.RememberMe, false);
+
+                if (result.Succeeded) 
+                { 
+                    return RedirectToAction("Index", "Home");
+                }
             }
 
-            ModelState.AddModelError(string.Empty, "Invalid login attempt");
+            ModelState.AddModelError(string.Empty, "Geçersiz giriş denemesi.");
 
             return View(loginViewModel);
         }

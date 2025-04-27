@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Subsy.Models;
 
 namespace Subsy.Data
 {
@@ -9,5 +10,7 @@ namespace Subsy.Data
         {
             
         }
+
+        public DbSet<Subscription> Subscriptions { get; set; }
     }
 }
