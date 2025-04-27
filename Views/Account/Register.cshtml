@@ -1,0 +1,37 @@
+﻿@model RegisterViewModel
+
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card p-4 shadow-lg rounded-4" style="max-width: 400px; width: 100%;">
+        <h2 class="text-center mb-4 text-primary">Kayıt Ol</h2>
+        <hr class="mb-4">
+        <form asp-controller="Account" asp-action="Register" method="post">
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="UserName" class="form-label text-muted">Kullanıcı Adı</label>
+                <input asp-for="UserName" class="form-control rounded-pill shadow-sm"
+                       placeholder="Kullanıcı adınızı giriniz">
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label text-muted">E-posta</label>
+                <input asp-for="Email" type="email" class="form-control rounded-pill shadow-sm"
+                       placeholder="E-posta adresinizi giriniz">
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label text-muted">Şifre</label>
+                <input asp-for="Password" type="password" class="form-control rounded-pill shadow-sm"
+                       placeholder="Şifrenizi giriniz">
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ConfirmPassword" class="form-label text-muted">Şifre Tekrar</label>
+                <input asp-for="ConfirmPassword" type="password" class="form-control rounded-pill shadow-sm"
+                       placeholder="Şifrenizi doğrulayınız">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm">Kayıt Ol</button>
+        </form>
+    </div>
+</div>
