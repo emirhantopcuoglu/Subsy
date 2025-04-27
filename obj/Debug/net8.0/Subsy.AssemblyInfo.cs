@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Subsy")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6c5b324d00c8bae22f822d759ac7924e96d4b50b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5609b8784f2cd9cc1d3831307f4377a201cf63a7")]
 [assembly: System.Reflection.AssemblyProductAttribute("Subsy")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Subsy")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
