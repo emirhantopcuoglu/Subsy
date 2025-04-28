@@ -1,0 +1,34 @@
+﻿@model Subscription
+
+<h2>Aboneliğini Güncelle</h2>
+<hr>
+<form asp-controller="Subscription" asp-action="Update" method="post">
+    <input type="hidden" asp-for="Id">
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+
+    <div class="mb-3">
+        <label asp-for="Price" class="form-label"></label>
+        <input asp-for="Price" class="form-control">
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="RenewalPeriod" class="form-label">Yenileme Sıklığı</label>
+        <input asp-for="RenewalPeriod" class="form-control">
+        <span asp-validation-for="RenewalPeriod" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="RenewalDate" class="form-label">Yenileme Tarihi</label>
+        <input asp-for="RenewalDate" type="date" class="form-control">
+    </div>
+
+    <button type="submit" class="btn btn-secondary">Kaydet</button>
+
+</form>

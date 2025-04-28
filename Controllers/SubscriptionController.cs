@@ -33,12 +33,18 @@ namespace Subsy.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Subscription subscription)
         {
+            if (ModelState.ContainsKey(nameof(Subscription.UserId)))
+            {
+                ModelState.Remove(nameof(Subscription.UserId));
+            }
+
             if (ModelState.IsValid)
             {
                 subscription.UserId = _userManager.GetUserId(User);
 
                 await _context.Subscriptions.AddAsync(subscription);
                 await _context.SaveChangesAsync();
+
                 return RedirectToAction("Index");
             }
 
@@ -72,7 +78,7 @@ namespace Subsy.Controllers
                 return NotFound();
             }
 
-            if(subscriptionInDb.UserId != _userManager.GetUserId(User))
+            if (subscriptionInDb.UserId != _userManager.GetUserId(User))
             {
                 return Unauthorized();
             }

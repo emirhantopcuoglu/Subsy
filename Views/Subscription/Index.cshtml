@@ -1,0 +1,42 @@
+﻿@model List<Subscription>
+@{
+    int count = 1;
+}
+<div>
+    <h4>Aboneliklerim</h4>
+    <a class="btn btn-primary mb-3" asp-controller="Subscription" asp-action="Create">Yeni Abonelik Ekle</a>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Subscription</th>
+                <th scope="col">Price</th>
+                <th scope="col">RenewalPeriod</th>
+                <th scope="col">RenewalDate</th>
+                <th scope="col">+</th>
+                <th scope="col">-</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var sub in Model)
+            {
+                <tr>
+                    <td>@count</td>
+                    <td>@sub.Name</td>
+                    <td>@sub.Price</td>
+                    <td>@sub.RenewalPeriod</td>
+                    <td>@sub.RenewalDate</td>
+                    <td>
+                        <a class="btn btn-warning" asp-controller="Subscription" asp-action="Update" asp-route-id="@sub.Id">Düzenle</a>
+                    </td>
+                    <td>
+                        <form asp-controller="Subscription" asp-action="Delete" asp-route-id="@sub.Id" method="post" style="display:inline">
+                            <button class="btn btn-danger">Sil</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
