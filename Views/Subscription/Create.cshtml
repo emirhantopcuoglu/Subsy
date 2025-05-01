@@ -1,5 +1,8 @@
 ﻿@model Subscription
-
+@using System.Globalization
+@{
+    var today = DateTime.Today;
+}
 <h1>Yeni bir abonelik ekle</h1>
 
 <hr>
@@ -20,17 +23,69 @@
     </div>
 
     <div class="mb-3">
-        <label asp-for="RenewalPeriod" class="form-label"></label>
-        <input asp-for="RenewalPeriod" class="form-control">
+        <label asp-for="RenewalPeriod" class="form-label">Yenileme Sıklığı</label>
+        <select asp-for="RenewalPeriod" class="form-select">
+            <option value="">Seçiniz...</option>
+            <option value="7">Haftalık</option>
+            <option value="15">İki Haftada Bir</option>
+            <option value="30">Aylık</option>
+            <option value="90">3 Ayda Bir</option>
+            <option value="180">6 Ayda Bir</option>
+            <option value="365">Yıllık</option>
+        </select>
         <span asp-validation-for="RenewalPeriod" class="text-danger"></span>
     </div>
 
+
     <div class="mb-3">
-        <label asp-for="RenewalDate" class="form-label"></label>
-        <input asp-for="RenewalDate" type="date" class="form-control">
-        <span asp-validation-for="RenewalDate" class="text-danger"></span>
+        <label class="form-label">Yenileme Ayı</label>
+        <select id="month" name="SelectedMonth" class="form-select" onchange="updateDays()">
+            @for (int i = 1; i <= 12; i++)
+            {
+                var isSelected = i == today.Month ? "selected" : "";
+                <option value="@i" selected="@isSelected">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Yenileme Günü</label>
+        <select id="day" name="SelectedDay" class="form-select">
+            @for (int i = 1; i <= 31; i++)
+            {
+                var isSelected = i == today.Day ? "selected" : "";
+                <option value="@i" selected="@isSelected">@i</option>
+            }
+        </select>
     </div>
 
     <button type="submit" class="btn btn-secondary">Kaydet</button>
 
 </form>
+
+@section Scripts {
+    <script>
+        function updateDays() {
+            const month = parseInt(document.getElementById("month").value);
+            const daySelect = document.getElementById("day");
+
+            // Şu yıl için maksimum gün sayısını hesapla
+            const year = new Date().getFullYear();
+            const daysInMonth = new Date(year, month, 0).getDate();
+
+            // Eski günleri temizle
+            daySelect.innerHTML = "";
+
+            // Yeni günleri ekle
+            for (let d = 1; d <= daysInMonth; d++) {
+                const option = document.createElement("option");
+                option.value = d;
+                option.text = d;
+                daySelect.appendChild(option);
+            }
+        }
+
+        // Sayfa ilk yüklendiğinde günleri ayara göre ayarla
+        document.addEventListener("DOMContentLoaded", updateDays);
+    </script>
+}

@@ -33,24 +33,39 @@ namespace Subsy.Controllers
         public IActionResult Create() { return View(); }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Subscription subscription)
+        public async Task<IActionResult> Create(Subscription subscription, int SelectedMonth, int SelectedDay)
         {
             if (ModelState.ContainsKey(nameof(Subscription.UserId)))
-            {
                 ModelState.Remove(nameof(Subscription.UserId));
-            }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(subscription);
+
+            try
             {
+                // Tarihi birleştir
+                var composedDate = new DateTime(DateTime.Today.Year, SelectedMonth, SelectedDay);
+
+                // Geçmiş tarihse 1 yıl ileriye al
+                if (composedDate < DateTime.Today)
+                    composedDate = composedDate.AddYears(1);
+
+                // RenewalDate'yi elle set et
+                subscription.RenewalDate = composedDate;
+
                 subscription.UserId = _userManager.GetUserId(User);
 
                 await _service.AddAsync(subscription);
 
                 return RedirectToAction("Index");
             }
-
-            return View(subscription);
+            catch (ArgumentException ex)
+            {
+                ModelState.AddModelError(nameof(Subscription.RenewalDate), ex.Message);
+                return View(subscription);
+            }
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Update(int id)
@@ -62,11 +77,14 @@ namespace Subsy.Controllers
                 return Unauthorized();
             }
 
+            ViewBag.SelectedMonth = subscription.RenewalDate.Month;
+            ViewBag.SelectedDay = subscription.RenewalDate.Day;
+
             return View(subscription);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(Subscription subscription)
+        public async Task<IActionResult> Update(Subscription subscription, int SelectedMonth, int SelectedDay)
         {
             if (ModelState.ContainsKey(nameof(Subscription.UserId)))
                 ModelState.Remove(nameof(Subscription.UserId));
@@ -75,18 +93,32 @@ namespace Subsy.Controllers
                 return View(subscription);
 
             var subscriptionInDb = await _service.GetByIdAsync(subscription.Id);
-
             if (subscriptionInDb == null || subscriptionInDb.UserId != _userManager.GetUserId(User))
                 return Unauthorized();
 
-            subscriptionInDb.Name = subscription.Name;
-            subscriptionInDb.Price = subscription.Price;
-            subscriptionInDb.RenewalPeriod = subscription.RenewalPeriod;
-            subscriptionInDb.RenewalDate = subscription.RenewalDate;
+            try
+            {
+                // Yeni tarih oluştur
+                var composedDate = new DateTime(DateTime.Today.Year, SelectedMonth, SelectedDay);
+                if (composedDate < DateTime.Today)
+                    composedDate = composedDate.AddYears(1);
 
-            await _service.UpdateAsync(subscriptionInDb);
-            return RedirectToAction("Index");
+                // Güncelleme işlemi
+                subscriptionInDb.Name = subscription.Name;
+                subscriptionInDb.Price = subscription.Price;
+                subscriptionInDb.RenewalPeriod = subscription.RenewalPeriod;
+                subscriptionInDb.RenewalDate = composedDate;
+
+                await _service.UpdateAsync(subscriptionInDb);
+                return RedirectToAction("Index");
+            }
+            catch (ArgumentException ex)
+            {
+                ModelState.AddModelError(nameof(Subscription.RenewalDate), ex.Message);
+                return View(subscription);
+            }
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Delete(int id)

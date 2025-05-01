@@ -22,11 +22,19 @@ namespace Subsy.Services
 
         public async Task AddAsync(Subscription subscription)
         {
+            if(subscription.RenewalDate < DateTime.Today)
+            {
+                throw new ArgumentException("Yenileme tarihi geçmiş olamaz.");
+            }
             await _subscriptionRepository.AddAsync(subscription);
         }
 
         public async Task UpdateAsync(Subscription subscription)
         {
+            if (subscription.RenewalDate < DateTime.Today)
+            {
+                throw new ArgumentException("Yenileme tarihi geçmiş olamaz.");
+            }
             await _subscriptionRepository.UpdateAsync(subscription);
         }
 

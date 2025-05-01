@@ -1,12 +1,18 @@
 ﻿@model Subscription
+@using System.Globalization
+
+@{
+    var today = DateTime.Today;
+}
 
 <h2>Aboneliğini Güncelle</h2>
 <hr>
+
 <form asp-controller="Subscription" asp-action="Update" method="post">
-    
+
     <div asp-validation-summary="All" class="text-danger"></div>
 
-    <input type="hidden" asp-for="Id">
+    <input type="hidden" asp-for="Id" />
 
     <div class="mb-3">
         <label asp-for="Name" class="form-label"></label>
@@ -14,24 +20,83 @@
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
 
-
     <div class="mb-3">
         <label asp-for="Price" class="form-label"></label>
-        <input asp-for="Price" class="form-control">
+        <input asp-for="Price" class="form-control" />
         <span asp-validation-for="Price" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="RenewalPeriod" class="form-label">Yenileme Sıklığı</label>
-        <input asp-for="RenewalPeriod" class="form-control">
-        <span asp-validation-for="RenewalPeriod" class="text-danger"></span>
+    <label asp-for="RenewalPeriod" class="form-label">Yenileme Sıklığı</label>
+    <select asp-for="RenewalPeriod" class="form-select">
+        <option value="">Seçiniz...</option>
+        <option value="7">Haftalık</option>
+        <option value="15">İki Haftada Bir</option>
+        <option value="30">Aylık</option>
+        <option value="90">3 Ayda Bir</option>
+        <option value="180">6 Ayda Bir</option>
+        <option value="365">Yıllık</option>
+    </select>
+    <span asp-validation-for="RenewalPeriod" class="text-danger"></span>
+</div>
+
+
+    <div class="mb-3">
+    <label class="form-label">Yenileme Ayı</label>
+    <select id="month" name="SelectedMonth" class="form-select" onchange="updateDays()">
+        @{
+            var selectedMonth = (int)(ViewBag.SelectedMonth ?? DateTime.Today.Month);
+            for (int i = 1; i <= 12; i++)
+            {
+                var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i);
+                var selectedAttr = i == selectedMonth ? "selected=\"selected\"" : "";
+                @:<option value="@i" @Html.Raw(selectedAttr)>@monthName</option>
+            }
+        }
+    </select>
     </div>
 
     <div class="mb-3">
-        <label asp-for="RenewalDate" class="form-label">Yenileme Tarihi</label>
-        <input asp-for="RenewalDate" type="date" class="form-control">
+        <label class="form-label">Yenileme Günü</label>
+        <select id="day" name="SelectedDay" class="form-select">
+            @{
+                var selectedDay = (int)(ViewBag.SelectedDay ?? DateTime.Today.Day);
+                for (int i = 1; i <= 31; i++)
+                {
+                    var selectedAttr = i == selectedDay ? "selected=\"selected\"" : "";
+                    @:<option value="@i" @Html.Raw(selectedAttr)>@i</option>
+                }
+            }
+        </select>
     </div>
 
     <button type="submit" class="btn btn-secondary">Kaydet</button>
-
 </form>
+
+@section Scripts {
+    <script>
+        function updateDays() {
+            const month = parseInt(document.getElementById("month").value);
+            const daySelect = document.getElementById("day");
+
+            const year = new Date().getFullYear();
+            const daysInMonth = new Date(year, month, 0).getDate();
+
+            const currentSelected = parseInt(daySelect.value);
+
+            daySelect.innerHTML = "";
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const option = document.createElement("option");
+                option.value = d;
+                option.text = d;
+                if (d === currentSelected) {
+                    option.selected = true;
+                }
+                daySelect.appendChild(option);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", updateDays);
+    </script>
+}

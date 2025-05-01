@@ -1,9 +1,10 @@
 ﻿@model List<Subscription>
 @using System.Globalization
+
 @{
     int count = 1;
-    var trCulture = new CultureInfo("tr-TR");
 }
+
 <div>
     @if (ViewBag.TotalAmount != null)
     {
@@ -11,29 +12,59 @@
             Toplam Aylık Gideriniz: <strong>@($"{ViewBag.TotalAmount:0.00}") ₺</strong>
         </div>
     }
+
     <h4>Aboneliklerim</h4>
     <a class="btn btn-primary mb-3" asp-controller="Subscription" asp-action="Create">Yeni Abonelik Ekle</a>
-    <table class="table table-bordered">
-        <thead>
+
+    <table class="table table-bordered align-middle text-center">
+        <thead class="table-light">
             <tr>
-                <th scope="col">#</th>
-                <th scope="col">Abonelik</th>
-                <th scope="col">Ücret</th>
-                <th scope="col">Yenileme Sıklığı</th>
-                <th scope="col">Yenileme Tarihi</th>
-                <th scope="col">+</th>
-                <th scope="col">-</th>
+                <th>#</th>
+                <th>Abonelik</th>
+                <th>Ücret</th>
+                <th>Yenileme Sıklığı</th>
+                <th>Yenileme Tarihi</th>
+                <th>Kalan Gün</th>
+                <th>Durum</th>
+                <th></th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
             @foreach (var sub in Model)
             {
-                <tr>
+                var period = int.TryParse(sub.RenewalPeriod, out var p) ? p : 30;
+                var remaining = (sub.RenewalDate - DateTime.Today).Days;
+                var used = period - remaining;
+                var percent = Math.Clamp((used * 100) / period, 0, 100);
+                var expired = remaining <= 0;
+
+                <tr class="@(expired ? "table-danger" : "")">
                     <td>@count</td>
                     <td>@sub.Name</td>
                     <td>@sub.Price ₺</td>
                     <td>@sub.RenewalPeriod gün</td>
                     <td>@sub.RenewalDate.ToString("d MMMM yyyy", CultureInfo.CurrentCulture)</td>
+                    <td>
+                        @if (expired)
+                        {
+                            <span class="text-danger fw-bold">Süresi doldu</span>
+                        }
+                        else
+                        {
+                            <span>@remaining gün kaldı</span>
+                        }
+                    </td>
+                    <td style="min-width:150px">
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar @(expired ? "bg-danger" : "bg-success")"
+                                 role="progressbar"
+                                 style="width: @percent%;"
+                                 aria-valuenow="@percent" aria-valuemin="0" aria-valuemax="100">
+                                @percent%
+                            </div>
+                        </div>
+                    </td>
                     <td>
                         <a class="btn btn-warning" asp-controller="Subscription" asp-action="Update" asp-route-id="@sub.Id">Düzenle</a>
                     </td>
@@ -45,7 +76,6 @@
                 </tr>
                 count++;
             }
-
         </tbody>
     </table>
 </div>
