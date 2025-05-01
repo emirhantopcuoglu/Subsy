@@ -1,11 +1,17 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Subsy.Data;
+using Subsy.Repositories;
+using Subsy.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Dependency Injection Yapýlandýrma
+builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();    
 
 // DbContext Ekleme
 builder.Services.AddDbContext<SubsyContext>(options => 

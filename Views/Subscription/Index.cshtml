@@ -1,18 +1,26 @@
 ﻿@model List<Subscription>
+@using System.Globalization
 @{
     int count = 1;
+    var trCulture = new CultureInfo("tr-TR");
 }
 <div>
+    @if (ViewBag.TotalAmount != null)
+    {
+        <div class="alert alert-info">
+            Toplam Aylık Gideriniz: <strong>@($"{ViewBag.TotalAmount:0.00}") ₺</strong>
+        </div>
+    }
     <h4>Aboneliklerim</h4>
     <a class="btn btn-primary mb-3" asp-controller="Subscription" asp-action="Create">Yeni Abonelik Ekle</a>
     <table class="table table-bordered">
         <thead>
             <tr>
                 <th scope="col">#</th>
-                <th scope="col">Subscription</th>
-                <th scope="col">Price</th>
-                <th scope="col">RenewalPeriod</th>
-                <th scope="col">RenewalDate</th>
+                <th scope="col">Abonelik</th>
+                <th scope="col">Ücret</th>
+                <th scope="col">Yenileme Sıklığı</th>
+                <th scope="col">Yenileme Tarihi</th>
                 <th scope="col">+</th>
                 <th scope="col">-</th>
             </tr>
@@ -23,9 +31,9 @@
                 <tr>
                     <td>@count</td>
                     <td>@sub.Name</td>
-                    <td>@sub.Price</td>
-                    <td>@sub.RenewalPeriod</td>
-                    <td>@sub.RenewalDate</td>
+                    <td>@sub.Price ₺</td>
+                    <td>@sub.RenewalPeriod gün</td>
+                    <td>@sub.RenewalDate.ToString("d MMMM yyyy", CultureInfo.CurrentCulture)</td>
                     <td>
                         <a class="btn btn-warning" asp-controller="Subscription" asp-action="Update" asp-route-id="@sub.Id">Düzenle</a>
                     </td>
@@ -35,6 +43,7 @@
                         </form>
                     </td>
                 </tr>
+                count++;
             }
 
         </tbody>

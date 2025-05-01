@@ -3,6 +3,9 @@
 <h2>Aboneliğini Güncelle</h2>
 <hr>
 <form asp-controller="Subscription" asp-action="Update" method="post">
+    
+    <div asp-validation-summary="All" class="text-danger"></div>
+
     <input type="hidden" asp-for="Id">
 
     <div class="mb-3">

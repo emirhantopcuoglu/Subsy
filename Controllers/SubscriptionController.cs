@@ -3,26 +3,28 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Subsy.Data;
 using Subsy.Models;
+using Subsy.Services;
 
 namespace Subsy.Controllers
 {
     public class SubscriptionController : Controller
     {
-        private readonly SubsyContext _context;
+        private readonly ISubscriptionService _service;
         private readonly UserManager<IdentityUser> _userManager;
 
-        public SubscriptionController(SubsyContext context, UserManager<IdentityUser> userManager)
+        public SubscriptionController(ISubscriptionService service, UserManager<IdentityUser> userManager)
         {
-            _context = context;
+            _service = service;
             _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()
         {
             var userId = _userManager.GetUserId(User);
-            var subscriptions = await _context.Subscriptions
-                .Where(s => s.UserId == userId)
-                .ToListAsync();
+            var subscriptions = await _service.GetAllByUserId(userId);
+
+            var totalAmount = await _service.GetTotalAmountAsync(userId);
+            ViewBag.TotalAmount = totalAmount;
 
             return View(subscriptions);
         }
@@ -42,8 +44,7 @@ namespace Subsy.Controllers
             {
                 subscription.UserId = _userManager.GetUserId(User);
 
-                await _context.Subscriptions.AddAsync(subscription);
-                await _context.SaveChangesAsync();
+                await _service.AddAsync(subscription);
 
                 return RedirectToAction("Index");
             }
@@ -54,10 +55,11 @@ namespace Subsy.Controllers
         [HttpGet]
         public async Task<IActionResult> Update(int id)
         {
-            var subscription = await _context.Subscriptions.FindAsync(id);
-            if (subscription == null)
+            var subscription = await _service.GetByIdAsync(id);
+
+            if (subscription == null || subscription.UserId != _userManager.GetUserId(User))
             {
-                return NotFound();
+                return Unauthorized();
             }
 
             return View(subscription);
@@ -66,29 +68,23 @@ namespace Subsy.Controllers
         [HttpPost]
         public async Task<IActionResult> Update(Subscription subscription)
         {
+            if (ModelState.ContainsKey(nameof(Subscription.UserId)))
+                ModelState.Remove(nameof(Subscription.UserId));
+
             if (!ModelState.IsValid)
-            {
-
                 return View(subscription);
-            }
-            var subscriptionInDb = await _context.Subscriptions.FindAsync(subscription.Id);
 
-            if (subscriptionInDb == null)
-            {
-                return NotFound();
-            }
+            var subscriptionInDb = await _service.GetByIdAsync(subscription.Id);
 
-            if (subscriptionInDb.UserId != _userManager.GetUserId(User))
-            {
+            if (subscriptionInDb == null || subscriptionInDb.UserId != _userManager.GetUserId(User))
                 return Unauthorized();
-            }
 
             subscriptionInDb.Name = subscription.Name;
             subscriptionInDb.Price = subscription.Price;
             subscriptionInDb.RenewalPeriod = subscription.RenewalPeriod;
             subscriptionInDb.RenewalDate = subscription.RenewalDate;
 
-            await _context.SaveChangesAsync();
+            await _service.UpdateAsync(subscriptionInDb);
             return RedirectToAction("Index");
         }
 
@@ -96,19 +92,14 @@ namespace Subsy.Controllers
         public async Task<IActionResult> Delete(int id)
         {
 
-            var subscription = await _context.Subscriptions.FindAsync(id);
+            var subscription = await _service.GetByIdAsync(id);
 
-            if (subscription.UserId != _userManager.GetUserId(User))
+            if (subscription == null || subscription.UserId != _userManager.GetUserId(User))
             {
                 return Unauthorized();
             }
 
-            if (subscription == null)
-            {
-                return NotFound();
-            }
-            _context.Subscriptions.Remove(subscription);
-            await _context.SaveChangesAsync();
+            await _service.DeleteAsync(subscription);
             return RedirectToAction("Index");
         }
     }
