@@ -15,11 +15,9 @@ namespace Subsy.Controllers
 
         public IActionResult Index()
         {
-            return View();
-        }
+            if (User.Identity.IsAuthenticated)
+                return RedirectToAction("Index", "Subscription");
 
-        public IActionResult Privacy()
-        {
             return View();
         }
 

@@ -1,0 +1,32 @@
+﻿<div class="d-flex flex-column p-3 bg-light vh-100 shadow-sm" style="width: 250px; position: fixed;">
+    <div class="text-center mb-4">
+        <img src="/images/user-placeholder.png" class="rounded-circle" width="80" height="80" />
+        <p class="mt-2 fw-bold">@User.Identity.Name</p>
+    </div>
+
+    <ul class="nav nav-pills flex-column">
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Subscription" asp-action="Index">Anasayfa</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Subscription" asp-action="Active">Aktif Abonelikler</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Subscription" asp-action="Due">Ödeme Günü Gelenler</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Subscription" asp-action="Archive">Sonlandırılanlar</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link disabled">Finansal Analiz (yakında)</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link disabled">Profil (yakında)</a>
+        </li>
+        <li class="nav-item">
+            <form asp-controller="Account" asp-action="Logout" method="post">
+                <button class="nav-link btn btn-link text-start">Çıkış Yap</button>
+            </form>
+        </li>
+    </ul>
+</div>

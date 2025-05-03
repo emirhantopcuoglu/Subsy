@@ -1,0 +1,55 @@
+﻿@model List<Subscription>
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Aktif Abonelikler";
+}
+
+<h3 class="mb-4">Aktif Aboneliklerim</h3>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    @foreach (var sub in Model)
+    {
+        var period = int.TryParse(sub.RenewalPeriod, out var p) ? p : 30;
+        var remaining = (sub.RenewalDate - DateTime.Today).Days;
+        var used = period - remaining;
+        var percent = Math.Clamp((used * 100) / period, 0, 100);
+        var expired = remaining <= 0;
+
+        <div class="col">
+            <div class="card shadow-sm border-@(expired ? "danger" : "light")">
+                <div class="card-body">
+                    <h5 class="card-title">@sub.Name</h5>
+                    <p class="card-text">
+                        <strong>@sub.Price ₺</strong><br />
+                        Yenileme Tarihi: @sub.RenewalDate.ToString("d MMMM yyyy", CultureInfo.CurrentCulture)<br />
+                        Kalan: @(expired ? "Süresi doldu" : $"{remaining} gün")<br />
+                    </p>
+
+                    <div class="progress mb-3">
+                        <div class="progress-bar @(expired ? "bg-danger" : "bg-success")"
+                             role="progressbar" style="width: @percent%;" aria-valuenow="@percent"
+                             aria-valuemin="0" aria-valuemax="100">
+                            @percent%
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        @if (sub.RenewalDate <= DateTime.Today)
+                        {
+                            <form method="post" asp-action="MarkAsPaid" asp-route-id="@sub.Id">
+                                <button class="btn btn-success btn-sm">Ödendi</button>
+                            </form>
+                        }
+
+                        <a class="btn btn-warning btn-sm" asp-action="Update" asp-route-id="@sub.Id">Düzenle</a>
+                        <form method="post" asp-controller="Subscription" asp-action="Archive" asp-route-id="@sub.Id">
+                            <button type="submit" class="btn btn-danger btn-sm">Sonlandır</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

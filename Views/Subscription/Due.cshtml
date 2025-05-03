@@ -1,0 +1,52 @@
+﻿@model List<Subscription>
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Pasif Abonelikler";
+}
+
+<h3 class="mb-4">Ödeme Günü Gelen Aboneliklerim</h3>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-secondary">Ödeme günü gelmiş aboneliğiniz bulunmamaktadır.</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var sub in Model)
+        {
+            var period = int.TryParse(sub.RenewalPeriod, out var p) ? p : 30;
+            var remaining = (sub.RenewalDate - DateTime.Today).Days;
+            var percent = 100;
+
+            <div class="col">
+                <div class="card shadow-sm border-danger">
+                    <div class="card-body">
+                        <h5 class="card-title">@sub.Name</h5>
+                        <p class="card-text">
+                            <strong>@sub.Price ₺</strong><br />
+                            Yenileme Tarihi: @sub.RenewalDate.ToString("d MMMM yyyy", CultureInfo.CurrentCulture)<br />
+                            Süresi dolmuş: @Math.Abs(remaining) gün önce
+                        </p>
+
+                        <div class="progress mb-3">
+                            <div class="progress-bar bg-danger" role="progressbar"
+                                 style="width: @percent%;" aria-valuenow="@percent"
+                                 aria-valuemin="0" aria-valuemax="100">
+                                Süresi Doldu
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <form method="post" asp-controller="Subscription" asp-action="MarkAsPaid" asp-route-id="@sub.Id">
+                                <button type="submit" class="btn btn-success btn-sm">Yenile</button>
+                            </form>
+                            <a class="btn btn-warning btn-sm" asp-action="Update" asp-route-id="@sub.Id">Düzenle</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

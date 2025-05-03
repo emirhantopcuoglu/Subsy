@@ -20,14 +20,91 @@ namespace Subsy.Controllers
 
         public async Task<IActionResult> Index()
         {
+            if (!User.Identity.IsAuthenticated)
+                return View("Index", "Home");
+
+            var userId = _userManager.GetUserId(User);
+            var subs = await _service.GetAllByUserId(userId);
+            var today = DateTime.Today;
+
+            ViewBag.ActiveCount = subs.Count(s => s.RenewalDate >= today && !s.IsArchived);
+            ViewBag.TodayDueCount = subs.Count(s => s.RenewalDate == today && !s.IsArchived);
+            ViewBag.TotalThisMonth = subs
+                .Where(s => s.RenewalDate.Month == today.Month && s.RenewalDate.Year == today.Year && !s.IsArchived)
+                .Sum(s => s.Price);
+
+            ViewBag.Upcoming = subs
+                .Where(s => s.RenewalDate <= today.AddDays(3) && s.RenewalDate >= today && !s.IsArchived)
+                .ToList();
+
+            return View();
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Active()
+        {
             var userId = _userManager.GetUserId(User);
             var subscriptions = await _service.GetAllByUserId(userId);
-
-            var totalAmount = await _service.GetTotalAmountAsync(userId);
-            ViewBag.TotalAmount = totalAmount;
-
-            return View(subscriptions);
+            var active = subscriptions.Where(s => s.RenewalDate >= DateTime.Today && !s.IsArchived).ToList();
+            return View(active);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Due()
+        {
+            var userId = _userManager.GetUserId(User);
+            var list = await _service.GetAllByUserId(userId);
+            var due = list.Where(s => s.RenewalDate < DateTime.Today && !s.IsArchived).ToList();
+            return View(due);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Archive()
+        {
+            var userId = _userManager.GetUserId(User);
+            var list = await _service.GetAllByUserId(userId);
+            var archived = list.Where(s => s.IsArchived).ToList();
+            return View(archived);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Archive(int id)
+        {
+            var sub = await _service.GetByIdAsync(id);
+            if (sub == null || sub.UserId != _userManager.GetUserId(User))
+                return Unauthorized();
+
+            sub.IsArchived = true;
+            await _service.UpdateAsync(sub);
+            return RedirectToAction("Active");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> MarkAsPaid(int id)
+        {
+            var subscription = await _service.GetByIdAsync(id);
+            var userId = _userManager.GetUserId(User);
+
+            if (subscription == null || subscription.UserId != userId)
+                return Unauthorized();
+
+            if (subscription.RenewalDate > DateTime.Today)
+            {
+                // Ödeme günü gelmeden ödendi işareti yapılamaz
+                TempData["Error"] = "Ödeme günü henüz gelmedi!";
+                return RedirectToAction("Active");
+            }
+
+            if (int.TryParse(subscription.RenewalPeriod, out var days))
+            {
+                subscription.RenewalDate = subscription.RenewalDate.AddDays(days);
+                await _service.UpdateAsync(subscription);
+            }
+
+            return RedirectToAction("Active");
+        }
+
 
         [HttpGet]
         public IActionResult Create() { return View(); }

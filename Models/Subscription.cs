@@ -24,5 +24,8 @@ namespace Subsy.Models
 
         [BindNever]
         public string UserId { get; set; }
+
+        public bool IsArchived { get; set; } = false;
+
     }
 }
