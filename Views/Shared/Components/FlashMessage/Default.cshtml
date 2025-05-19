@@ -1,0 +1,14 @@
+﻿@model List<(string Key, string Message, string Type, int Duration)>
+
+@foreach(var msg in Model)
+{
+    <div id="@msg.Key" class="alert alert-@msg.Type shadow-sm rounded-3">
+        @msg.Message
+    </div>
+    <script>
+        setTimeout(function () {
+            var el = document.getElementById("@msg.Key");
+            if (el) el.style.display = "none";
+        }, @msg.Duration);
+    </script>
+}

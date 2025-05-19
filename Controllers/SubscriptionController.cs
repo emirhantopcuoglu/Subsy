@@ -77,6 +77,7 @@ namespace Subsy.Controllers
 
             sub.IsArchived = true;
             await _service.UpdateAsync(sub);
+            TempData["ArchiveMessage"] = $"{sub.Name} aboneliği başarıyla sonlandırıldı.";
             return RedirectToAction("Active");
         }
 
@@ -102,6 +103,7 @@ namespace Subsy.Controllers
                 await _service.UpdateAsync(subscription);
             }
 
+            TempData["MarkAsPaidMessage"] = $"{subscription.Name} aboneliği ödendi olarak işaretlendi.";
             return RedirectToAction("Active");
         }
 
@@ -134,6 +136,7 @@ namespace Subsy.Controllers
 
                 await _service.AddAsync(subscription);
 
+                TempData["CreateMessage"] = $"{subscription.Name} aboneliği başarıyla oluşturuldu.";
                 return RedirectToAction("Index");
             }
             catch (ArgumentException ex)
@@ -187,6 +190,8 @@ namespace Subsy.Controllers
                 subscriptionInDb.RenewalDate = composedDate;
 
                 await _service.UpdateAsync(subscriptionInDb);
+
+                TempData["UpdateMessage"] = $"{subscriptionInDb.Name} aboneliği başarıyla güncellendi.";
                 return RedirectToAction("Index");
             }
             catch (ArgumentException ex)
@@ -209,6 +214,8 @@ namespace Subsy.Controllers
             }
 
             await _service.DeleteAsync(subscription);
+
+            TempData["DeleteMessage"] = $"{subscription.Name} aboneliği başarıyla tamamen silindi.";
             return RedirectToAction("Index");
         }
     }

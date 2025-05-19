@@ -32,6 +32,7 @@ namespace Subsy.Controllers
             if (result.Succeeded)
             {
                 await _signInManager.SignInAsync(user, isPersistent: false);
+                TempData["RegisterMessage"] = $"Kayıt işlemi başarıyla tamamlandı. Hoşgeldin {user.UserName}!";
                 return RedirectToAction("Index", "Home");
             }
 
@@ -58,7 +59,8 @@ namespace Subsy.Controllers
                 var result = await _signInManager.PasswordSignInAsync(user.UserName, loginViewModel.Password, loginViewModel.RememberMe, false);
 
                 if (result.Succeeded) 
-                { 
+                {
+                    TempData["LoginMessage"] = $"Giriş işlemi başarıyla tamamlandı. Hoşgeldin {user.UserName}!";
                     return RedirectToAction("Index", "Home");
                 }
             }
@@ -71,7 +73,8 @@ namespace Subsy.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("Index", "Home");
+            TempData["LogoutMessage"] = $"Çıkış işlemi başarıyla tamamlandı.";
+            return RedirectToAction("Login", "Account");
         }
     }
 }

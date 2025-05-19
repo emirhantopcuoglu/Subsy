@@ -1,5 +1,7 @@
 ﻿@model LoginViewModel
 
+@await Component.InvokeAsync("FlashMessage")
+
 <div class="container d-flex justify-content-center align-items-center vh-100">
     <div class="card p-4 shadow-lg rounded-4" style="max-width: 400px; width: 100%;">
         <h2 class="text-center mb-4 text-primary">Giriş Yap</h2>
