@@ -46,7 +46,7 @@ namespace Subsy.Controllers
         {
             var userId = _userManager.GetUserId(User);
             var subscriptions = await _service.GetAllByUserId(userId);
-            var active = subscriptions.Where(s => s.RenewalDate >= DateTime.Today && !s.IsArchived).ToList();
+            var active = subscriptions.Where(s => !s.IsArchived).ToList();
             return View(active);
         }
 
@@ -55,7 +55,7 @@ namespace Subsy.Controllers
         {
             var userId = _userManager.GetUserId(User);
             var list = await _service.GetAllByUserId(userId);
-            var due = list.Where(s => s.RenewalDate < DateTime.Today && !s.IsArchived).ToList();
+            var due = list.Where(s => s.RenewalDate == DateTime.Today && !s.IsArchived).ToList();
             return View(due);
         }
 
@@ -200,7 +200,6 @@ namespace Subsy.Controllers
                 return View(subscription);
             }
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
