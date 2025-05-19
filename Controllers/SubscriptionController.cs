@@ -82,6 +82,19 @@ namespace Subsy.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> Unarchive(int id)
+        {
+            var sub = await _service.GetByIdAsync(id);
+            if (sub == null || sub.UserId != _userManager.GetUserId(User))
+                return Unauthorized();
+
+            sub.IsArchived = false;
+            await _service.UpdateAsync(sub);
+            TempData["ArchiveMessage"] = $"{sub.Name} aboneliği başarıyla aktifleştirildi.";
+            return RedirectToAction("Archive");
+        }
+
+        [HttpPost]
         public async Task<IActionResult> MarkAsPaid(int id)
         {
             var subscription = await _service.GetByIdAsync(id);
@@ -215,7 +228,7 @@ namespace Subsy.Controllers
             await _service.DeleteAsync(subscription);
 
             TempData["DeleteMessage"] = $"{subscription.Name} aboneliği başarıyla tamamen silindi.";
-            return RedirectToAction("Index");
+            return RedirectToAction("Archive");
         }
     }
 }

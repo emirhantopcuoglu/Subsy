@@ -7,6 +7,8 @@
 
 <h3 class="mb-4">Sonlandırılan Aboneliklerim</h3>
 
+@await Component.InvokeAsync("FlashMessage")
+
 @if (!Model.Any())
 {
     <div class="alert alert-secondary">Hiç sonlandırılmış aboneliğiniz bulunmamaktadır.</div>
@@ -28,6 +30,9 @@ else
 
                         <div class="d-flex justify-content-between">
                             <a class="btn btn-warning btn-sm" asp-action="Update" asp-route-id="@sub.Id">Düzenle</a>
+                            <form asp-action="Unarchive" asp-route-id="@sub.Id" method="post">
+                                <button type="submit" class="btn btn-secondary btn-sm">Aktif Et</button>
+                            </form>
                             <form asp-action="Delete" asp-route-id="@sub.Id" method="post">
                                 <button type="submit" class="btn btn-outline-danger btn-sm">Tamamen Sil</button>
                             </form>

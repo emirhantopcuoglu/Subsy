@@ -30,7 +30,7 @@ else
                         <p class="card-text">
                             <strong>@sub.Price ₺</strong><br />
                             Yenileme Tarihi: @sub.RenewalDate.ToString("d MMMM yyyy", CultureInfo.CurrentCulture)<br />
-                            Kalan: @(expired ? "Süresi doldu" : $"{remaining} gün")<br />
+                            Kalan: @(expired ? "Süresi doldu, ödeme bekleniyor" : $"{remaining} gün")<br />
                         </p>
 
                         <div class="progress mb-3">
