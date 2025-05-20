@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Subsy.Data;
 using Subsy.Models;
 using Subsy.Services;
+using System.Globalization;
+using System.Text.Json;
 
 namespace Subsy.Controllers
 {
@@ -92,6 +92,24 @@ namespace Subsy.Controllers
             await _service.UpdateAsync(sub);
             TempData["ArchiveMessage"] = $"{sub.Name} aboneliği başarıyla aktifleştirildi.";
             return RedirectToAction("Archive");
+        }
+
+        public async Task<IActionResult> Calendar()
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var subs = await _service.GetAllByUserId(userId);
+
+            subs = subs.Where(s => !s.IsArchived).ToList();
+
+            var events = subs.Select(s => new
+            {
+                title = $"{s.Name} – {s.Price:0.##}₺",
+                start = s.RenewalDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+            });
+
+            ViewBag.Events = JsonSerializer.Serialize(events);
+            return View(); 
         }
 
         [HttpPost]
