@@ -5,115 +5,162 @@
     var upcomingList = ViewBag.Upcoming as List<Subscription> ?? new();
 }
 
-<h2 class="fw-semibold mb-4"><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Genel Durum</h2>
+<!-- Başlık -->
+<h2 class="text-2xl font-semibold mb-6 flex items-center gap-2">
+    <!-- Bar Chart Icon -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18" />
+        <rect x="7" y="13" width="3" height="5" rx="1" />
+        <rect x="12" y="8" width="3" height="10" rx="1" />
+        <rect x="17" y="4" width="3" height="14" rx="1" />
+    </svg>
+    Genel Durum
+</h2>
 
 @await Component.InvokeAsync("FlashMessage")
 
-<section class="bg-light rounded-4 p-4 shadow-sm mb-5">
-    <div class="row g-4">
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
-                <div class="d-flex align-items-center">
-                    <div class="me-3 bg-primary text-white rounded-circle d-flex justify-content-center align-items-center" style="width:45px; height:45px;">
-                        <i class="bi bi-check2-circle fs-4"></i>
-                    </div>
-                    <div>
-                        <small class="text-muted">Aktif Abonelik</small>
-                        <h5 class="fw-bold">@ViewBag.ActiveCount</h5>
-                        <p class="small text-muted mb-0">Yenileme tarihi geçmemiş</p>
-                    </div>
-                </div>
+<!-- İstatistik Kartları -->
+<section class="bg-white/70 backdrop-blur-xl rounded-3xl p-6 shadow mb-10">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Aktif Abonelik -->
+        <div class="flex items-center gap-4 p-4 bg-white rounded-2xl shadow h-full">
+            <div class="shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-indigo-600/90 text-white">
+                <!-- Check Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Aktif Abonelik</p>
+                <h3 class="text-lg font-bold">@ViewBag.ActiveCount</h3>
+                <p class="text-xs text-gray-400">Yenileme tarihi geçmemiş</p>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
-                <div class="d-flex align-items-center">
-                    <div class="me-3 bg-warning text-white rounded-circle d-flex justify-content-center align-items-center" style="width:45px; height:45px;">
-                        <i class="bi bi-exclamation-triangle-fill fs-4"></i>
-                    </div>
-                    <div>
-                        <small class="text-muted">Bugün Ödeme</small>
-                        <h5 class="fw-bold">@ViewBag.TodayDueCount</h5>
-                        <p class="small text-muted mb-0">Bugüne denk gelenler</p>
-                    </div>
-                </div>
+        <!-- Bugün Ödeme -->
+        <div class="flex items-center gap-4 p-4 bg-white rounded-2xl shadow h-full">
+            <div class="shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-amber-500/90 text-white">
+                <!-- Exclamation Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M5.07 20h13.86a2 2 0 0 0 1.74-3l-6.93-12a2 2 0 0 0-3.48 0l-6.93 12a2 2 0 0 0 1.74 3z" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Bugün Ödeme</p>
+                <h3 class="text-lg font-bold">@ViewBag.TodayDueCount</h3>
+                <p class="text-xs text-gray-400">Bugüne denk gelenler</p>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
-                <div class="d-flex align-items-center">
-                    <div class="me-3 bg-success text-white rounded-circle d-flex justify-content-center align-items-center" style="width:45px; height:45px;">
-                        <i class="bi bi-cash-coin fs-4"></i>
-                    </div>
-                    <div>
-                        <small class="text-muted">Bu Ay Harcama</small>
-                        <h5 class="fw-bold">@($"{ViewBag.TotalThisMonth:0.00}") ₺</h5>
-                        <p class="small text-muted mb-0">Toplam ödeme</p>
-                    </div>
-                </div>
+        <!-- Bu Ay Harcama -->
+        <div class="flex items-center gap-4 p-4 bg-white rounded-2xl shadow h-full">
+            <div class="shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-emerald-600/90 text-white">
+                <!-- Cash Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a5 5 0 00-10 0v2H5a2 2 0 00-2 2v6a2 2 0 002 2h14a2 2 0 002-2v-6a2 2 0 00-2-2h-2z" />
+                    <circle cx="12" cy="14" r="2" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Bu Ay Harcama</p>
+                <h3 class="text-lg font-bold">@($"{ViewBag.TotalThisMonth:0.00}") ₺</h3>
+                <p class="text-xs text-gray-400">Toplam ödeme</p>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
-                <div class="d-flex align-items-center">
-                    <div class="me-3 bg-info text-white rounded-circle d-flex justify-content-center align-items-center" style="width:45px; height:45px;">
-                        <i class="bi bi-calendar3-event-fill fs-4"></i>
-                    </div>
-                    <div>
-                        <small class="text-muted">Yaklaşan Ödeme</small>
-                        <h5 class="fw-bold">@upcomingList.Count</h5>
-                        <p class="small text-muted mb-0">3 gün içinde</p>
-                    </div>
-                </div>
+        <!-- Yaklaşan Ödeme -->
+        <div class="flex items-center gap-4 p-4 bg-white rounded-2xl shadow h-full">
+            <div class="shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-sky-500/90 text-white">
+                <!-- Calendar Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10m-9 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Yaklaşan Ödeme</p>
+                <h3 class="text-lg font-bold">@upcomingList.Count</h3>
+                <p class="text-xs text-gray-400">3 gün içinde</p>
             </div>
         </div>
     </div>
 </section>
 
+<!-- Yaklaşan Ödemeler Uyarısı -->
 @if (upcomingList.Any())
 {
-    <div class="alert alert-warning border-0 rounded-4 shadow-sm px-4 py-3">
-        <i class="bi bi-bell-fill me-2"></i>
-        <strong>Yaklaşan Ödemeler:</strong>
-        <ul class="mt-2 mb-0">
-            @foreach (var item in upcomingList)
-            {
-                <li>
-                    <strong>@item.Name</strong> – @item.RenewalDate.ToString("d MMMM yyyy", CultureInfo.CurrentCulture)
-                </li>
-            }
-        </ul>
+    <div class="flex items-start gap-3 bg-amber-100/90 border-l-4 border-amber-500 text-amber-800 rounded-xl p-4 shadow mb-8">
+        <!-- Bell Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+        <div>
+            <p class="font-semibold">Yaklaşan Ödemeler:</p>
+            <ul class="list-disc pl-5 mt-1 space-y-1">
+                @foreach (var item in upcomingList)
+                {
+                    <li>
+                        <span class="font-medium">@item.Name</span> – @item.RenewalDate.ToString("d MMMM yyyy", CultureInfo.CurrentCulture)
+                    </li>
+                }
+            </ul>
+        </div>
     </div>
 }
 else
 {
-    <div class="alert alert-light border-start border-4 border-info mt-4 shadow-sm rounded-3">
-        <i class="bi bi-info-circle me-2"></i>
-        Şu anda 3 gün içinde ödeme günü gelen bir aboneliğiniz bulunmamaktadır.
+    <div class="flex items-start gap-3 bg-white shadow border-l-4 border-sky-400 rounded-xl p-4 mb-8">
+        <!-- Info Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 shrink-0 mt-0.5 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+        </svg>
+        <p>Şu anda 3 gün içinde ödeme günü gelen bir aboneliğiniz bulunmamaktadır.</p>
     </div>
 }
 
-<section class="mt-5">
-    <h5 class="fw-semibold mb-3"><i class="bi bi-lightbulb-fill me-2 text-warning"></i>Bugün ne yapmak istersiniz?</h5>
-    <div class="d-flex flex-wrap gap-3">
-        <a class="btn btn-outline-primary rounded-pill" asp-controller="Subscription" asp-action="Create">
-            <i class="bi bi-plus-circle me-1"></i> Yeni Abonelik
+<!-- Hızlı Eylemler -->
+<section class="mb-12">
+    <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+        <!-- Lightbulb Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2a7 7 0 016.995 6.775L19 9a7 7 0 01-3.293 5.94c-.454.322-.707.856-.707 1.414V18a1 1 0 01-1 1h-4a1 1 0 01-1-1v-1.646c0-.558-.253-1.092-.707-1.414A7 7 0 015 9a7 7 0 017-7z" />
+        </svg>
+        Bugün ne yapmak istersiniz?
+    </h3>
+    <div class="flex flex-wrap gap-3">
+        <a asp-controller="Subscription" asp-action="Create" class="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-indigo-600 text-indigo-600 hover:bg-indigo-600 hover:text-white transition">
+            <!-- Plus Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            Yeni Abonelik
         </a>
-        <a class="btn btn-outline-secondary rounded-pill" asp-controller="Subscription" asp-action="Active">
-            <i class="bi bi-layers me-1"></i> Aktif Aboneliklerim
+        <a asp-controller="Subscription" asp-action="Active" class="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-gray-600 text-gray-700 hover:bg-gray-700 hover:text-white transition">
+            <!-- Layers Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 2l9 5-9 5-9-5 9-5z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 12l9 5-9 5-9-5 9-5z" />
+            </svg>
+            Aktif Aboneliklerim
         </a>
-        <a class="btn btn-outline-warning rounded-pill" asp-controller="Subscription" asp-action="Due">
-            <i class="bi bi-alarm-fill me-1"></i> Ödeme Günü Gelenler
+        <a asp-controller="Subscription" asp-action="Due" class="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white transition">
+            <!-- Alarm Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" />
+                <circle cx="12" cy="12" r="9" />
+            </svg>
+            Ödeme Günü Gelenler
         </a>
     </div>
 </section>
 
-<section class="mt-5">
-    <div class="card p-4 text-center shadow-sm rounded-4 text-muted">
-        <i class="bi bi-graph-up-arrow fs-1 mb-3"></i>
-        <p class="mb-0">Yakında burada abonelik harcamalarınıza dair grafikler olacak.</p>
+<!-- Yakında Gelecek Grafikler -->
+<section class="mb-20">
+    <div class="flex flex-col items-center justify-center gap-4 p-8 bg-white rounded-3xl shadow text-gray-500 text-center">
+        <!-- Graph Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18" />
+            <polyline points="4 17 9 11 13 15 18 9" />
+        </svg>
+        <p class="max-w-md">Yakında burada abonelik harcamalarınıza dair <span class="font-medium text-gray-700">grafikler</span> olacak.</p>
     </div>
 </section>

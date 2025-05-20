@@ -2,49 +2,64 @@
 @using System.Globalization
 
 @{
-    ViewData["Title"] = "Pasif Abonelikler";
+    ViewData["Title"] = "Ödeme Günü Gelen Abonelikler";
 }
 
-<h3 class="mb-4">Ödeme Günü Gelen Aboneliklerim</h3>
+<!-- Sayfa Başlığı -->
+<h2 class="text-2xl font-semibold mb-6">Ödeme Günü Gelen Aboneliklerim</h2>
 
 @if (!Model.Any())
 {
-    <div class="alert alert-secondary">Ödeme günü gelmiş aboneliğiniz bulunmamaktadır.</div>
+    <div class="flex items-start gap-3 bg-gray-100 border-l-4 border-gray-400 text-gray-600 rounded-xl p-4 shadow">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+        </svg>
+        <p>Ödeme günü gelmiş aboneliğiniz bulunmamaktadır.</p>
+    </div>
 }
 else
 {
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         @foreach (var sub in Model)
         {
-            var period = int.TryParse(sub.RenewalPeriod, out var p) ? p : 30;
             var remaining = (sub.RenewalDate - DateTime.Today).Days;
-            var percent = 100;
+            var expiredDays = Math.Abs(remaining);
+            var percent = 100; // Tam dolu çubuk
+            <div class="bg-white border-2 border-red-500 rounded-2xl shadow p-6 flex flex-col h-full">
+                <!-- Başlık -->
+                <h3 class="text-lg font-semibold mb-2 text-gray-800">@sub.Name</h3>
 
-            <div class="col">
-                <div class="card shadow-sm border-danger">
-                    <div class="card-body">
-                        <h5 class="card-title">@sub.Name</h5>
-                        <p class="card-text">
-                            <strong>@sub.Price ₺</strong><br />
-                            Yenileme Tarihi: @sub.RenewalDate.ToString("d MMMM yyyy", CultureInfo.CurrentCulture)<br />
-                            Süresi dolmuş: @Math.Abs(remaining) gün önce
-                        </p>
+                <!-- Bilgiler -->
+                <p class="text-sm text-gray-600 leading-relaxed mb-4">
+                    <span class="font-medium text-gray-800">@sub.Price ₺</span><br />
+                    Yenileme Tarihi: @sub.RenewalDate.ToString("d MMMM yyyy", CultureInfo.CurrentCulture)<br />
+                    Süresi dolmuş: @expiredDays gün önce
+                </p>
 
-                        <div class="progress mb-3">
-                            <div class="progress-bar bg-danger" role="progressbar"
-                                 style="width: @percent%;" aria-valuenow="@percent"
-                                 aria-valuemin="0" aria-valuemax="100">
-                                Süresi Doldu
-                            </div>
-                        </div>
+                <!-- Progress Bar -->
+                <div class="w-full h-3 rounded-full bg-red-100 mb-6 overflow-hidden">
+                    <div class="bg-red-500 h-full rounded-full" style="width:@percent%;"></div>
+                </div>
 
-                        <div class="d-flex justify-content-between">
-                            <form method="post" asp-controller="Subscription" asp-action="MarkAsPaid" asp-route-id="@sub.Id">
-                                <button type="submit" class="btn btn-success btn-sm">Yenile</button>
-                            </form>
-                            <a class="btn btn-warning btn-sm" asp-action="Update" asp-route-id="@sub.Id">Düzenle</a>
-                        </div>
-                    </div>
+                <!-- Butonlar -->
+                <div class="mt-auto flex flex-wrap gap-2">
+                    <!-- Yenile -->
+                    <form method="post" asp-controller="Subscription" asp-action="MarkAsPaid" asp-route-id="@sub.Id">
+                        <button type="submit" class="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 text-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Yenile
+                        </button>
+                    </form>
+
+                    <!-- Düzenle -->
+                    <a asp-action="Update" asp-route-id="@sub.Id" class="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-white bg-amber-500 hover:bg-amber-600 text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 11l6 6m2-13a2.121 2.121 0 113 3L5 21l-4 1 1-4L16 5z" />
+                        </svg>
+                        Düzenle
+                    </a>
                 </div>
             </div>
         }

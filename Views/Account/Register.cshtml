@@ -1,37 +1,56 @@
 ﻿@model RegisterViewModel
 
-<div class="container d-flex justify-content-center align-items-center vh-100">
-    <div class="card p-4 shadow-lg rounded-4" style="max-width: 400px; width: 100%;">
-        <h2 class="text-center mb-4 text-primary">Kayıt Ol</h2>
-        <hr class="mb-4">
-        <form asp-controller="Account" asp-action="Register" method="post">
-            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+@await Component.InvokeAsync("FlashMessage")
 
-            <div class="mb-3">
-                <label asp-for="UserName" class="form-label text-muted">Kullanıcı Adı</label>
-                <input asp-for="UserName" class="form-control rounded-pill shadow-sm"
-                       placeholder="Kullanıcı adınızı giriniz">
+<!-- Tam ekran ortalanmış kayıt kartı -->
+<section class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-md space-y-8 bg-white shadow-xl rounded-3xl p-8">
+        <!-- Başlık -->
+        <div class="text-center">
+            <h2 class="text-3xl font-extrabold text-indigo-600 tracking-tight">Kayıt Ol</h2>
+        </div>
+
+        <form asp-controller="Account" asp-action="Register" method="post" class="mt-8 space-y-6">
+            <div asp-validation-summary="All" class="text-red-600 text-sm"></div>
+
+            <!-- Kullanıcı Adı -->
+            <div>
+                <label asp-for="UserName" class="block text-sm font-medium text-gray-700 mb-1">Kullanıcı Adı</label>
+                <input asp-for="UserName" class="block w-full px-4 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Kullanıcı adınızı giriniz" />
+                <span asp-validation-for="UserName" class="text-red-600 text-sm"></span>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Email" class="form-label text-muted">E-posta</label>
-                <input asp-for="Email" type="email" class="form-control rounded-pill shadow-sm"
-                       placeholder="E-posta adresinizi giriniz">
+            <!-- E-posta -->
+            <div>
+                <label asp-for="Email" class="block text-sm font-medium text-gray-700 mb-1">E-Posta</label>
+                <input asp-for="Email" type="email" class="block w-full px-4 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="E-posta adresinizi giriniz" />
+                <span asp-validation-for="Email" class="text-red-600 text-sm"></span>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Password" class="form-label text-muted">Şifre</label>
-                <input asp-for="Password" type="password" class="form-control rounded-pill shadow-sm"
-                       placeholder="Şifrenizi giriniz">
+            <!-- Şifre -->
+            <div>
+                <label asp-for="Password" class="block text-sm font-medium text-gray-700 mb-1">Şifre</label>
+                <input asp-for="Password" type="password" class="block w-full px-4 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Şifrenizi giriniz" />
+                <span asp-validation-for="Password" class="text-red-600 text-sm"></span>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="ConfirmPassword" class="form-label text-muted">Şifre Tekrar</label>
-                <input asp-for="ConfirmPassword" type="password" class="form-control rounded-pill shadow-sm"
-                       placeholder="Şifrenizi doğrulayınız">
+            <!-- Şifre Tekrar -->
+            <div>
+                <label asp-for="ConfirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Şifre Tekrar</label>
+                <input asp-for="ConfirmPassword" type="password" class="block w-full px-4 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Şifrenizi doğrulayınız" />
+                <span asp-validation-for="ConfirmPassword" class="text-red-600 text-sm"></span>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm">Kayıt Ol</button>
+            <!-- Gönder Butonu -->
+            <div>
+                <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-white bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold shadow-md">
+                    <!-- User Plus Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 00-3-3.87M12 3a4 4 0 11-8 0 4 4 0 018 0zM20 8v6m3-3h-6" />
+                    </svg>
+                    Kayıt Ol
+                </button>
+            </div>
         </form>
     </div>
-</div>
+</section>

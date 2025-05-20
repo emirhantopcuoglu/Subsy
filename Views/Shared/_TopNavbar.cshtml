@@ -1,9 +1,25 @@
-﻿<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/">Subsy</a>
-        <div class="d-flex">
-            <a class="btn btn-outline-primary me-2" asp-controller="Account" asp-action="Login">Giriş Yap</a>
-            <a class="btn btn-primary" asp-controller="Account" asp-action="Register">Kayıt Ol</a>
-        </div>
+﻿<header class="fixed top-0 left-0 right-0 z-30 bg-gradient-to-r from-indigo-600 to-purple-700 text-white shadow-lg pl-64"> @* pl-64 = 16rem, _SideNavbar genişliği *@
+    <div class="flex items-center justify-between max-w-screen-2xl mx-auto px-6 h-16">
+        <!-- Marka -->
+        <a href="/" class="text-xl font-semibold tracking-wide hover:opacity-90 transition">Subsy</a>
+
+        <!-- Sağ Bölüm -->
+        <nav class="flex items-center space-x-4">
+            @if (User.Identity?.IsAuthenticated ?? false)
+            {
+                <span class="hidden sm:inline-block text-sm md:text-base font-medium">@User.Identity.Name</span>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="inline-block">
+                    <button class="inline-flex items-center px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm md:text-base">Çıkış Yap</button>
+                </form>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Login" class="inline-flex items-center px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm md:text-base">Giriş Yap</a>
+                <a asp-controller="Account" asp-action="Register" class="inline-flex items-center px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 transition text-sm md:text-base">Kayıt Ol</a>
+            }
+        </nav>
     </div>
-</nav>
+</header>
+
+@* Yer kaplaması için stil (opsiyonel): Eğer sabit üst bar altında içerik kaymaması için margin-top ekleyin *@
+<div class="h-16"></div>

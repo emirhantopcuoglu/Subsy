@@ -60,7 +60,7 @@ namespace Subsy.Controllers
 
                 if (result.Succeeded) 
                 {
-                    TempData["LoginMessage"] = $"Giriş işlemi başarıyla tamamlandı. Hoşgeldin {user.UserName}!";
+                    TempData["LoginMessage"] = $"Başarıyla giriş yapıldı. Hoşgeldin {user.UserName}!";
                     return RedirectToAction("Index", "Home");
                 }
             }
@@ -73,7 +73,7 @@ namespace Subsy.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            TempData["LogoutMessage"] = $"Çıkış işlemi başarıyla tamamlandı.";
+            TempData["LogoutMessage"] = $"Başarıyla çıkış yapıldı.";
             return RedirectToAction("Login", "Account");
         }
     }
