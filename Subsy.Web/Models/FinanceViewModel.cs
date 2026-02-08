@@ -1,4 +1,4 @@
-namespace Subsy.Models
+namespace Subsy.Web.Models
 {
     public class FinanceViewModel
     {

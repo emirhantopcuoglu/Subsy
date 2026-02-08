@@ -1,31 +1,28 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Subsy.Application.Subscriptions.Dashboard;
 using System.Security.Claims;
+using Subsy.Application.Subscriptions.Queries.GetSubscriptionDashboard;
 
 namespace Subsy.Web.Controllers;
 
 [Authorize]
 public class DashboardController : Controller
 {
-    private readonly ISubscriptionDashboardService _dashboardService;
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly GetSubscriptionDashboardHandler _handler;
 
-    public DashboardController(
-        ISubscriptionDashboardService dashboardService,
-        UserManager<IdentityUser> userManager)
+    public DashboardController(GetSubscriptionDashboardHandler handler)
     {
-        _dashboardService = dashboardService;
-        _userManager = userManager;
+        _handler = handler;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(CancellationToken ct)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
+            return Unauthorized();
 
-        var dashboard = await _dashboardService.GetDashboardAsync(userId!);
+        var dashboard = await _handler.HandleAsync(new GetSubscriptionDashboardQuery(userId), ct);
 
-        return Json(dashboard); 
+        return Json(dashboard); // şimdilik JSON kalsın
     }
 }

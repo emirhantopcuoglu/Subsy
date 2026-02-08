@@ -9,6 +9,7 @@ namespace Subsy.Application.Common.Interfaces
         //Task AddAsync(Subscription subscription);
         //Task UpdateAsync(Subscription subscription);
         //Task DeleteAsync(Subscription subscription);
-        //Task<decimal> GetTotalAmountAsync(string userId);
+        Task<decimal> GetTotalPriceByUserIdAsync(string userId, CancellationToken cancellationToken = default);
+
     }
 }

@@ -45,14 +45,12 @@ namespace Subsy.Infrastructure.Repositories
         //    await _context.SaveChangesAsync();
         //}
 
-        //public async Task<decimal> GetTotalAmountAsync(string userId)
-        //{
-        //    var total = await _context.Subscriptions
-        //        .Where(s => s.UserId == userId)
-        //        .Select(s => (double)s.Price)
-        //        .SumAsync();
+        public async Task<decimal> GetTotalPriceByUserIdAsync(string userId, CancellationToken ct = default)
+        {
+            return await _context.Subscriptions
+                .Where(x => x.UserId == userId && !x.IsArchived)
+                .SumAsync(x => x.Price, ct);
+        }
 
-        //    return ((decimal)total);
-        //}
     }
 }
