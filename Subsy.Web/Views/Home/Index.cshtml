@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "Subsy - Aboneliklerini Takip Et";
+}
+
+<section class="flex flex-col items-center text-center py-24 sm:py-32">
+    <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight max-w-4xl">
+        Aboneliklerinizi <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-700">Kontrol Altına Alın</span>
+    </h1>
+    <p class="mt-6 text-lg sm:text-xl text-gray-600 max-w-2xl">
+        Netflix, Spotify, Amazon Prime... Ne kadar harcıyorsunuz biliyor musunuz?
+    </p>
+
+    <a asp-controller="Account" asp-action="Register"
+       class="mt-10 inline-flex items-center gap-2 px-8 py-4 rounded-full text-white text-lg font-semibold bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 focus:outline-none focus:ring-4 focus:ring-indigo-300 shadow-lg transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        Hemen Başla
+    </a>
+</section>

@@ -1,0 +1,43 @@
+# =====================
+# .NET build outputs
+# =====================
+bin/
+obj/
+
+# =====================
+# User-specific files
+# =====================
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# =====================
+# IDE (Visual Studio / Rider)
+# =====================
+.vs/
+.idea/
+
+# =====================
+# OS files
+# =====================
+.DS_Store
+Thumbs.db
+
+# =====================
+# Logs
+# =====================
+*.log
+
+# =====================
+# Database (SQLite)
+# =====================
+*.db
+*.db-shm
+*.db-wal
+
+# =====================
+# Environment / secrets
+# =====================
+appsettings.Development.json
+appsettings.Local.json
