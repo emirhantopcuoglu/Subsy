@@ -37,6 +37,11 @@ namespace Subsy.Infrastructure.Repositories
             await _context.SaveChangesAsync(ct);
         }
 
+        public async Task DeleteAsync(Subscription subscription, CancellationToken ct = default)
+        {
+            _context.Subscriptions.Remove(subscription);
+            await _context.SaveChangesAsync(ct);
+        }
         public async Task<decimal> GetTotalPriceByUserIdAsync(string userId, CancellationToken ct = default)
         {
             return await _context.Subscriptions

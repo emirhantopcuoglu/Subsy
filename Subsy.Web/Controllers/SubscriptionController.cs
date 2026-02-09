@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Subsy.Application.Subscriptions.Commands.ArchiveSubscription;
 using Subsy.Application.Subscriptions.Commands.CreateSubscription;
+using Subsy.Application.Subscriptions.Commands.DeleteSubscription;
 using Subsy.Application.Subscriptions.Commands.MarkSubscriptionAsPaid;
 using Subsy.Application.Subscriptions.Commands.UnarchiveSubscription;
 using Subsy.Application.Subscriptions.Commands.UpdateSubscription;
@@ -25,7 +26,7 @@ namespace Subsy.Web.Controllers
         private readonly ArchiveSubscriptionHandler _archiveHandler;
         private readonly UnarchiveSubscriptionHandler _unarchiveHandler;
         private readonly MarkSubscriptionAsPaidHandler _markAsPaidHandler;
-
+        private readonly DeleteSubscriptionHandler _deleteHandler;
 
         public SubscriptionController(
             GetUserSubscriptionsHandler allHandler,
@@ -36,6 +37,7 @@ namespace Subsy.Web.Controllers
             UpdateSubscriptionHandler updateHandler,
             ArchiveSubscriptionHandler archiveHandler,
             UnarchiveSubscriptionHandler unarchiveHandler,
+            DeleteSubscriptionHandler deleteHandler,
             MarkSubscriptionAsPaidHandler markAsPaidHandler)
         {
             _allHandler = allHandler;
@@ -47,6 +49,7 @@ namespace Subsy.Web.Controllers
             _archiveHandler = archiveHandler;
             _unarchiveHandler = unarchiveHandler;
             _markAsPaidHandler = markAsPaidHandler;
+            _deleteHandler = deleteHandler;
         }
         public async Task<IActionResult> Index(CancellationToken ct)
         {
@@ -198,6 +201,21 @@ namespace Subsy.Web.Controllers
 
             await _unarchiveHandler.HandleAsync(new UnarchiveSubscriptionCommand(userId, id), ct);
             TempData["ArchiveMessage"] = "Abonelik başarıyla aktifleştirildi.";
+            return RedirectToAction(nameof(Archived));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id, CancellationToken ct)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId))
+                return Unauthorized();
+
+            await _deleteHandler.HandleAsync(
+                new DeleteSubscriptionCommand(id, userId),
+                ct);
+
+            TempData["DeleteMessage"] = "Abonelik kalıcı olarak silindi.";
             return RedirectToAction(nameof(Archived));
         }
 
