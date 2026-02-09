@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Subsy.Application.Finance.Dashboard;
+using Subsy.Application.Subscriptions.Commands.ArchiveSubscription;
+using Subsy.Application.Subscriptions.Commands.UnarchiveSubscription;
 using Subsy.Application.Subscriptions.Queries.GetActiveSubscriptions;
 using Subsy.Application.Subscriptions.Queries.GetArchivedSubscriptions;
 using Subsy.Application.Subscriptions.Queries.GetDueSubscriptions;
@@ -13,7 +15,6 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        // Subscriptions
         services.AddScoped<GetUserSubscriptionsHandler>();
         services.AddScoped<GetUserTotalPriceHandler>();
         services.AddScoped<GetSubscriptionDashboardHandler>();
@@ -21,7 +22,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<GetActiveSubscriptionsHandler>();
         services.AddScoped<GetArchivedSubscriptionsHandler>();
         services.AddScoped<GetDueSubscriptionsHandler>();
-        // Finance
+
+        services.AddScoped<ArchiveSubscriptionHandler>();
+        services.AddScoped<UnarchiveSubscriptionHandler>();
+
         services.AddScoped<GetFinanceDashboardHandler>();
 
         return services;

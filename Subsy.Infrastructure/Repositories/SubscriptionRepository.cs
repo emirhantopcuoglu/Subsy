@@ -14,36 +14,22 @@ namespace Subsy.Infrastructure.Repositories
             _context = context;
         }
 
-        public Task<List<Subscription>> GetAllByUserIdAsync(string userId, CancellationToken cancellationToken = default)
+        public Task<List<Subscription>> GetAllByUserIdAsync(string userId, CancellationToken ct = default)
         {
             return _context.Subscriptions
                 .AsNoTracking()
                 .Where(s => s.UserId == userId)
-                .ToListAsync(cancellationToken);
+                .ToListAsync(ct);
         }
 
-        //public async Task<Subscription> GetByIdAsync(int id)
-        //{
-        //    return await _context.Subscriptions.FindAsync(id);
-        //}
+        public async Task UpdateAsync(Subscription subscription, CancellationToken ct = default)
+        {
+            _context.Subscriptions.Update(subscription);
+            await _context.SaveChangesAsync(ct);
+        }
 
-        //public async Task AddAsync(Subscription subscription)
-        //{
-        //    await _context.Subscriptions.AddAsync(subscription);
-        //    await _context.SaveChangesAsync();
-        //}
-
-        //public async Task UpdateAsync(Subscription subscription)
-        //{
-        //    _context.Subscriptions.Update(subscription);
-        //    await _context.SaveChangesAsync();
-        //}
-
-        //public async Task DeleteAsync(Subscription subscription)
-        //{
-        //    _context.Subscriptions.Remove(subscription);
-        //    await _context.SaveChangesAsync();
-        //}
+        public async Task<Subscription?> GetByIdAsync(int id, CancellationToken ct = default)
+            => await _context.Subscriptions.FirstOrDefaultAsync(x => x.Id == id, ct);
 
         public async Task<decimal> GetTotalPriceByUserIdAsync(string userId, CancellationToken ct = default)
         {

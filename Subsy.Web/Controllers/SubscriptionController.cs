@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Subsy.Application.Subscriptions.Commands.ArchiveSubscription;
+using Subsy.Application.Subscriptions.Commands.UnarchiveSubscription;
 using Subsy.Application.Subscriptions.Queries.Common;
 using Subsy.Application.Subscriptions.Queries.GetActiveSubscriptions;
 using Subsy.Application.Subscriptions.Queries.GetArchivedSubscriptions;
@@ -15,17 +17,23 @@ namespace Subsy.Web.Controllers
         private readonly GetActiveSubscriptionsHandler _activeHandler;
         private readonly GetDueSubscriptionsHandler _dueHandler;
         private readonly GetArchivedSubscriptionsHandler _archivedHandler;
+        private readonly ArchiveSubscriptionHandler _archiveHandler;
+        private readonly UnarchiveSubscriptionHandler _unarchiveHandler;
 
         public SubscriptionController(
             GetUserSubscriptionsHandler allHandler,
             GetActiveSubscriptionsHandler activeHandler,
             GetDueSubscriptionsHandler dueHandler,
-            GetArchivedSubscriptionsHandler archivedHandler)
+            GetArchivedSubscriptionsHandler archivedHandler,
+            ArchiveSubscriptionHandler archiveHandler,
+            UnarchiveSubscriptionHandler unarchiveHandler)
         {
             _allHandler = allHandler;
             _activeHandler = activeHandler;
             _dueHandler = dueHandler;
             _archivedHandler = archivedHandler;
+            _archiveHandler = archiveHandler;
+            _unarchiveHandler = unarchiveHandler;
         }
         public async Task<IActionResult> Index(CancellationToken ct)
         {
@@ -66,6 +74,28 @@ namespace Subsy.Web.Controllers
 
             var dtos = await _archivedHandler.HandleAsync(new GetArchivedSubscriptionsQuery(userId), ct);
             return View(dtos.Select(MapToVm).ToList());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Archive(int id, CancellationToken ct)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
+
+            await _archiveHandler.HandleAsync(new ArchiveSubscriptionCommand(userId, id), ct);
+            TempData["ArchiveMessage"] = "Abonelik başarıyla sonlandırıldı.";
+            return RedirectToAction(nameof(Active));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Unarchive(int id, CancellationToken ct)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
+
+            await _unarchiveHandler.HandleAsync(new UnarchiveSubscriptionCommand(userId, id), ct);
+            TempData["ArchiveMessage"] = "Abonelik başarıyla aktifleştirildi.";
+            return RedirectToAction(nameof(Archived)); 
         }
 
         private static SubscriptionsViewModel MapToVm(SubscriptionDto d) => new()
