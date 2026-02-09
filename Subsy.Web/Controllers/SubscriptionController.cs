@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Subsy.Application.Subscriptions.Commands.ArchiveSubscription;
+using Subsy.Application.Subscriptions.Commands.CreateSubscription;
 using Subsy.Application.Subscriptions.Commands.UnarchiveSubscription;
+using Subsy.Application.Subscriptions.Commands.UpdateSubscription;
 using Subsy.Application.Subscriptions.Queries.Common;
 using Subsy.Application.Subscriptions.Queries.GetActiveSubscriptions;
 using Subsy.Application.Subscriptions.Queries.GetArchivedSubscriptions;
@@ -17,6 +19,8 @@ namespace Subsy.Web.Controllers
         private readonly GetActiveSubscriptionsHandler _activeHandler;
         private readonly GetDueSubscriptionsHandler _dueHandler;
         private readonly GetArchivedSubscriptionsHandler _archivedHandler;
+        private readonly CreateSubscriptionHandler _createHandler;
+        private readonly UpdateSubscriptionHandler _updateHandler;
         private readonly ArchiveSubscriptionHandler _archiveHandler;
         private readonly UnarchiveSubscriptionHandler _unarchiveHandler;
 
@@ -25,6 +29,8 @@ namespace Subsy.Web.Controllers
             GetActiveSubscriptionsHandler activeHandler,
             GetDueSubscriptionsHandler dueHandler,
             GetArchivedSubscriptionsHandler archivedHandler,
+            CreateSubscriptionHandler createHandler,
+            UpdateSubscriptionHandler updateHandler,
             ArchiveSubscriptionHandler archiveHandler,
             UnarchiveSubscriptionHandler unarchiveHandler)
         {
@@ -32,6 +38,8 @@ namespace Subsy.Web.Controllers
             _activeHandler = activeHandler;
             _dueHandler = dueHandler;
             _archivedHandler = archivedHandler;
+            _createHandler = createHandler;
+            _updateHandler = updateHandler;
             _archiveHandler = archiveHandler;
             _unarchiveHandler = unarchiveHandler;
         }
@@ -77,6 +85,73 @@ namespace Subsy.Web.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> Create(
+            SubscriptionsViewModel vm,
+            CancellationToken ct)
+        {
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId))
+                return Unauthorized();
+
+            try
+            {
+                await _createHandler.HandleAsync(
+                    new CreateSubscriptionCommand(
+                        userId,
+                        vm.Name,
+                        vm.Price,
+                        vm.RenewalPeriod,
+                        vm.RenewalDate),
+                    ct);
+
+                TempData["CreateMessage"] = "Abonelik başarıyla oluşturuldu.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (ArgumentException ex)
+            {
+                ModelState.AddModelError(nameof(vm.RenewalDate), ex.Message);
+                return View(vm);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Update(
+            SubscriptionsViewModel vm,
+            CancellationToken ct)
+        {
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId))
+                return Unauthorized();
+
+            try
+            {
+                await _updateHandler.HandleAsync(
+                    new UpdateSubscriptionCommand(
+                        vm.Id,
+                        userId,
+                        vm.Name,
+                        vm.Price,
+                        vm.RenewalPeriod,
+                        vm.RenewalDate),
+                    ct);
+
+                TempData["UpdateMessage"] = "Abonelik başarıyla güncellendi.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (ArgumentException ex)
+            {
+                ModelState.AddModelError(nameof(vm.RenewalDate), ex.Message);
+                return View(vm);
+            }
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Archive(int id, CancellationToken ct)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -95,7 +170,7 @@ namespace Subsy.Web.Controllers
 
             await _unarchiveHandler.HandleAsync(new UnarchiveSubscriptionCommand(userId, id), ct);
             TempData["ArchiveMessage"] = "Abonelik başarıyla aktifleştirildi.";
-            return RedirectToAction(nameof(Archived)); 
+            return RedirectToAction(nameof(Archived));
         }
 
         private static SubscriptionsViewModel MapToVm(SubscriptionDto d) => new()

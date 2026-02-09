@@ -22,14 +22,20 @@ namespace Subsy.Infrastructure.Repositories
                 .ToListAsync(ct);
         }
 
+        public async Task<Subscription?> GetByIdAsync(int id, CancellationToken ct = default)
+            => await _context.Subscriptions.FirstOrDefaultAsync(x => x.Id == id, ct);
+
+        public async Task AddAsync(Subscription subscription, CancellationToken ct = default)
+        {
+            _context.Subscriptions.Add(subscription);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task UpdateAsync(Subscription subscription, CancellationToken ct = default)
         {
             _context.Subscriptions.Update(subscription);
             await _context.SaveChangesAsync(ct);
         }
-
-        public async Task<Subscription?> GetByIdAsync(int id, CancellationToken ct = default)
-            => await _context.Subscriptions.FirstOrDefaultAsync(x => x.Id == id, ct);
 
         public async Task<decimal> GetTotalPriceByUserIdAsync(string userId, CancellationToken ct = default)
         {
