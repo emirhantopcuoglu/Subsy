@@ -2,6 +2,7 @@
 using Subsy.Application.Finance.Dashboard;
 using Subsy.Application.Subscriptions.Commands.ArchiveSubscription;
 using Subsy.Application.Subscriptions.Commands.CreateSubscription;
+using Subsy.Application.Subscriptions.Commands.MarkSubscriptionAsPaid;
 using Subsy.Application.Subscriptions.Commands.UnarchiveSubscription;
 using Subsy.Application.Subscriptions.Commands.UpdateSubscription;
 using Subsy.Application.Subscriptions.Queries.GetActiveSubscriptions;
@@ -29,6 +30,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ArchiveSubscriptionHandler>();
         services.AddScoped<UnarchiveSubscriptionHandler>();
         services.AddScoped<UpdateSubscriptionHandler>();
+        services.AddScoped<MarkSubscriptionAsPaidHandler>();
 
         services.AddScoped<GetFinanceDashboardHandler>();
 

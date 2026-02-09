@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Subsy.Application.Subscriptions.Commands.ArchiveSubscription;
 using Subsy.Application.Subscriptions.Commands.CreateSubscription;
+using Subsy.Application.Subscriptions.Commands.MarkSubscriptionAsPaid;
 using Subsy.Application.Subscriptions.Commands.UnarchiveSubscription;
 using Subsy.Application.Subscriptions.Commands.UpdateSubscription;
 using Subsy.Application.Subscriptions.Queries.Common;
@@ -23,6 +24,8 @@ namespace Subsy.Web.Controllers
         private readonly UpdateSubscriptionHandler _updateHandler;
         private readonly ArchiveSubscriptionHandler _archiveHandler;
         private readonly UnarchiveSubscriptionHandler _unarchiveHandler;
+        private readonly MarkSubscriptionAsPaidHandler _markAsPaidHandler;
+
 
         public SubscriptionController(
             GetUserSubscriptionsHandler allHandler,
@@ -32,7 +35,8 @@ namespace Subsy.Web.Controllers
             CreateSubscriptionHandler createHandler,
             UpdateSubscriptionHandler updateHandler,
             ArchiveSubscriptionHandler archiveHandler,
-            UnarchiveSubscriptionHandler unarchiveHandler)
+            UnarchiveSubscriptionHandler unarchiveHandler,
+            MarkSubscriptionAsPaidHandler markAsPaidHandler)
         {
             _allHandler = allHandler;
             _activeHandler = activeHandler;
@@ -42,6 +46,7 @@ namespace Subsy.Web.Controllers
             _updateHandler = updateHandler;
             _archiveHandler = archiveHandler;
             _unarchiveHandler = unarchiveHandler;
+            _markAsPaidHandler = markAsPaidHandler;
         }
         public async Task<IActionResult> Index(CancellationToken ct)
         {
@@ -148,6 +153,29 @@ namespace Subsy.Web.Controllers
             {
                 ModelState.AddModelError(nameof(vm.RenewalDate), ex.Message);
                 return View(vm);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> MarkAsPaid(int id, CancellationToken ct)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId))
+                return Unauthorized();
+
+            try
+            {
+                await _markAsPaidHandler.HandleAsync(
+                    new MarkSubscriptionAsPaidCommand(id, userId),
+                    ct);
+
+                TempData["MarkAsPaidMessage"] = "Abonelik ödendi olarak işaretlendi.";
+                return RedirectToAction(nameof(Active));
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(Active));
             }
         }
 
