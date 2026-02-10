@@ -1,4 +1,6 @@
-﻿namespace Subsy.Application.Subscriptions.Commands.CreateSubscription;
+﻿using MediatR;
+
+namespace Subsy.Application.Subscriptions.Commands.CreateSubscription;
 
 public sealed record CreateSubscriptionCommand(
     string UserId,
@@ -6,4 +8,4 @@ public sealed record CreateSubscriptionCommand(
     decimal Price,
     string RenewalPeriod,
     DateTime RenewalDate
-);
+) : IRequest<Unit>;

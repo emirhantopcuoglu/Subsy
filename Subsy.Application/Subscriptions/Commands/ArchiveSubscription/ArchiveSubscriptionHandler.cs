@@ -1,19 +1,30 @@
-﻿using Subsy.Application.Common.Interfaces;
+﻿using MediatR;
+using Subsy.Application.Common.Interfaces;
 
 namespace Subsy.Application.Subscriptions.Commands.ArchiveSubscription;
 
 public sealed class ArchiveSubscriptionHandler
+    : IRequestHandler<ArchiveSubscriptionCommand, Unit>
 {
     private readonly ISubscriptionRepository _repo;
-    public ArchiveSubscriptionHandler(ISubscriptionRepository repo) => _repo = repo;
 
-    public async Task HandleAsync(ArchiveSubscriptionCommand cmd, CancellationToken ct = default)
+    public ArchiveSubscriptionHandler(ISubscriptionRepository repo)
     {
-        var sub = await _repo.GetByIdAsync(cmd.Id, ct);
-        if (sub is null) throw new KeyNotFoundException("Subscription not found.");
-        if (sub.UserId != cmd.UserId) throw new UnauthorizedAccessException();
+        _repo = repo;
+    }
 
-        sub.IsArchived = true;
-        await _repo.UpdateAsync(sub, ct);
+    public async Task<Unit> Handle(ArchiveSubscriptionCommand cmd, CancellationToken ct)
+    {
+        var subscription = await _repo.GetByIdAsync(cmd.Id, ct);
+        if (subscription is null)
+            throw new KeyNotFoundException();
+
+        if (subscription.UserId != cmd.UserId)
+            throw new UnauthorizedAccessException();
+
+        subscription.IsArchived = true;
+        await _repo.UpdateAsync(subscription, ct);
+
+        return Unit.Value;
     }
 }

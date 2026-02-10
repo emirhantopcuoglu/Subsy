@@ -1,3 +1,8 @@
-﻿namespace Subsy.Application.Subscriptions.Commands.UnarchiveSubscription;
+﻿using MediatR;
 
-public sealed record UnarchiveSubscriptionCommand(string UserId, int Id);
+namespace Subsy.Application.Subscriptions.Commands.UnarchiveSubscription;
+
+public sealed record UnarchiveSubscriptionCommand(
+    int Id,
+    string UserId
+) : IRequest<Unit>;

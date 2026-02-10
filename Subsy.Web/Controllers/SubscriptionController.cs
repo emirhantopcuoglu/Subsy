@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Subsy.Application.Subscriptions.Commands.ArchiveSubscription;
 using Subsy.Application.Subscriptions.Commands.CreateSubscription;
 using Subsy.Application.Subscriptions.Commands.DeleteSubscription;
 using Subsy.Application.Subscriptions.Commands.MarkSubscriptionAsPaid;
-using Subsy.Application.Subscriptions.Commands.UnarchiveSubscription;
 using Subsy.Application.Subscriptions.Commands.UpdateSubscription;
 using Subsy.Application.Subscriptions.Queries.Common;
 using Subsy.Application.Subscriptions.Queries.GetActiveSubscriptions;
@@ -17,46 +17,19 @@ namespace Subsy.Web.Controllers
 {
     public class SubscriptionController : Controller
     {
-        private readonly GetUserSubscriptionsHandler _allHandler;
-        private readonly GetActiveSubscriptionsHandler _activeHandler;
-        private readonly GetDueSubscriptionsHandler _dueHandler;
-        private readonly GetArchivedSubscriptionsHandler _archivedHandler;
-        private readonly CreateSubscriptionHandler _createHandler;
-        private readonly UpdateSubscriptionHandler _updateHandler;
-        private readonly ArchiveSubscriptionHandler _archiveHandler;
-        private readonly UnarchiveSubscriptionHandler _unarchiveHandler;
-        private readonly MarkSubscriptionAsPaidHandler _markAsPaidHandler;
-        private readonly DeleteSubscriptionHandler _deleteHandler;
+        private readonly IMediator _mediator;
 
-        public SubscriptionController(
-            GetUserSubscriptionsHandler allHandler,
-            GetActiveSubscriptionsHandler activeHandler,
-            GetDueSubscriptionsHandler dueHandler,
-            GetArchivedSubscriptionsHandler archivedHandler,
-            CreateSubscriptionHandler createHandler,
-            UpdateSubscriptionHandler updateHandler,
-            ArchiveSubscriptionHandler archiveHandler,
-            UnarchiveSubscriptionHandler unarchiveHandler,
-            DeleteSubscriptionHandler deleteHandler,
-            MarkSubscriptionAsPaidHandler markAsPaidHandler)
+        public SubscriptionController(IMediator mediator)
         {
-            _allHandler = allHandler;
-            _activeHandler = activeHandler;
-            _dueHandler = dueHandler;
-            _archivedHandler = archivedHandler;
-            _createHandler = createHandler;
-            _updateHandler = updateHandler;
-            _archiveHandler = archiveHandler;
-            _unarchiveHandler = unarchiveHandler;
-            _markAsPaidHandler = markAsPaidHandler;
-            _deleteHandler = deleteHandler;
+            _mediator = mediator;
         }
+
         public async Task<IActionResult> Index(CancellationToken ct)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
 
-            var dtos = await _allHandler.HandleAsync(new GetUserSubscriptionsQuery(userId), ct);
+            var dtos = await _mediator.Send(new GetUserSubscriptionsQuery(userId), ct);
             var vms = dtos.Select(MapToVm).ToList();
 
             return View(vms);
@@ -68,7 +41,7 @@ namespace Subsy.Web.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
 
-            var dtos = await _activeHandler.HandleAsync(new GetActiveSubscriptionsQuery(userId), ct);
+            var dtos = await _mediator.Send(new GetActiveSubscriptionsQuery(userId), ct);
             return View(dtos.Select(MapToVm).ToList());
         }
 
@@ -78,7 +51,7 @@ namespace Subsy.Web.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
 
-            var dtos = await _dueHandler.HandleAsync(new GetDueSubscriptionsQuery(userId), ct);
+            var dtos = await _mediator.Send(new GetDueSubscriptionsQuery(userId), ct);
             return View(dtos.Select(MapToVm).ToList());
         }
 
@@ -88,7 +61,7 @@ namespace Subsy.Web.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
 
-            var dtos = await _archivedHandler.HandleAsync(new GetArchivedSubscriptionsQuery(userId), ct);
+            var dtos = await _mediator.Send(new GetArchivedSubscriptionsQuery(userId), ct);
             return View(dtos.Select(MapToVm).ToList());
         }
 
@@ -106,7 +79,7 @@ namespace Subsy.Web.Controllers
 
             try
             {
-                await _createHandler.HandleAsync(
+                await _mediator.Send(
                     new CreateSubscriptionCommand(
                         userId,
                         vm.Name,
@@ -139,7 +112,7 @@ namespace Subsy.Web.Controllers
 
             try
             {
-                await _updateHandler.HandleAsync(
+                await _mediator.Send(
                     new UpdateSubscriptionCommand(
                         vm.Id,
                         userId,
@@ -168,7 +141,7 @@ namespace Subsy.Web.Controllers
 
             try
             {
-                await _markAsPaidHandler.HandleAsync(
+                await _mediator.Send(
                     new MarkSubscriptionAsPaidCommand(id, userId),
                     ct);
 
@@ -188,7 +161,7 @@ namespace Subsy.Web.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
 
-            await _archiveHandler.HandleAsync(new ArchiveSubscriptionCommand(userId, id), ct);
+            await _mediator.Send(new ArchiveSubscriptionCommand(id, userId), ct);
             TempData["ArchiveMessage"] = "Abonelik başarıyla sonlandırıldı.";
             return RedirectToAction(nameof(Active));
         }
@@ -199,7 +172,7 @@ namespace Subsy.Web.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
 
-            await _unarchiveHandler.HandleAsync(new UnarchiveSubscriptionCommand(userId, id), ct);
+            await _mediator.Send(new ArchiveSubscriptionCommand(id, userId), ct);
             TempData["ArchiveMessage"] = "Abonelik başarıyla aktifleştirildi.";
             return RedirectToAction(nameof(Archived));
         }
@@ -211,7 +184,7 @@ namespace Subsy.Web.Controllers
             if (string.IsNullOrWhiteSpace(userId))
                 return Unauthorized();
 
-            await _deleteHandler.HandleAsync(
+            await _mediator.Send(
                 new DeleteSubscriptionCommand(id, userId),
                 ct);
 

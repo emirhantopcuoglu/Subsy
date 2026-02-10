@@ -1,8 +1,10 @@
-﻿using Subsy.Application.Common.Interfaces;
+﻿using MediatR;
+using Subsy.Application.Common.Interfaces;
 
 namespace Subsy.Application.Subscriptions.Commands.MarkSubscriptionAsPaid;
 
 public sealed class MarkSubscriptionAsPaidHandler
+    : IRequestHandler<MarkSubscriptionAsPaidCommand, Unit>
 {
     private readonly ISubscriptionRepository _repo;
 
@@ -11,18 +13,14 @@ public sealed class MarkSubscriptionAsPaidHandler
         _repo = repo;
     }
 
-    public async Task HandleAsync(
-        MarkSubscriptionAsPaidCommand cmd,
-        CancellationToken ct = default)
+    public async Task<Unit> Handle(MarkSubscriptionAsPaidCommand cmd, CancellationToken ct)
     {
         var subscription = await _repo.GetByIdAsync(cmd.Id, ct);
         if (subscription is null)
-            throw new KeyNotFoundException("Subscription not found.");
-
+            throw new KeyNotFoundException();
 
         if (subscription.UserId != cmd.UserId)
             throw new UnauthorizedAccessException();
-
 
         if (subscription.RenewalDate.Date > DateTime.Today)
             throw new InvalidOperationException("Ödeme günü henüz gelmedi.");
@@ -31,7 +29,8 @@ public sealed class MarkSubscriptionAsPaidHandler
             throw new InvalidOperationException("Geçersiz yenileme periyodu.");
 
         subscription.RenewalDate = subscription.RenewalDate.AddDays(days);
-
         await _repo.UpdateAsync(subscription, ct);
+
+        return Unit.Value;
     }
 }

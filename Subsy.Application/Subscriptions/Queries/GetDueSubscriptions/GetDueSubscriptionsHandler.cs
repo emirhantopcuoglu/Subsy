@@ -1,14 +1,16 @@
-﻿using Subsy.Application.Common.Interfaces;
+﻿using MediatR;
+using Subsy.Application.Common.Interfaces;
 using Subsy.Application.Subscriptions.Queries.Common;
+using Subsy.Application.Subscriptions.Queries.GetActiveSubscriptions;
 
 namespace Subsy.Application.Subscriptions.Queries.GetDueSubscriptions;
 
-public sealed class GetDueSubscriptionsHandler
+public sealed class GetDueSubscriptionsHandler : IRequestHandler<GetDueSubscriptionsQuery, List<SubscriptionDto>>
 {
     private readonly ISubscriptionRepository _repo;
     public GetDueSubscriptionsHandler(ISubscriptionRepository repo) => _repo = repo;
 
-    public async Task<List<SubscriptionDto>> HandleAsync(GetDueSubscriptionsQuery q, CancellationToken ct = default)
+    public async Task<List<SubscriptionDto>> Handle(GetDueSubscriptionsQuery q, CancellationToken ct = default)
     {
         var subs = await _repo.GetAllByUserIdAsync(q.UserId, ct);
         return subs

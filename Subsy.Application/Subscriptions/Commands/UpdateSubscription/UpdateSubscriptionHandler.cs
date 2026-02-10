@@ -1,8 +1,10 @@
-﻿using Subsy.Application.Common.Interfaces;
+﻿using MediatR;
+using Subsy.Application.Common.Interfaces;
 
 namespace Subsy.Application.Subscriptions.Commands.UpdateSubscription;
 
 public sealed class UpdateSubscriptionHandler
+    : IRequestHandler<UpdateSubscriptionCommand, Unit>
 {
     private readonly ISubscriptionRepository _repo;
 
@@ -11,7 +13,7 @@ public sealed class UpdateSubscriptionHandler
         _repo = repo;
     }
 
-    public async Task HandleAsync(UpdateSubscriptionCommand cmd, CancellationToken ct = default)
+    public async Task<Unit> Handle(UpdateSubscriptionCommand cmd, CancellationToken ct)
     {
         var subscription = await _repo.GetByIdAsync(cmd.Id, ct);
         if (subscription is null)
@@ -29,5 +31,6 @@ public sealed class UpdateSubscriptionHandler
         subscription.RenewalDate = cmd.RenewalDate;
 
         await _repo.UpdateAsync(subscription, ct);
+        return Unit.Value;
     }
 }

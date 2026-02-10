@@ -1,4 +1,6 @@
-﻿namespace Subsy.Application.Subscriptions.Commands.UpdateSubscription;
+﻿using MediatR;
+
+namespace Subsy.Application.Subscriptions.Commands.UpdateSubscription;
 
 public sealed record UpdateSubscriptionCommand(
     int Id,
@@ -7,4 +9,4 @@ public sealed record UpdateSubscriptionCommand(
     decimal Price,
     string RenewalPeriod,
     DateTime RenewalDate
-);
+) : IRequest<Unit>;

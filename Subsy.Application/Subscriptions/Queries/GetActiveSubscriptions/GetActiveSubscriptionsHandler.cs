@@ -1,16 +1,24 @@
-﻿using Subsy.Application.Common.Interfaces;
+﻿using MediatR;
+using Subsy.Application.Common.Interfaces;
 using Subsy.Application.Subscriptions.Queries.Common;
-
-namespace Subsy.Application.Subscriptions.Queries.GetActiveSubscriptions;
+using Subsy.Application.Subscriptions.Queries.GetActiveSubscriptions;
 
 public sealed class GetActiveSubscriptionsHandler
+    : IRequestHandler<GetActiveSubscriptionsQuery, List<SubscriptionDto>>
 {
     private readonly ISubscriptionRepository _repo;
-    public GetActiveSubscriptionsHandler(ISubscriptionRepository repo) => _repo = repo;
 
-    public async Task<List<SubscriptionDto>> HandleAsync(GetActiveSubscriptionsQuery q, CancellationToken ct = default)
+    public GetActiveSubscriptionsHandler(ISubscriptionRepository repo)
     {
-        var subs = await _repo.GetAllByUserIdAsync(q.UserId, ct);
+        _repo = repo;
+    }
+
+    public async Task<List<SubscriptionDto>> Handle(
+        GetActiveSubscriptionsQuery request,
+        CancellationToken ct)
+    {
+        var subs = await _repo.GetAllByUserIdAsync(request.UserId, ct);
+
         return subs
             .Where(s => !s.IsArchived)
             .Select(s => new SubscriptionDto

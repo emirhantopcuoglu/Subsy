@@ -1,3 +1,8 @@
-﻿namespace Subsy.Application.Subscriptions.Commands.ArchiveSubscription;
+﻿using MediatR;
 
-public sealed record ArchiveSubscriptionCommand(string UserId, int Id);
+namespace Subsy.Application.Subscriptions.Commands.ArchiveSubscription;
+
+public sealed record ArchiveSubscriptionCommand(
+    int Id,
+    string UserId
+) : IRequest<Unit>;

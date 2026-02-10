@@ -1,18 +1,19 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using Subsy.Application.Subscriptions.Queries.GetSubscriptionDashboard;
+using System.Security.Claims;
 
 namespace Subsy.Web.Controllers;
 
 [Authorize]
 public class DashboardController : Controller
 {
-    private readonly GetSubscriptionDashboardHandler _handler;
+    private readonly IMediator _mediator;
 
-    public DashboardController(GetSubscriptionDashboardHandler handler)
+    public DashboardController(IMediator mediator)
     {
-        _handler = handler;
+        _mediator = mediator;
     }
 
     public async Task<IActionResult> Index(CancellationToken ct)
@@ -21,8 +22,8 @@ public class DashboardController : Controller
         if (string.IsNullOrWhiteSpace(userId))
             return Unauthorized();
 
-        var dashboard = await _handler.HandleAsync(new GetSubscriptionDashboardQuery(userId), ct);
+        var dashboard = await _mediator.Send(new GetSubscriptionDashboardQuery(userId), ct);
 
-        return Json(dashboard); // şimdilik JSON kalsın
+        return Json(dashboard);
     }
 }

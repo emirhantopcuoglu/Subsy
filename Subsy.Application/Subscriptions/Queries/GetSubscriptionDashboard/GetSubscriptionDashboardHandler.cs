@@ -1,8 +1,9 @@
-﻿using Subsy.Application.Common.Interfaces;
+﻿using MediatR;
+using Subsy.Application.Common.Interfaces;
 
 namespace Subsy.Application.Subscriptions.Queries.GetSubscriptionDashboard;
 
-public sealed class GetSubscriptionDashboardHandler
+public sealed class GetSubscriptionDashboardHandler : IRequestHandler<GetSubscriptionDashboardQuery, SubscriptionDashboardDto>
 {
     private readonly ISubscriptionRepository _repo;
 
@@ -11,11 +12,9 @@ public sealed class GetSubscriptionDashboardHandler
         _repo = repo;
     }
 
-    public async Task<SubscriptionDashboardDto> HandleAsync(
-        GetSubscriptionDashboardQuery query,
-        CancellationToken ct = default)
+    public async Task<SubscriptionDashboardDto> Handle(GetSubscriptionDashboardQuery request, CancellationToken ct)
     {
-        var subs = await _repo.GetAllByUserIdAsync(query.UserId, ct);
+        var subs = await _repo.GetAllByUserIdAsync(request.UserId, ct);
 
         var now = DateTime.Now;
 

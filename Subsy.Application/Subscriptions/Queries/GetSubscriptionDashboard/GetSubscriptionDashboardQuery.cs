@@ -1,3 +1,6 @@
-﻿namespace Subsy.Application.Subscriptions.Queries.GetSubscriptionDashboard;
+﻿using MediatR;
 
-public sealed record GetSubscriptionDashboardQuery(string UserId);
+namespace Subsy.Application.Subscriptions.Queries.GetSubscriptionDashboard;
+
+public sealed record GetSubscriptionDashboardQuery(string UserId)
+    : IRequest<SubscriptionDashboardDto>;

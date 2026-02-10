@@ -1,17 +1,18 @@
-using System.Security.Claims;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Subsy.Application.Finance.Dashboard;
+using Subsy.Application.Finance.Dashboard.Queries;
 using Subsy.Web.Models;
+using System.Security.Claims;
 
 namespace Subsy.Controllers
 {
     public class FinanceController : Controller
     {
-        private readonly GetFinanceDashboardHandler _handler;
+        private readonly IMediator _mediator;
 
-        public FinanceController(GetFinanceDashboardHandler handler)
+        public FinanceController(IMediator mediator)
         {
-            _handler = handler;
+            _mediator = mediator;
         }
 
         public async Task<IActionResult> Dashboard(CancellationToken ct)
@@ -20,9 +21,8 @@ namespace Subsy.Controllers
             if (string.IsNullOrWhiteSpace(userId))
                 return Unauthorized();
 
-            var dto = await _handler.HandleAsync(new GetFinanceDashboardQuery(userId), ct);
+            var dto = await _mediator.Send(new GetFinanceDashboardQuery(userId), ct);
 
-            // Web ViewModel’e map (UI tarafı)
             var model = new FinanceViewModel
             {
                 TotalMonthlyCost = dto.TotalMonthlyCost,

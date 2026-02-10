@@ -1,9 +1,10 @@
-﻿using Subsy.Application.Common.Interfaces;
+﻿using MediatR;
+using Subsy.Application.Common.Interfaces;
 using Subsy.Application.Subscriptions.Queries.Common;
 
 namespace Subsy.Application.Subscriptions.Queries.GetUserSubscriptions;
 
-public sealed class GetUserSubscriptionsHandler
+public sealed class GetUserSubscriptionsHandler : IRequestHandler<GetUserSubscriptionsQuery, List<SubscriptionDto>>
 {
     private readonly ISubscriptionRepository _repo;
 
@@ -12,11 +13,9 @@ public sealed class GetUserSubscriptionsHandler
         _repo = repo;
     }
 
-    public async Task<List<SubscriptionDto>> HandleAsync(
-        GetUserSubscriptionsQuery query,
-        CancellationToken ct = default)
+    public async Task<List<SubscriptionDto>> Handle(GetUserSubscriptionsQuery request, CancellationToken ct)
     {
-        var subs = await _repo.GetAllByUserIdAsync(query.UserId, ct);
+        var subs = await _repo.GetAllByUserIdAsync(request.UserId, ct);
 
         return subs.Select(s => new SubscriptionDto
         {
@@ -27,6 +26,5 @@ public sealed class GetUserSubscriptionsHandler
             RenewalDate = s.RenewalDate,
             IsArchived = s.IsArchived
         }).ToList();
-
     }
 }

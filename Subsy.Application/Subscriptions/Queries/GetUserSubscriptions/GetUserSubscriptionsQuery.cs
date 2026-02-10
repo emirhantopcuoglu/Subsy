@@ -1,3 +1,6 @@
-﻿namespace Subsy.Application.Subscriptions.Queries.GetUserSubscriptions;
+﻿using MediatR;
+using Subsy.Application.Subscriptions.Queries.Common;
 
-public sealed record GetUserSubscriptionsQuery(string UserId);
+namespace Subsy.Application.Subscriptions.Queries.GetUserSubscriptions;
+
+public sealed record GetUserSubscriptionsQuery(string UserId) : IRequest<List<SubscriptionDto>>;

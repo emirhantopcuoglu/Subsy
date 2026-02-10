@@ -1,16 +1,17 @@
-﻿using Subsy.Application.Common.Interfaces;
+﻿using MediatR;
+using Subsy.Application.Common.Interfaces;
 using Subsy.Application.Subscriptions.Queries.Common;
 
 namespace Subsy.Application.Subscriptions.Queries.GetArchivedSubscriptions;
 
-public sealed class GetArchivedSubscriptionsHandler
+public sealed class GetArchivedSubscriptionsHandler : IRequestHandler<GetArchivedSubscriptionsQuery, List<SubscriptionDto>>
 {
     private readonly ISubscriptionRepository _repo;
     public GetArchivedSubscriptionsHandler(ISubscriptionRepository repo) => _repo = repo;
 
-    public async Task<List<SubscriptionDto>> HandleAsync(GetArchivedSubscriptionsQuery q, CancellationToken ct = default)
+    public async Task<List<SubscriptionDto>> Handle(GetArchivedSubscriptionsQuery request, CancellationToken ct = default)
     {
-        var subs = await _repo.GetAllByUserIdAsync(q.UserId, ct);
+        var subs = await _repo.GetAllByUserIdAsync(request.UserId, ct);
         return subs
             .Where(s => s.IsArchived)
             .Select(s => new SubscriptionDto

@@ -1,8 +1,11 @@
-﻿using Subsy.Application.Common.Interfaces;
+﻿using MediatR;
+using Subsy.Application.Common.Interfaces;
+using Subsy.Application.Subscriptions.Queries.Common;
+using Subsy.Application.Subscriptions.Queries.GetActiveSubscriptions;
 
-namespace Subsy.Application.Finance.Dashboard;
+namespace Subsy.Application.Finance.Dashboard.Queries;
 
-public sealed class GetFinanceDashboardHandler
+public sealed class GetFinanceDashboardHandler : IRequestHandler<GetFinanceDashboardQuery, FinanceDashboardDto>
 {
     private readonly ISubscriptionRepository _repo;
 
@@ -11,13 +14,12 @@ public sealed class GetFinanceDashboardHandler
         _repo = repo;
     }
 
-    public async Task<FinanceDashboardDto> HandleAsync(GetFinanceDashboardQuery query, CancellationToken ct = default)
+    public async Task<FinanceDashboardDto> Handle(GetFinanceDashboardQuery query, CancellationToken ct = default)
     {
         var subs = await _repo.GetAllByUserIdAsync(query.UserId, ct);
 
         var now = DateTime.Now;
 
-        // Aktif ve ödemesi yapılmış (senin mevcut kuralın)
         var activePaidSubs = subs
             .Where(s => !s.IsArchived && s.RenewalDate > now)
             .ToList();
