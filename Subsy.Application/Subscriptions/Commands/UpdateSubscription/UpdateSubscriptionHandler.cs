@@ -15,20 +15,19 @@ public sealed class UpdateSubscriptionHandler
 
     public async Task<Unit> Handle(UpdateSubscriptionCommand cmd, CancellationToken ct)
     {
-        var subscription = await _repo.GetByIdAsync(cmd.Id, ct);
+        var subscription = await _repo.GetByIdAsync(cmd.Id, cmd.UserId, ct);
         if (subscription is null)
             throw new KeyNotFoundException("Subscription not found.");
 
-        if (subscription.UserId != cmd.UserId)
-            throw new UnauthorizedAccessException();
-
-        if (cmd.RenewalDate.Date < DateTime.Today)
-            throw new ArgumentException("Yenileme tarihi geçmiş olamaz.");
+        var year = DateTime.Today.Year;
+        var candidate = new DateTime(year, cmd.SelectedMonth, cmd.SelectedDay);
+        if (candidate.Date < DateTime.Today)
+            candidate = candidate.AddYears(1);
 
         subscription.Name = cmd.Name;
         subscription.Price = cmd.Price;
-        subscription.RenewalPeriod = cmd.RenewalPeriod;
-        subscription.RenewalDate = cmd.RenewalDate;
+        subscription.RenewalPeriodDays = cmd.RenewalPeriodDays;
+        subscription.RenewalDate = candidate;
 
         await _repo.UpdateAsync(subscription, ct);
         return Unit.Value;

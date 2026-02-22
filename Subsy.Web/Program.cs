@@ -1,9 +1,13 @@
 using Subsy.Application.DependencyInjection;
 using Subsy.Infrastructure.DependencyInjection;
+using Subsy.Web.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(o =>
+{
+    o.Filters.Add<FluentValidationModelStateFilter>();
+});
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);

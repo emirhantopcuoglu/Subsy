@@ -6,7 +6,7 @@ namespace Subsy.Application.Common.Interfaces
     {
         Task<List<Subscription>> GetAllByUserIdAsync(string userId, CancellationToken cancellationToken = default);
 
-        Task<Subscription?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+        Task<Subscription?> GetByIdAsync(int id, string userId, CancellationToken cancellationToken = default);
 
         Task AddAsync(Subscription subscription, CancellationToken cancellationToken = default);
 

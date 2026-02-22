@@ -15,7 +15,7 @@ public sealed class UnarchiveSubscriptionHandler
 
     public async Task<Unit> Handle(UnarchiveSubscriptionCommand cmd, CancellationToken ct)
     {
-        var subscription = await _repo.GetByIdAsync(cmd.Id, ct);
+        var subscription = await _repo.GetByIdAsync(cmd.Id, cmd.UserId, ct);
         if (subscription is null)
             throw new KeyNotFoundException();
 

@@ -4,11 +4,13 @@ using Subsy.Application.Subscriptions.Commands.ArchiveSubscription;
 using Subsy.Application.Subscriptions.Commands.CreateSubscription;
 using Subsy.Application.Subscriptions.Commands.DeleteSubscription;
 using Subsy.Application.Subscriptions.Commands.MarkSubscriptionAsPaid;
+using Subsy.Application.Subscriptions.Commands.UnarchiveSubscription;
 using Subsy.Application.Subscriptions.Commands.UpdateSubscription;
 using Subsy.Application.Subscriptions.Queries.Common;
 using Subsy.Application.Subscriptions.Queries.GetActiveSubscriptions;
 using Subsy.Application.Subscriptions.Queries.GetArchivedSubscriptions;
 using Subsy.Application.Subscriptions.Queries.GetDueSubscriptions;
+using Subsy.Application.Subscriptions.Queries.GetSubscriptionById;
 using Subsy.Application.Subscriptions.Queries.GetUserSubscriptions;
 using Subsy.Web.Models;
 using System.Security.Claims;
@@ -65,43 +67,48 @@ namespace Subsy.Web.Controllers
             return View(dtos.Select(MapToVm).ToList());
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(
-            SubscriptionsViewModel vm,
-            CancellationToken ct)
+        [HttpGet]
+        public IActionResult Create()
         {
-            if (!ModelState.IsValid)
-                return View(vm);
-
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId))
-                return Unauthorized();
-
-            try
-            {
-                await _mediator.Send(
-                    new CreateSubscriptionCommand(
-                        userId,
-                        vm.Name,
-                        vm.Price,
-                        vm.RenewalPeriod,
-                        vm.RenewalDate),
-                    ct);
-
-                TempData["CreateMessage"] = "Abonelik başarıyla oluşturuldu.";
-                return RedirectToAction(nameof(Index));
-            }
-            catch (ArgumentException ex)
-            {
-                ModelState.AddModelError(nameof(vm.RenewalDate), ex.Message);
-                return View(vm);
-            }
+            return View(new SubscriptionsViewModel());
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(
-            SubscriptionsViewModel vm,
-            CancellationToken ct)
+        public async Task<IActionResult> Create(SubscriptionsViewModel vm, CancellationToken ct)
+        {
+            if (!ModelState.IsValid) return View(vm);
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
+
+            await _mediator.Send(new CreateSubscriptionCommand(
+                userId, vm.Name, vm.Price, vm.RenewalPeriodDays, vm.SelectedMonth, vm.SelectedDay), ct);
+
+            TempData["CreateMessage"] = "Abonelik başarıyla oluşturuldu.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Update(int id, CancellationToken ct)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId))
+                return Unauthorized();
+
+            var dto = await _mediator.Send(new GetSubscriptionByIdQuery(id, userId), ct);
+            if (dto is null)
+                return NotFound();
+
+            var vm = MapToVm(dto);
+
+            vm.SelectedMonth = vm.RenewalDate.Month;
+            vm.SelectedDay = vm.RenewalDate.Day;
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Update(SubscriptionsViewModel vm, CancellationToken ct)
         {
             if (!ModelState.IsValid)
                 return View(vm);
@@ -110,26 +117,17 @@ namespace Subsy.Web.Controllers
             if (string.IsNullOrWhiteSpace(userId))
                 return Unauthorized();
 
-            try
-            {
-                await _mediator.Send(
-                    new UpdateSubscriptionCommand(
-                        vm.Id,
-                        userId,
-                        vm.Name,
-                        vm.Price,
-                        vm.RenewalPeriod,
-                        vm.RenewalDate),
-                    ct);
+            await _mediator.Send(new UpdateSubscriptionCommand(
+                vm.Id,
+                userId,
+                vm.Name,
+                vm.Price,
+                vm.RenewalPeriodDays,
+                vm.SelectedMonth,
+                vm.SelectedDay), ct);
 
-                TempData["UpdateMessage"] = "Abonelik başarıyla güncellendi.";
-                return RedirectToAction(nameof(Index));
-            }
-            catch (ArgumentException ex)
-            {
-                ModelState.AddModelError(nameof(vm.RenewalDate), ex.Message);
-                return View(vm);
-            }
+            TempData["UpdateMessage"] = "Abonelik başarıyla güncellendi.";
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
@@ -139,29 +137,21 @@ namespace Subsy.Web.Controllers
             if (string.IsNullOrWhiteSpace(userId))
                 return Unauthorized();
 
-            try
-            {
-                await _mediator.Send(
-                    new MarkSubscriptionAsPaidCommand(id, userId),
-                    ct);
+            await _mediator.Send(new MarkSubscriptionAsPaidCommand(id, userId), ct);
 
-                TempData["MarkAsPaidMessage"] = "Abonelik ödendi olarak işaretlendi.";
-                return RedirectToAction(nameof(Active));
-            }
-            catch (InvalidOperationException ex)
-            {
-                TempData["Error"] = ex.Message;
-                return RedirectToAction(nameof(Active));
-            }
+            TempData["MarkAsPaidMessage"] = "Abonelik ödendi olarak işaretlendi.";
+            return RedirectToAction(nameof(Active));
         }
 
         [HttpPost]
         public async Task<IActionResult> Archive(int id, CancellationToken ct)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
+            if (string.IsNullOrWhiteSpace(userId))
+                return Unauthorized();
 
             await _mediator.Send(new ArchiveSubscriptionCommand(id, userId), ct);
+
             TempData["ArchiveMessage"] = "Abonelik başarıyla sonlandırıldı.";
             return RedirectToAction(nameof(Active));
         }
@@ -170,10 +160,12 @@ namespace Subsy.Web.Controllers
         public async Task<IActionResult> Unarchive(int id, CancellationToken ct)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
+            if (string.IsNullOrWhiteSpace(userId))
+                return Unauthorized();
 
-            await _mediator.Send(new ArchiveSubscriptionCommand(id, userId), ct);
-            TempData["ArchiveMessage"] = "Abonelik başarıyla aktifleştirildi.";
+            await _mediator.Send(new UnarchiveSubscriptionCommand(id, userId), ct);
+
+            TempData["UnarchiveMessage"] = "Abonelik başarıyla aktifleştirildi.";
             return RedirectToAction(nameof(Archived));
         }
 
@@ -184,9 +176,7 @@ namespace Subsy.Web.Controllers
             if (string.IsNullOrWhiteSpace(userId))
                 return Unauthorized();
 
-            await _mediator.Send(
-                new DeleteSubscriptionCommand(id, userId),
-                ct);
+            await _mediator.Send(new DeleteSubscriptionCommand(id, userId), ct);
 
             TempData["DeleteMessage"] = "Abonelik kalıcı olarak silindi.";
             return RedirectToAction(nameof(Archived));
@@ -197,8 +187,10 @@ namespace Subsy.Web.Controllers
             Id = d.Id,
             Name = d.Name,
             Price = d.Price,
-            RenewalPeriod = d.RenewalPeriod,
+            RenewalPeriodDays = d.RenewalPeriodDays,
             RenewalDate = d.RenewalDate,
+            SelectedMonth = d.RenewalDate.Month,
+            SelectedDay = d.RenewalDate.Day,
             IsArchived = d.IsArchived
         };
     }

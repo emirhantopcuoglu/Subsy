@@ -5,10 +5,9 @@ public class Subscription
     public int Id { get; set; }
 
     public string Name { get; set; } = default!;
-
     public decimal Price { get; set; }
 
-    public string RenewalPeriod { get; set; } = default!;
+    public int RenewalPeriodDays { get; set; }
 
     public DateTime RenewalDate { get; set; }
 

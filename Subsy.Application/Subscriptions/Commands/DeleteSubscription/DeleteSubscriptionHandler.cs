@@ -15,7 +15,7 @@ public sealed class DeleteSubscriptionHandler
 
     public async Task<Unit> Handle(DeleteSubscriptionCommand cmd, CancellationToken ct)
     {
-        var subscription = await _repo.GetByIdAsync(cmd.Id, ct);
+        var subscription = await _repo.GetByIdAsync(cmd.Id, cmd.UserId, ct);
         if (subscription is null)
             throw new KeyNotFoundException();
 

@@ -6,6 +6,7 @@ public sealed record CreateSubscriptionCommand(
     string UserId,
     string Name,
     decimal Price,
-    string RenewalPeriod,
-    DateTime RenewalDate
+    int RenewalPeriodDays,
+    int SelectedMonth,
+    int SelectedDay
 ) : IRequest<Unit>;

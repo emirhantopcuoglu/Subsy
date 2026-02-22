@@ -22,8 +22,12 @@ namespace Subsy.Infrastructure.Repositories
                 .ToListAsync(ct);
         }
 
-        public async Task<Subscription?> GetByIdAsync(int id, CancellationToken ct = default)
-            => await _context.Subscriptions.FirstOrDefaultAsync(x => x.Id == id, ct);
+        public async Task<Subscription?> GetByIdAsync(int id, string userId, CancellationToken ct)
+        {
+            return await _context.Subscriptions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, ct);
+        }
 
         public async Task AddAsync(Subscription subscription, CancellationToken ct = default)
         {

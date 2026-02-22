@@ -34,7 +34,7 @@ else
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         @foreach (var sub in Model)
         {
-            var period = int.TryParse(sub.RenewalPeriod, out var p) ? p : 30;
+            var period = sub.RenewalPeriodDays <= 0 ? 30 : sub.RenewalPeriodDays;
             var remaining = (sub.RenewalDate - DateTime.Today).Days;
             var used = period - remaining;
             var percent = Math.Clamp((used * 100) / period, 0, 100);

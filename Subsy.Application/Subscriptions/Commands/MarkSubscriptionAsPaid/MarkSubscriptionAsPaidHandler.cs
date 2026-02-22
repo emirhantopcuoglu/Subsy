@@ -8,6 +8,8 @@ public sealed class MarkSubscriptionAsPaidHandler
 {
     private readonly ISubscriptionRepository _repo;
 
+    private static readonly int[] AllowedRenewalPeriods = { 7, 15, 30, 90, 180, 365 };
+
     public MarkSubscriptionAsPaidHandler(ISubscriptionRepository repo)
     {
         _repo = repo;
@@ -15,7 +17,7 @@ public sealed class MarkSubscriptionAsPaidHandler
 
     public async Task<Unit> Handle(MarkSubscriptionAsPaidCommand cmd, CancellationToken ct)
     {
-        var subscription = await _repo.GetByIdAsync(cmd.Id, ct);
+        var subscription = await _repo.GetByIdAsync(cmd.Id, cmd.UserId, ct);
         if (subscription is null)
             throw new KeyNotFoundException();
 
@@ -25,7 +27,9 @@ public sealed class MarkSubscriptionAsPaidHandler
         if (subscription.RenewalDate.Date > DateTime.Today)
             throw new InvalidOperationException("Ödeme günü henüz gelmedi.");
 
-        if (!int.TryParse(subscription.RenewalPeriod, out var days))
+        var days = subscription.RenewalPeriodDays;
+
+        if (!AllowedRenewalPeriods.Contains(days))
             throw new InvalidOperationException("Geçersiz yenileme periyodu.");
 
         subscription.RenewalDate = subscription.RenewalDate.AddDays(days);

@@ -16,16 +16,19 @@ public sealed class CreateSubscriptionHandler
 
     public async Task<Unit> Handle(CreateSubscriptionCommand cmd, CancellationToken ct)
     {
-        if (cmd.RenewalDate.Date < DateTime.Today)
-            throw new ArgumentException("Yenileme tarihi geçmiş olamaz.");
+        var year = DateTime.Today.Year;
+        var candidate = new DateTime(year, cmd.SelectedMonth, cmd.SelectedDay);
+
+        if (candidate.Date < DateTime.Today)
+            candidate = candidate.AddYears(1);
 
         var subscription = new Subscription
         {
             UserId = cmd.UserId,
             Name = cmd.Name,
             Price = cmd.Price,
-            RenewalPeriod = cmd.RenewalPeriod,
-            RenewalDate = cmd.RenewalDate,
+            RenewalPeriodDays = cmd.RenewalPeriodDays,
+            RenewalDate = candidate,
             IsArchived = false
         };
 

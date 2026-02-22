@@ -22,7 +22,7 @@ public sealed class GetUserSubscriptionsHandler : IRequestHandler<GetUserSubscri
             Id = s.Id,
             Name = s.Name,
             Price = s.Price,
-            RenewalPeriod = s.RenewalPeriod,
+            RenewalPeriodDays = s.RenewalPeriodDays,
             RenewalDate = s.RenewalDate,
             IsArchived = s.IsArchived
         }).ToList();
