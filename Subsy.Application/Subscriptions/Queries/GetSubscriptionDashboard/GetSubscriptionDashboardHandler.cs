@@ -1,52 +1,52 @@
 ﻿using MediatR;
 using Subsy.Application.Common.Interfaces;
+using Subsy.Application.Subscriptions.Queries.GetSubscriptionDashboard;
 
-namespace Subsy.Application.Subscriptions.Queries.GetSubscriptionDashboard;
+namespace Subsy.Application.Subscriptions.Queries.GetDashboard;
 
-public sealed class GetSubscriptionDashboardHandler : IRequestHandler<GetSubscriptionDashboardQuery, SubscriptionDashboardDto>
+public sealed class GetDashboardHandler : IRequestHandler<GetSubscriptionDashboardQuery, SubscriptionDashboardDto>
 {
     private readonly ISubscriptionRepository _repo;
+    public GetDashboardHandler(ISubscriptionRepository repo) => _repo = repo;
 
-    public GetSubscriptionDashboardHandler(ISubscriptionRepository repo)
+    public async Task<SubscriptionDashboardDto> Handle(GetSubscriptionDashboardQuery q, CancellationToken ct)
     {
-        _repo = repo;
-    }
+        var subs = await _repo.GetAllByUserIdAsync(q.UserId, ct);
 
-    public async Task<SubscriptionDashboardDto> Handle(GetSubscriptionDashboardQuery request, CancellationToken ct)
-    {
-        var subs = await _repo.GetAllByUserIdAsync(request.UserId, ct);
+        var active = subs.Where(s => s.IsArchived == false).ToList();
 
-        var now = DateTime.Now;
+        var today = DateTime.Today;
+        var todayDue = active.Where(s => s.RenewalDate.Date == today).ToList();
 
-        var totalCount = subs.Count;
-        var archivedCount = subs.Count(s => s.IsArchived);
-        var activeSubs = subs.Where(s => !s.IsArchived).ToList();
-        var activeCount = activeSubs.Count;
+        var activeCount = active.Count(s => s.RenewalDate.Date >= today);
 
-        // Basit toplam (aktif)
-        var totalActivePrice = activeSubs.Sum(s => s.Price);
+        var monthStart = new DateTime(today.Year, today.Month, 1);
+        var monthEnd = monthStart.AddMonths(1);
 
-        // Yaklaşan yenilemeler (aktif + tarihi gelecekte), en yakın 5
-        var upcoming = activeSubs
-            .Where(s => s.RenewalDate > now)
+        var totalThisMonth = active
+            .Where(s => s.RenewalDate >= monthStart && s.RenewalDate < monthEnd)
+            .Sum(s => s.Price);
+
+        var upcomingEnd = today.AddDays(3);
+        var upcoming = active
+            .Where(s => s.RenewalDate.Date >= today && s.RenewalDate.Date <= upcomingEnd)
             .OrderBy(s => s.RenewalDate)
-            .Take(5)
-            .Select(s => new UpcomingRenewalDto
-            {
-                Id = s.Id,
-                Name = s.Name,
-                Price = s.Price,
-                RenewalDate = s.RenewalDate
-            })
             .ToList();
 
         return new SubscriptionDashboardDto
         {
-            TotalCount = totalCount,
             ActiveCount = activeCount,
-            ArchivedCount = archivedCount,
-            TotalActivePrice = totalActivePrice,
-            UpcomingRenewals = upcoming
+            TodayDueCount = todayDue.Count,
+            TotalThisMonth = totalThisMonth,
+            Upcoming = upcoming.Select(s => new UpcomingSubscriptionDto
+            {
+                Id = s.Id,
+                Name = s.Name,
+                Price = s.Price,
+                RenewalDate = s.RenewalDate,
+                RenewalPeriodDays = s.RenewalPeriodDays,
+                IsArchived = s.IsArchived
+            }).ToList()
         };
     }
 }

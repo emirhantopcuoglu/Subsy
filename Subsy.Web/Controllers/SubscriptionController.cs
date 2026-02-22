@@ -86,7 +86,7 @@ namespace Subsy.Web.Controllers
                 userId, vm.Name, vm.Price, vm.RenewalPeriodDays, vm.SelectedMonth, vm.SelectedDay), ct);
 
             TempData["CreateMessage"] = "Abonelik başarıyla oluşturuldu.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index","Dashboard");
         }
 
         [HttpGet]
@@ -128,7 +128,7 @@ namespace Subsy.Web.Controllers
                 vm.SelectedDay), ct);
 
             TempData["UpdateMessage"] = "Abonelik başarıyla güncellendi.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Dashboard");
         }
 
         [HttpPost]

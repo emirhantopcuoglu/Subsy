@@ -18,4 +18,8 @@
     <ProjectReference Include="..\Subsy.Domain\Subsy.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Subscriptions\Queries\NewFolder\" />
+  </ItemGroup>
+
 </Project>

@@ -2,17 +2,19 @@
 
 public sealed class SubscriptionDashboardDto
 {
-    public int TotalCount { get; init; }
-    public int ActiveCount { get; init; }
-    public int ArchivedCount { get; init; }
-    public decimal TotalActivePrice { get; init; }
-    public List<UpcomingRenewalDto> UpcomingRenewals { get; init; } = new();
+    public int ActiveCount { get; set; }
+    public int TodayDueCount { get; set; }
+    public decimal TotalThisMonth { get; set; }
+
+    public List<UpcomingSubscriptionDto> Upcoming { get; set; } = new();
 }
 
-public sealed class UpcomingRenewalDto
+public sealed class UpcomingSubscriptionDto
 {
-    public int Id { get; init; }
-    public string Name { get; init; } = default!;
-    public decimal Price { get; init; }
-    public DateTime RenewalDate { get; init; }
+    public int Id { get; set; }
+    public string Name { get; set; } = default!;
+    public decimal Price { get; set; }
+    public DateTime RenewalDate { get; set; }
+    public int RenewalPeriodDays { get; set; }
+    public bool IsArchived { get; set; }
 }
