@@ -4,7 +4,7 @@ using Subsy.Application.Finance.Dashboard.Queries;
 using Subsy.Web.Models;
 using System.Security.Claims;
 
-namespace Subsy.Controllers
+namespace Subsy.Web.Controllers
 {
     public class FinanceController : Controller
     {

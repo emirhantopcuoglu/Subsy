@@ -1,46 +1,72 @@
 @model FinanceViewModel
+@using System.Globalization
+@using System.Text.Json
 
 @{
-    ViewBag.Title = "Finansal Analiz";
+    ViewData["Title"] = "Finansal Analiz";
+    var tr = new CultureInfo("tr-TR");
 
-    var labels = Model.GroupedByService.Select(x => x.SubscriptionName).ToList();
-    var data = Model.GroupedByService.Select(x => x.TotalCost).ToList();
-
-    string labelsString = string.Join(",", labels.Select(l => $"'{l}'"));
-    string dataString = string.Join(",", data);
+    var labelsJson = JsonSerializer.Serialize(Model.GroupedByService.Select(x => x.SubscriptionName));
+    var dataJson = JsonSerializer.Serialize(Model.GroupedByService.Select(x => x.TotalCost));
 }
 
-<div class="pl-64 pt-8 px-6 max-w-screen-2xl mx-auto space-y-10">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6">📊 Finansal Analiz</h1>
+<div class="pt-6 max-w-screen-2xl mx-auto space-y-10">
+    <div class="flex items-center justify-between gap-4">
+        <h1 class="text-3xl font-bold text-gray-800">📊 Finansal Analiz</h1>
+        <span class="text-sm text-gray-500">
+            (Not: Ödeme geçmişi yoksa değerler “tahmini/planlı” hesaplanır.)
+        </span>
+    </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         <div class="bg-white p-5 rounded-2xl shadow">
-            <p class="text-sm text-gray-500">Bu Ayki Harcama</p>
-            <p class="text-2xl font-bold text-indigo-600">@Model.TotalMonthlyCost.ToString("C")</p>
+            <p class="text-sm text-gray-500">Aylık Tahmini Maliyet</p>
+            <p class="text-2xl font-bold text-indigo-600">@Model.TotalMonthlyCost.ToString("C", tr)</p>
+            <p class="text-xs text-gray-400 mt-1">Aboneliklerin aylık eşdeğeri</p>
         </div>
+
         <div class="bg-white p-5 rounded-2xl shadow">
-            <p class="text-sm text-gray-500">Toplam Harcama</p>
-            <p class="text-2xl font-bold text-green-600">@Model.AllTimeSpending.ToString("C")</p>
+            <p class="text-sm text-gray-500">Toplam Abonelik Maliyeti</p>
+            <p class="text-2xl font-bold text-green-600">@Model.AllTimeSpending.ToString("C", tr)</p>
+            <p class="text-xs text-gray-400 mt-1">Aktif abonelik fiyatlarının toplamı</p>
         </div>
+
         <div class="bg-white p-5 rounded-2xl shadow">
             <p class="text-sm text-gray-500">Aktif Abonelik Sayısı</p>
             <p class="text-2xl font-bold text-blue-600">@Model.SubscriptionCount</p>
+            <p class="text-xs text-gray-400 mt-1">Sonlandırılmamış</p>
         </div>
+
         <div class="bg-white p-5 rounded-2xl shadow">
-            <p class="text-sm text-gray-500">En Çok Harcama</p>
-            <p class="text-xl font-semibold text-rose-600">@Model.TopSpendingService?.SubscriptionName ?? "-"</p>
-            <p class="text-lg">@Model.TopSpendingService?.TotalCost.ToString("C") ?? "-"</p>
+            <p class="text-sm text-gray-500">En Çok Maliyet</p>
+
+            @if (Model.TopSpendingService is null)
+            {
+                <p class="text-gray-400 text-sm mt-2">Henüz yeterli veri yok</p>
+            }
+            else
+            {
+                <p class="text-xl font-semibold text-rose-600">
+                    @Model.TopSpendingService.SubscriptionName
+                </p>
+                <p class="text-lg">
+                    @Model.TopSpendingService.TotalCost.ToString("C", tr)
+                </p>
+                <p class="text-xs text-gray-400 mt-1">
+                    Aylık eşdeğer bazında
+                </p>
+            }
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow p-6 grid grid-cols-1 md:grid-cols-2 gap-10">
+    <div class="bg-white rounded-2xl shadow p-6 grid grid-cols-1 lg:grid-cols-2 gap-10">
         <div>
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">📈 Servis Bazlı Harcama Dağılımı (Pasta Grafiği)</h2>
-            <canvas id="pieChart" data-labels="@labelsString" data-values="@dataString"></canvas>
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">📈 Servis Bazlı Dağılım (Pasta)</h2>
+            <canvas id="pieChart"></canvas>
         </div>
         <div>
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">📊 Servis Bazlı Harcama (Çubuk Grafik)</h2>
-            <canvas id="barChart" data-labels="@labelsString" data-values="@dataString"></canvas>
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">📊 Servis Bazlı Maliyet (Çubuk)</h2>
+            <canvas id="barChart"></canvas>
         </div>
     </div>
 </div>
@@ -48,36 +74,24 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        function parseData(canvas) {
-            const labels = canvas.dataset.labels.split(",").map(l => l.trim().replace(/^'|'$/g, ""));
-            const values = canvas.dataset.values.split(",").map(v => Number(v.trim()));
-            return { labels, values };
-        }
+        const labels = @Html.Raw(labelsJson);
+        const values = @Html.Raw(dataJson);
 
         const colors = [
-            '#4F46E5', // indigo-600
-            '#7C3AED', // purple-700
-            '#EC4899', // pink-500
-            '#10B981', // green-500
-            '#F59E0B', // amber-500
-            '#3B82F6', // blue-500
-            '#E11D48', // rose-600
-            '#22C55E', // green-600
-            '#F97316', // orange-500
-            '#8B5CF6'  // violet-500
+            '#4F46E5','#7C3AED','#EC4899','#10B981','#F59E0B',
+            '#3B82F6','#E11D48','#22C55E','#F97316','#8B5CF6'
         ];
 
-        // Pasta Grafiği
-        const pieCanvas = document.getElementById('pieChart');
-        const pieData = parseData(pieCanvas);
+        const fmtTRY = (v) => v.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' });
 
+        const pieCanvas = document.getElementById('pieChart');
         new Chart(pieCanvas, {
             type: 'pie',
             data: {
-                labels: pieData.labels,
+                labels,
                 datasets: [{
-                    data: pieData.values,
-                    backgroundColor: colors.slice(0, pieData.values.length),
+                    data: values,
+                    backgroundColor: colors.slice(0, values.length),
                     borderColor: '#fff',
                     borderWidth: 2,
                 }]
@@ -88,30 +102,22 @@
                     legend: { position: 'bottom' },
                     tooltip: {
                         callbacks: {
-                            label: ctx => {
-                                let label = ctx.label || '';
-                                let val = ctx.parsed || 0;
-                                return `${label}: ${val.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}`;
-                            }
+                            label: (ctx) => `${ctx.label}: ${fmtTRY(ctx.parsed || 0)}`
                         }
                     }
                 }
             }
         });
 
-        // Çubuk Grafik
         const barCanvas = document.getElementById('barChart');
-        const barData = parseData(barCanvas);
-
         new Chart(barCanvas, {
             type: 'bar',
             data: {
-                labels: barData.labels,
+                labels,
                 datasets: [{
-                    label: 'Harcama',
-                    data: barData.values,
-                    backgroundColor: colors.slice(0, barData.values.length),
-                    borderColor: colors.slice(0, barData.values.length).map(c => c.replace(')', ', 0.8)')), // hafif transparan sınır
+                    label: 'Aylık Maliyet',
+                    data: values,
+                    backgroundColor: colors.slice(0, values.length),
                     borderWidth: 1
                 }]
             },
@@ -120,18 +126,12 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: {
-                            callback: val => val.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })
-                        }
+                        ticks: { callback: (val) => fmtTRY(val) }
                     }
                 },
                 plugins: {
                     legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => ctx.parsed.y.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })
-                        }
-                    }
+                    tooltip: { callbacks: { label: (ctx) => fmtTRY(ctx.parsed.y) } }
                 }
             }
         });

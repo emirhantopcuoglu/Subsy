@@ -1,7 +1,5 @@
 ﻿using MediatR;
 using Subsy.Application.Common.Interfaces;
-using Subsy.Application.Subscriptions.Queries.Common;
-using Subsy.Application.Subscriptions.Queries.GetActiveSubscriptions;
 
 namespace Subsy.Application.Finance.Dashboard.Queries;
 
@@ -18,38 +16,43 @@ public sealed class GetFinanceDashboardHandler : IRequestHandler<GetFinanceDashb
     {
         var subs = await _repo.GetAllByUserIdAsync(query.UserId, ct);
 
-        var now = DateTime.Now;
+        var today = DateTime.Today;
+        var monthStart = new DateTime(today.Year, today.Month, 1);
+        var monthEnd = monthStart.AddMonths(1);
 
-        var activePaidSubs = subs
-            .Where(s => !s.IsArchived && s.RenewalDate > now)
-            .ToList();
+        var active = subs.Where(s => s.IsArchived == false).ToList();
 
-        var thisMonthSpending = activePaidSubs
-            .Where(s => s.RenewalDate.Month == now.Month && s.RenewalDate.Year == now.Year)
+        decimal monthlyEquivalent = active
+            .Where(s => s.RenewalPeriodDays > 0)
+            .Sum(s => s.Price * 30m / s.RenewalPeriodDays);
+
+        decimal dueThisMonth = active
+            .Where(s => s.RenewalDate >= monthStart && s.RenewalDate < monthEnd)
             .Sum(s => s.Price);
 
-        var totalSpending = activePaidSubs.Sum(s => s.Price);
+        decimal totalSnapshot = active.Sum(s => s.Price);
 
-        var grouped = activePaidSubs
+        var grouped = active
+            .Where(s => s.RenewalPeriodDays > 0)
             .GroupBy(a => a.Name)
             .Select(g => new ServiceSummaryDto
             {
                 SubscriptionName = g.Key,
-                TotalCost = g.Sum(x => x.Price)
+                TotalCost = g.Sum(x => x.Price * 30m / x.RenewalPeriodDays)
             })
+            .OrderByDescending(x => x.TotalCost)
             .ToList();
 
-        var topService = grouped
-            .OrderByDescending(g => g.TotalCost)
-            .FirstOrDefault();
+        var topService = grouped.FirstOrDefault();
 
         return new FinanceDashboardDto
         {
-            TotalMonthlyCost = thisMonthSpending,
-            AllTimeSpending = totalSpending,
+            TotalMonthlyCost = monthlyEquivalent,
+            AllTimeSpending = totalSnapshot,
+
             GroupedByService = grouped,
             TopSpendingService = topService,
-            SubscriptionCount = activePaidSubs.Count
+            SubscriptionCount = active.Count
         };
     }
 }
