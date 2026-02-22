@@ -33,7 +33,15 @@ else
                 <p class="text-sm text-gray-600 leading-relaxed mb-4">
                     <span class="font-medium text-gray-800">@sub.Price ₺</span><br />
                     Yenileme Tarihi: @sub.RenewalDate.ToString("d MMMM yyyy", CultureInfo.CurrentCulture)<br />
-                    Süresi dolmuş: @expiredDays gün önce
+
+                    @if (expiredDays == 0)
+                    {
+                        <span class="text-blue-600 font-medium">Bugün ödeme günü</span>
+                    }
+                    else if (expiredDays > 0)
+                    {
+                        <span class="text-red-600">Süresi dolmuş: @expiredDays gün önce</span>
+                    }
                 </p>
 
                 <!-- Progress Bar -->
