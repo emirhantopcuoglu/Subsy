@@ -6,6 +6,7 @@ using Subsy.Application.Subscriptions.Commands.DeleteSubscription;
 using Subsy.Application.Subscriptions.Commands.MarkSubscriptionAsPaid;
 using Subsy.Application.Subscriptions.Commands.UnarchiveSubscription;
 using Subsy.Application.Subscriptions.Commands.UpdateSubscription;
+using Subsy.Application.Subscriptions.Queries.Calendar;
 using Subsy.Application.Subscriptions.Queries.Common;
 using Subsy.Application.Subscriptions.Queries.GetActiveSubscriptions;
 using Subsy.Application.Subscriptions.Queries.GetArchivedSubscriptions;
@@ -134,13 +135,23 @@ namespace Subsy.Web.Controllers
         public async Task<IActionResult> MarkAsPaid(int id, CancellationToken ct)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId))
-                return Unauthorized();
+            if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
 
-            await _mediator.Send(new MarkSubscriptionAsPaidCommand(id, userId), ct);
+            try
+            {
+                await _mediator.Send(new MarkSubscriptionAsPaidCommand(id, userId), ct);
+                TempData["FlashSuccess"] = "Abonelik yenilendi.";
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["FlashError"] = ex.Message;
+            }
 
-            TempData["MarkAsPaidMessage"] = "Abonelik ödendi olarak işaretlendi.";
-            return RedirectToAction(nameof(Active));
+            var referer = Request.Headers.Referer.ToString();
+            if (!string.IsNullOrWhiteSpace(referer))
+                return Redirect(referer);
+
+            return RedirectToAction("Calendar");
         }
 
         [HttpPost]
@@ -180,6 +191,22 @@ namespace Subsy.Web.Controllers
 
             TempData["DeleteMessage"] = "Abonelik kalıcı olarak silindi.";
             return RedirectToAction(nameof(Archived));
+        }
+
+        [HttpGet]
+        public IActionResult Calendar()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CalendarEvents(DateTime start, DateTime end, bool includeArchived = false, CancellationToken ct = default)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
+
+            var events = await _mediator.Send(new GetCalendarEventsQuery(userId, start, end, includeArchived), ct);
+            return Json(events);
         }
 
         private static SubscriptionsViewModel MapToVm(SubscriptionDto d) => new()
