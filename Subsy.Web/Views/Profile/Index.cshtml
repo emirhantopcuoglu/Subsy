@@ -1,0 +1,110 @@
+﻿@model ProfileViewModel
+
+@{
+    ViewData["Title"] = "Profil";
+}
+
+@await Component.InvokeAsync("FlashMessage")
+
+<section class="min-h-[calc(100vh-3rem)] py-8">
+    <div class="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-900">Profil Fotoğrafı</h2>
+            <p class="text-sm text-gray-600 mt-1">JPG, PNG veya WEBP. Maksimum 2 MB.</p>
+
+            <div class="mt-4 flex flex-col items-center">
+                <img src="@Model.ProfilePhotoPath" alt="Profil fotoğrafı"
+                     class="w-32 h-32 rounded-full object-cover ring-4 ring-indigo-100" />
+            </div>
+
+            <form asp-controller="Profile" asp-action="UploadPhoto" method="post" enctype="multipart/form-data" class="mt-4 space-y-3">
+                <input type="file" name="photo" accept="image/png,image/jpeg,image/webp"
+                       class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:border-0 file:rounded-lg file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+                <button type="submit"
+                        class="w-full inline-flex items-center justify-center px-4 py-2 rounded-lg text-white bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 font-semibold shadow-md">
+                    Fotoğrafı Güncelle
+                </button>
+            </form>
+
+            <div class="mt-5 border-t pt-4 text-sm text-gray-600">
+                <p class="font-medium text-gray-800">Kayıt Tarihi</p>
+                <p>@Model.RegisteredAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</p>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-2xl shadow p-6 sm:p-8">
+                <div class="mb-6">
+                    <h1 class="text-2xl font-bold text-gray-900">Profil Bilgileri</h1>
+                    <p class="text-sm text-gray-600 mt-1">Kullanıcı adı ve e-posta bilgilerinizi güncelleyebilirsiniz.</p>
+                </div>
+
+                <form asp-controller="Profile" asp-action="UpdateInfo" method="post" class="space-y-5">
+                    <div asp-validation-summary="All" class="text-red-600 text-sm"></div>
+
+                    <div>
+                        <label asp-for="UserName" class="block text-sm font-medium text-gray-700 mb-1">Kullanıcı Adı</label>
+                        <input asp-for="UserName"
+                               class="block w-full px-4 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                        <span asp-validation-for="UserName" class="text-red-600 text-sm"></span>
+                    </div>
+
+                    <div>
+                        <label asp-for="Email" class="block text-sm font-medium text-gray-700 mb-1">E-posta</label>
+                        <input asp-for="Email" type="email"
+                               class="block w-full px-4 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                        <span asp-validation-for="Email" class="text-red-600 text-sm"></span>
+                    </div>
+
+                    <div>
+                        <button type="submit"
+                                class="inline-flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-white bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold shadow-md">
+                            Bilgileri Kaydet
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow p-6 sm:p-8">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900">Parola Değiştir</h2>
+                    <p class="text-sm text-gray-600 mt-1">Güvenliğiniz için parolanızı düzenli olarak değiştirin.</p>
+                </div>
+
+                <form asp-controller="Profile" asp-action="ChangePassword" method="post" class="space-y-5">
+                    <div>
+                        <label asp-for="CurrentPassword" class="block text-sm font-medium text-gray-700 mb-1">Mevcut Parola</label>
+                        <input asp-for="CurrentPassword" type="password"
+                               class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                        <span asp-validation-for="CurrentPassword" class="text-red-600 text-sm"></span>
+                    </div>
+
+                    <div>
+                        <label asp-for="NewPassword" class="block text-sm font-medium text-gray-700 mb-1">Yeni Parola</label>
+                        <input asp-for="NewPassword" type="password"
+                               class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                        <span asp-validation-for="NewPassword" class="text-red-600 text-sm"></span>
+                    </div>
+
+                    <div>
+                        <label asp-for="ConfirmNewPassword" class="block text-sm font-medium text-gray-700 mb-1">Yeni Parola (Tekrar)</label>
+                        <input asp-for="ConfirmNewPassword" type="password"
+                               class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                        <span asp-validation-for="ConfirmNewPassword" class="text-red-600 text-sm"></span>
+                    </div>
+
+                    <div>
+                        <button type="submit"
+                                class="inline-flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 font-semibold shadow-md">
+                            Parolayı Değiştir
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

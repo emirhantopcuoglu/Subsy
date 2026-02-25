@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Subsy.Application.Common.Interfaces;
 using Subsy.Web.Models;
 
 namespace Subsy.Controllers
@@ -8,11 +9,16 @@ namespace Subsy.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly IUserProfileService _userProfileService;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public AccountController(
+            UserManager<IdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager,
+            IUserProfileService userProfileService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _userProfileService = userProfileService;
         }
 
         [HttpGet]
@@ -31,6 +37,7 @@ namespace Subsy.Controllers
 
             if (result.Succeeded)
             {
+                await _userProfileService.InitializeProfileAsync(user.Id, DateTime.UtcNow);
                 await _signInManager.SignInAsync(user, isPersistent: false);
                 TempData["RegisterMessage"] = $"Kayıt işlemi başarıyla tamamlandı. Hoşgeldin {user.UserName}!";
                 return RedirectToAction("Index", "Home");
@@ -54,11 +61,11 @@ namespace Subsy.Controllers
 
             var user = await _userManager.FindByEmailAsync(loginViewModel.Email);
 
-            if (user != null) 
-            { 
+            if (user != null)
+            {
                 var result = await _signInManager.PasswordSignInAsync(user.UserName, loginViewModel.Password, loginViewModel.RememberMe, false);
 
-                if (result.Succeeded) 
+                if (result.Succeeded)
                 {
                     TempData["LoginMessage"] = $"Başarıyla giriş yapıldı. Hoşgeldin {user.UserName}!";
                     return RedirectToAction("Index", "Home");
@@ -69,11 +76,12 @@ namespace Subsy.Controllers
 
             return View(loginViewModel);
         }
+
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            TempData["LogoutMessage"] = $"Başarıyla çıkış yapıldı.";
+            TempData["LogoutMessage"] = "Başarıyla çıkış yapıldı.";
             return RedirectToAction("Login", "Account");
         }
     }

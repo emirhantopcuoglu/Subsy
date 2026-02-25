@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Subsy.Application.Common.Interfaces;
+using Subsy.Infrastructure.Identity;
 using Subsy.Infrastructure.Persistence;
 using Subsy.Infrastructure.Repositories;
 
@@ -25,6 +26,7 @@ public static class ServiceCollectionExtensions
 
         // Repositories
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+        services.AddScoped<IUserProfileService, UserProfileService>();
 
         return services;
     }
