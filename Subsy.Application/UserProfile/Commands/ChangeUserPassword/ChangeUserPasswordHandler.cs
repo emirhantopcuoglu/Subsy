@@ -1,4 +1,7 @@
-﻿namespace Subsy.Application.UserProfile.Commands.ChangeUserPassword;
+﻿using MediatR;
+using Subsy.Application.Common.Interfaces;
+
+namespace Subsy.Application.UserProfile.Commands.ChangeUserPassword;
 
 public sealed class ChangeUserPasswordHandler : IRequestHandler<ChangeUserPasswordCommand, Unit>
 {

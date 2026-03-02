@@ -85,7 +85,7 @@ namespace Subsy.Web.Controllers
             await _mediator.Send(new CreateSubscriptionCommand(
                 userId, vm.Name, vm.Price, vm.RenewalPeriodDays, vm.SelectedMonth, vm.SelectedDay), ct);
 
-            TempData["CreateMessage"] = "Abonelik başarıyla oluşturuldu.";
+            TempData["FlashSuccess"] = "Abonelik başarıyla oluşturuldu.";
             return RedirectToAction("Index","Dashboard");
         }
 
@@ -127,7 +127,7 @@ namespace Subsy.Web.Controllers
                 vm.SelectedMonth,
                 vm.SelectedDay), ct);
 
-            TempData["UpdateMessage"] = "Abonelik başarıyla güncellendi.";
+            TempData["FlashSuccess"] = "Abonelik başarıyla güncellendi.";
             return RedirectToAction("Index", "Dashboard");
         }
 
@@ -189,7 +189,7 @@ namespace Subsy.Web.Controllers
 
             await _mediator.Send(new DeleteSubscriptionCommand(id, userId), ct);
 
-            TempData["DeleteMessage"] = "Abonelik kalıcı olarak silindi.";
+            TempData["FlashSuccess"] = "Abonelik kalıcı olarak silindi.";
             return RedirectToAction(nameof(Archived));
         }
 

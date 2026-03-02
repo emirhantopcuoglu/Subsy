@@ -99,7 +99,6 @@ public sealed class UserProfileService : IUserProfileService
         if (user is null)
             throw new KeyNotFoundException("Kullanıcı bulunamadı.");
 
-        // Identity'nin doğru akışı
         var setUserName = await _userManager.SetUserNameAsync(user, userName);
         if (!setUserName.Succeeded)
             throw new InvalidOperationException(string.Join(" ", setUserName.Errors.Select(x => x.Description)));
@@ -176,7 +175,6 @@ public sealed class UserProfileService : IUserProfileService
         {
             await File.WriteAllBytesAsync(fullPath, fileBytes, cancellationToken);
 
-            // Eski dosyayı sil
             if (!string.IsNullOrWhiteSpace(profile.ProfilePhotoPath))
             {
                 var oldFileName = Path.GetFileName(profile.ProfilePhotoPath);

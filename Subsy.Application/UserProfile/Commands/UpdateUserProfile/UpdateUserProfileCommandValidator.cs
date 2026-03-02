@@ -1,4 +1,7 @@
-﻿namespace Subsy.Application.UserProfile.Commands.UpdateUserProfile;
+﻿using FluentValidation;
+using Subsy.Application.Common.Interfaces;
+
+namespace Subsy.Application.UserProfile.Commands.UpdateUserProfile;
 
 public sealed class UpdateUserProfileCommandValidator : AbstractValidator<UpdateUserProfileCommand>
 {

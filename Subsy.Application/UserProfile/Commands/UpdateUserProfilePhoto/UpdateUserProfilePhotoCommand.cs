@@ -1,4 +1,6 @@
-﻿namespace Subsy.Application.UserProfile.Commands.UpdateUserProfilePhoto;
+﻿using MediatR;
+
+namespace Subsy.Application.UserProfile.Commands.UpdateUserProfilePhoto;
 
 public sealed record UpdateUserProfilePhotoCommand(
     string UserId,

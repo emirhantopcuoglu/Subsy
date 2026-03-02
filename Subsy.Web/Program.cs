@@ -12,7 +12,7 @@ builder.Services.AddControllersWithViews(o =>
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// Cookie Ayarlarý
+// Cookie ayarlarÄ±
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
@@ -22,7 +22,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 var app = builder.Build();
 
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();

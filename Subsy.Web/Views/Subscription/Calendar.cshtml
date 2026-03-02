@@ -229,6 +229,10 @@
             const subId = p.subscriptionId;
             mEdit.href = `/Subscription/Update/${subId}`;
             mMarkPaidForm.action = `/Subscription/MarkAsPaid/${subId}`;
+            mMarkPaidForm.dataset.confirm = `${p.name || ev.title} aboneliğini ödendi olarak işaretlemek istiyor musunuz?`;
+            mMarkPaidForm.dataset.confirmTitle = "Ödeme Onayı";
+            mMarkPaidForm.dataset.confirmConfirmText = "Evet, işaretle";
+            mMarkPaidForm.dataset.confirmVariant = "success";
             const payable = (p.isPayable === true);
             const paidBtn = mMarkPaidForm.querySelector("button[type='submit']");
 
@@ -245,9 +249,17 @@
             if (p.isArchived === true) {
                 mArchiveToggleBtn.textContent = "Aktif Et";
                 mArchiveToggleForm.action = `/Subscription/Unarchive/${subId}`;
+                mArchiveToggleForm.dataset.confirm = `${p.name || ev.title} aboneliğini tekrar aktif etmek istiyor musunuz?`;
+                mArchiveToggleForm.dataset.confirmTitle = "Aktifleştirme Onayı";
+                mArchiveToggleForm.dataset.confirmConfirmText = "Evet, aktif et";
+                mArchiveToggleForm.dataset.confirmVariant = "primary";
             } else {
                 mArchiveToggleBtn.textContent = "Sonlandır";
                 mArchiveToggleForm.action = `/Subscription/Archive/${subId}`;
+                mArchiveToggleForm.dataset.confirm = `${p.name || ev.title} aboneliğini sonlandırmak istiyor musunuz?`;
+                mArchiveToggleForm.dataset.confirmTitle = "Sonlandırma Onayı";
+                mArchiveToggleForm.dataset.confirmConfirmText = "Evet, sonlandır";
+                mArchiveToggleForm.dataset.confirmVariant = "danger";
             }
 
             modal.classList.remove("hidden");

@@ -67,7 +67,7 @@ namespace Subsy.Controllers
 
                 if (result.Succeeded)
                 {
-                    TempData["LoginMessage"] = $"Başarıyla giriş yapıldı. Hoşgeldin {user.UserName}!";
+                    TempData["FlashInfo"] = $"Başarıyla giriş yapıldı. Hoşgeldin {user.UserName}!";
                     return RedirectToAction("Index", "Home");
                 }
             }

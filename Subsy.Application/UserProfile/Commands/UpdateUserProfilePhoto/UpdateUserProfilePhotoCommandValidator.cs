@@ -1,4 +1,6 @@
-﻿namespace Subsy.Application.UserProfile.Commands.UpdateUserProfilePhoto;
+﻿using FluentValidation;
+
+namespace Subsy.Application.UserProfile.Commands.UpdateUserProfilePhoto;
 
 public sealed class UpdateUserProfilePhotoCommandValidator : AbstractValidator<UpdateUserProfilePhotoCommand>
 {

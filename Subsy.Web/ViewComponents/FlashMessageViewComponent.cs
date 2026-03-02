@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Subsy.ViewComponents
+namespace Subsy.Web.ViewComponents
 {
     public class FlashMessageViewComponent : ViewComponent
     {
@@ -10,15 +10,11 @@ namespace Subsy.ViewComponents
             {
                 GetMessage("FlashSuccess", "success", 3000),
                 GetMessage("FlashError", "danger", 5000),
-                GetMessage("CreateMessage", "success", 3000),
-                GetMessage("MarkAsPaidMessage", "success", 3000),
-                GetMessage("ArchiveMessage", "success", 3000),
-                GetMessage("UpdateMessage", "success", 3000),
-                GetMessage("DeleteMessage", "success", 3000),
-                GetMessage("RegisterMessage", "info", 5000),
-                GetMessage("LoginMessage", "info", 5000),
-                GetMessage("LogoutMessage", "info", 3000)
-            }.Where(m => !string.IsNullOrEmpty(m.Message)).ToList();
+                GetMessage("FlashInfo", "info", 4000),
+                GetMessage("FlashWarning", "warning", 4500),
+            }
+            .Where(m => !string.IsNullOrWhiteSpace(m.Message))
+            .ToList();
 
             return View(messages);
         }

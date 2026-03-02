@@ -1,4 +1,6 @@
-﻿namespace Subsy.Application.UserProfile.Commands.UpdateUserProfile;
+﻿using MediatR;
+
+namespace Subsy.Application.UserProfile.Commands.UpdateUserProfile;
 
 public sealed record UpdateUserProfileCommand(
     string UserId,

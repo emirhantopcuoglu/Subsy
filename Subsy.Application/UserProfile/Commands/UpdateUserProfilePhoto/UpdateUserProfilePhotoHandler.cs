@@ -1,4 +1,7 @@
-﻿namespace Subsy.Application.UserProfile.Commands.UpdateUserProfilePhoto;
+﻿using MediatR;
+using Subsy.Application.Common.Interfaces;
+
+namespace Subsy.Application.UserProfile.Commands.UpdateUserProfilePhoto;
 
 public sealed class UpdateUserProfilePhotoHandler : IRequestHandler<UpdateUserProfilePhotoCommand, Unit>
 {

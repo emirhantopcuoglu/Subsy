@@ -1,0 +1,30 @@
+@model Subsy.Web.Models.ErrorViewModel
+@{
+    ViewData["Title"] = "Hata";
+}
+
+<div class="max-w-xl mx-auto bg-white rounded-2xl shadow p-6 mt-10">
+    <h1 class="text-2xl font-bold text-gray-800 mb-2">Bir şeyler ters gitti</h1>
+    <p class="text-gray-600 mb-4">
+        Şu an işleminizi tamamlayamadık. Lütfen sayfayı yenileyin veya daha sonra tekrar deneyin.
+    </p>
+
+    @if (!string.IsNullOrWhiteSpace(Model?.RequestId))
+    {
+        <p class="text-sm text-gray-400">
+            Hata Kodu: <span class="font-mono">@Model.RequestId</span>
+        </p>
+    }
+
+    <div class="mt-6 flex gap-3">
+        <a asp-controller="Home" asp-action="Index"
+           class="inline-flex items-center px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition">
+            Ana sayfaya dön
+        </a>
+
+        <button onclick="location.reload()"
+                class="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition">
+            Yenile
+        </button>
+    </div>
+</div>

@@ -1,5 +1,4 @@
-﻿using FluentValidation;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Subsy.Application.UserProfile.Commands.ChangeUserPassword;
@@ -7,6 +6,7 @@ using Subsy.Application.UserProfile.Commands.UpdateUserProfile;
 using Subsy.Application.UserProfile.Commands.UpdateUserProfilePhoto;
 using Subsy.Application.UserProfile.Queries.GetUserProfile;
 using Subsy.Web.Models;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace Subsy.Web.Controllers
@@ -152,7 +152,7 @@ namespace Subsy.Web.Controllers
             }
             catch (ValidationException vex)
             {
-                TempData["FlashError"] = string.Join(" ", vex.Errors.Select(x => x.ErrorMessage));
+                TempData["FlashError"] = vex.Message;
             }
             catch (KeyNotFoundException)
             {
@@ -199,8 +199,7 @@ namespace Subsy.Web.Controllers
 
         private void AddValidationErrors(ValidationException vex)
         {
-            foreach (var error in vex.Errors)
-                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+            ModelState.AddModelError(string.Empty, vex.Message);
         }
     }
 }

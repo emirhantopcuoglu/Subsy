@@ -1,4 +1,6 @@
-﻿namespace Subsy.Application.UserProfile.Commands.ChangeUserPassword;
+﻿using FluentValidation;
+
+namespace Subsy.Application.UserProfile.Commands.ChangeUserPassword;
 
 public sealed class ChangeUserPasswordCommandValidator : AbstractValidator<ChangeUserPasswordCommand>
 {

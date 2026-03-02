@@ -1,4 +1,6 @@
-﻿namespace Subsy.Application.Common.Interfaces
+﻿using Subsy.Application.UserProfile.Common;
+
+namespace Subsy.Application.Common.Interfaces
 {
     public interface IUserProfileService
     {
