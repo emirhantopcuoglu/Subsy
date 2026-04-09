@@ -1,12 +1,14 @@
 using Subsy.Application.DependencyInjection;
 using Subsy.Infrastructure.DependencyInjection;
 using Subsy.Web.Filters;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews(o =>
 {
     o.Filters.Add<FluentValidationModelStateFilter>();
+    o.Filters.Add<AutoValidateAntiforgeryTokenAttribute>();
 });
 
 builder.Services.AddApplication();
