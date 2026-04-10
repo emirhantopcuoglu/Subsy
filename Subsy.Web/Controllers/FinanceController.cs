@@ -17,9 +17,7 @@ namespace Subsy.Web.Controllers
 
         public async Task<IActionResult> Dashboard(CancellationToken ct)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId))
-                return Unauthorized();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             var dto = await _mediator.Send(new GetFinanceDashboardQuery(userId), ct);
 

@@ -29,8 +29,7 @@ namespace Subsy.Web.Controllers
 
         public async Task<IActionResult> Index(CancellationToken ct)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             var dtos = await _mediator.Send(new GetUserSubscriptionsQuery(userId), ct);
             var vms = dtos.Select(MapToVm).ToList();
@@ -41,8 +40,7 @@ namespace Subsy.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Active(CancellationToken ct)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             var dtos = await _mediator.Send(new GetActiveSubscriptionsQuery(userId), ct);
             return View(dtos.Select(MapToVm).ToList());
@@ -51,8 +49,7 @@ namespace Subsy.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Due(CancellationToken ct)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             var dtos = await _mediator.Send(new GetDueSubscriptionsQuery(userId), ct);
             return View(dtos.Select(MapToVm).ToList());
@@ -61,8 +58,7 @@ namespace Subsy.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Archived(CancellationToken ct)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             var dtos = await _mediator.Send(new GetArchivedSubscriptionsQuery(userId), ct);
             return View(dtos.Select(MapToVm).ToList());
@@ -79,8 +75,7 @@ namespace Subsy.Web.Controllers
         {
             if (!ModelState.IsValid) return View(vm);
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             await _mediator.Send(new CreateSubscriptionCommand(
                 userId, vm.Name, vm.Price, vm.RenewalPeriodDays, vm.SelectedMonth, vm.SelectedDay), ct);
@@ -92,9 +87,7 @@ namespace Subsy.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Update(int id, CancellationToken ct)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId))
-                return Unauthorized();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             var dto = await _mediator.Send(new GetSubscriptionByIdQuery(id, userId), ct);
             if (dto is null)
@@ -114,9 +107,7 @@ namespace Subsy.Web.Controllers
             if (!ModelState.IsValid)
                 return View(vm);
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId))
-                return Unauthorized();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             await _mediator.Send(new UpdateSubscriptionCommand(
                 vm.Id,
@@ -134,8 +125,7 @@ namespace Subsy.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> MarkAsPaid(int id, CancellationToken ct)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             try
             {
@@ -157,9 +147,7 @@ namespace Subsy.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Archive(int id, CancellationToken ct)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId))
-                return Unauthorized();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             await _mediator.Send(new ArchiveSubscriptionCommand(id, userId), ct);
 
@@ -170,9 +158,7 @@ namespace Subsy.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Unarchive(int id, CancellationToken ct)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId))
-                return Unauthorized();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             await _mediator.Send(new UnarchiveSubscriptionCommand(id, userId), ct);
 
@@ -183,9 +169,7 @@ namespace Subsy.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id, CancellationToken ct)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId))
-                return Unauthorized();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             await _mediator.Send(new DeleteSubscriptionCommand(id, userId), ct);
 
@@ -202,8 +186,7 @@ namespace Subsy.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> CalendarEvents(DateTime start, DateTime end, bool includeArchived = false, CancellationToken ct = default)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             var events = await _mediator.Send(new GetCalendarEventsQuery(userId, start, end, includeArchived), ct);
             return Json(events);

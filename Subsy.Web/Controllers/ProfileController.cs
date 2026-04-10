@@ -111,9 +111,7 @@ namespace Subsy.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadPhoto(IFormFile? photo, CancellationToken ct)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId))
-                return Unauthorized();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             if (photo is null || photo.Length == 0)
             {
@@ -168,9 +166,7 @@ namespace Subsy.Web.Controllers
 
         private async Task<ProfileViewModel?> BuildProfileViewModelAsync(CancellationToken ct)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId))
-                return null;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             var dto = await _mediator.Send(new GetUserProfileQuery(userId), ct);
             if (dto is null)

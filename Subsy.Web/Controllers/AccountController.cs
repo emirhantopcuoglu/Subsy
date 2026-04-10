@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Subsy.Application.Common.Interfaces;
 using Subsy.Web.Models;
-
+using Microsoft.AspNetCore.Authorization;
 namespace Subsy.Controllers
 {
     public class AccountController : Controller
@@ -21,9 +21,11 @@ namespace Subsy.Controllers
             _userProfileService = userProfileService;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Register() { return View(); }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel registerViewModel)
         {
@@ -50,10 +52,12 @@ namespace Subsy.Controllers
 
             return View(registerViewModel);
         }
-
+        
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Login() { return View(); }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel loginViewModel)
         {
