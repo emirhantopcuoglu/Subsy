@@ -1,6 +1,8 @@
+using System.Net;
 using Subsy.Application.DependencyInjection;
 using Subsy.Infrastructure.DependencyInjection;
 using Subsy.Web.Filters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +15,13 @@ builder.Services.AddControllersWithViews(o =>
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 
 // Cookie ayarları
 builder.Services.ConfigureApplicationCookie(options =>

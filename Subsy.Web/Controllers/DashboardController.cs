@@ -14,8 +14,7 @@ public class DashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken ct)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrWhiteSpace(userId)) return Unauthorized();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         var dto = await _mediator.Send(new GetSubscriptionDashboardQuery(userId), ct);
 
