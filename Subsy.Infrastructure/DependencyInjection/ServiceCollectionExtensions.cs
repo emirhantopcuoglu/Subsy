@@ -20,9 +20,28 @@ public static class ServiceCollectionExtensions
 
         // Identity
         services
-            .AddDefaultIdentity<IdentityUser>()
-            .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<SubsyContext>();
+            .AddIdentity<IdentityUser, IdentityRole>(options =>
+            {
+                // Password policy
+                options.Password.RequiredLength = 8;
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = false;
+
+                // Lockout: 5 başarısız denemede 15 dakika kilit
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User
+                options.User.RequireUniqueEmail = true;
+
+                // SignIn
+                options.SignIn.RequireConfirmedAccount = false;
+            })
+            .AddEntityFrameworkStores<SubsyContext>()
+            .AddDefaultTokenProviders();
 
         // Repositories
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();

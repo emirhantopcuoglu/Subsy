@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Subsy.Application.Common.Interfaces;
 using Subsy.Web.Models;
 
-namespace Subsy.Controllers
+namespace Subsy.Web.Controllers
 {
     public class AccountController : Controller
     {
@@ -22,9 +23,11 @@ namespace Subsy.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Register() { return View(); }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterViewModel registerViewModel)
         {
             if (!ModelState.IsValid)
@@ -52,28 +55,40 @@ namespace Subsy.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login() { return View(); }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginViewModel loginViewModel)
         {
-            if (!ModelState.IsValid) { return View(loginViewModel); }
+            if (!ModelState.IsValid) return View(loginViewModel);
 
             var user = await _userManager.FindByEmailAsync(loginViewModel.Email);
 
-            if (user != null)
+            if (user is not null)
             {
-                var result = await _signInManager.PasswordSignInAsync(user.UserName, loginViewModel.Password, loginViewModel.RememberMe, false);
+                var result = await _signInManager.PasswordSignInAsync(
+                    user.UserName!,
+                    loginViewModel.Password,
+                    loginViewModel.RememberMe,
+                    lockoutOnFailure: true);
 
                 if (result.Succeeded)
                 {
                     TempData["FlashInfo"] = $"Başarıyla giriş yapıldı. Hoşgeldin {user.UserName}!";
                     return RedirectToAction("Index", "Home");
                 }
+
+                if (result.IsLockedOut)
+                {
+                    ModelState.AddModelError(string.Empty,
+                        "Hesabınız çok fazla başarısız deneme nedeniyle geçici olarak kilitlendi. Lütfen 15 dakika sonra tekrar deneyin.");
+                    return View(loginViewModel);
+                }
             }
 
             ModelState.AddModelError(string.Empty, "Geçersiz giriş denemesi.");
-
             return View(loginViewModel);
         }
 
