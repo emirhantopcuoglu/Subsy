@@ -31,5 +31,23 @@ public class SubsyContext : IdentityDbContext
             cfg.Property(x => x.ProfilePhotoPath)
                 .HasMaxLength(260);
         });
+
+        builder.Entity<Subscription>(cfg =>
+        {
+            cfg.Property(x => x.UserId)
+                .IsRequired();
+
+            cfg.Property(x => x.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            cfg.Property(x => x.Price)
+                .HasPrecision(18, 2);
+
+            cfg.Property(x => x.RenewalPeriodDays)
+                .IsRequired();
+
+            cfg.HasIndex(x => new { x.UserId, x.IsArchived, x.RenewalDate });
+        });
     }
 }
