@@ -138,7 +138,7 @@ namespace Subsy.Web.Controllers
             }
 
             var referer = Request.Headers.Referer.ToString();
-            if (!string.IsNullOrWhiteSpace(referer))
+            if (Url.IsLocalUrl(referer))
                 return Redirect(referer);
 
             return RedirectToAction("Calendar");

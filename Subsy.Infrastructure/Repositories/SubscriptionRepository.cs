@@ -32,7 +32,7 @@ namespace Subsy.Infrastructure.Repositories
         public async Task AddAsync(Subscription subscription, CancellationToken ct = default)
         {
             _context.Subscriptions.Add(subscription);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
         }
 
         public async Task UpdateAsync(Subscription subscription, CancellationToken ct = default)
