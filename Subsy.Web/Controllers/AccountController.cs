@@ -4,9 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Subsy.Application.Common.Interfaces;
 using Subsy.Web.Models;
 
-namespace Subsy.Web.Controllers
 using Microsoft.AspNetCore.Authorization;
-namespace Subsy.Controllers
+namespace Subsy.Web.Controllers
 {
     public class AccountController : Controller
     {
@@ -26,12 +25,10 @@ namespace Subsy.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        [AllowAnonymous]
         public IActionResult Register() { return View(); }
 
         [AllowAnonymous]
         [HttpPost]
-        [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterViewModel registerViewModel)
         {
             if (!ModelState.IsValid)
@@ -60,12 +57,10 @@ namespace Subsy.Controllers
         
         [AllowAnonymous]
         [HttpGet]
-        [AllowAnonymous]
         public IActionResult Login() { return View(); }
 
         [AllowAnonymous]
         [HttpPost]
-        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginViewModel loginViewModel)
         {
             if (!ModelState.IsValid) return View(loginViewModel);
