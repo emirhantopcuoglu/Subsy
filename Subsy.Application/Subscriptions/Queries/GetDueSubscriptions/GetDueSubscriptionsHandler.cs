@@ -13,7 +13,7 @@ public sealed class GetDueSubscriptionsHandler : IRequestHandler<GetDueSubscript
     {
         var subs = await _repo.GetAllByUserIdAsync(q.UserId, ct);
         return subs
-            .Where(s => !s.IsArchived && ((s.RenewalDate.Date == DateTime.Today.Date) || s.RenewalDate.Date <= DateTime.Today.Date))
+            .Where(s => !s.IsArchived && s.RenewalDate.Date <= DateTime.Today.Date)
             .Select(s => new SubscriptionDto
             {
                 Id = s.Id,
