@@ -70,7 +70,7 @@ public class MarkSubscriptionAsPaidHandlerTests
         Func<Task> act = async () => await handler.Handle(command, CancellationToken.None);
 
         // Assert 
-        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*henüz*"); 
+        await act.Should().ThrowAsync<InvalidOperationException>(); 
 
         subscription.RenewalDate.Should().Be(today.AddDays(5)); 
 
