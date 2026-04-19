@@ -8,18 +8,19 @@ public sealed class CreateSubscriptionHandler
     : IRequestHandler<CreateSubscriptionCommand, Unit>
 {
     private readonly ISubscriptionRepository _repo;
-
-    public CreateSubscriptionHandler(ISubscriptionRepository repo)
+    private readonly IDateTimeProvider _dateTime;
+    public CreateSubscriptionHandler(ISubscriptionRepository repo, IDateTimeProvider dateTime)
     {
         _repo = repo;
+        _dateTime = dateTime;
     }
 
     public async Task<Unit> Handle(CreateSubscriptionCommand cmd, CancellationToken ct)
     {
-        var year = DateTime.Today.Year;
+        var year = _dateTime.Today.Year;
         var candidate = new DateTime(year, cmd.SelectedMonth, cmd.SelectedDay);
 
-        if (candidate.Date < DateTime.Today)
+        if (candidate.Date < _dateTime.Today)
             candidate = candidate.AddYears(1);
 
         var subscription = new Subscription
