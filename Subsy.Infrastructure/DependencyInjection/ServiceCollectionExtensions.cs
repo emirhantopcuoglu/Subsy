@@ -6,6 +6,7 @@ using Subsy.Application.Common.Interfaces;
 using Subsy.Infrastructure.Identity;
 using Subsy.Infrastructure.Persistence;
 using Subsy.Infrastructure.Repositories;
+using Subsy.Infrastructure.Services;
 
 namespace Subsy.Infrastructure.DependencyInjection;
 
@@ -46,6 +47,10 @@ public static class ServiceCollectionExtensions
         // Repositories
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
         services.AddScoped<IUserProfileService, UserProfileService>();
+
+        services.AddScoped<IDateTimeProvider, SystemDateTimeProvider>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddHttpContextAccessor();
 
         return services;
     }

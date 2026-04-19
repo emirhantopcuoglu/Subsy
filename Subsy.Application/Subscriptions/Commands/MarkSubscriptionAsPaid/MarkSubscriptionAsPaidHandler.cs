@@ -7,12 +7,14 @@ public sealed class MarkSubscriptionAsPaidHandler
     : IRequestHandler<MarkSubscriptionAsPaidCommand, Unit>
 {
     private readonly ISubscriptionRepository _repo;
+    private readonly IDateTimeProvider _dateTime;
 
     private static readonly int[] AllowedRenewalPeriods = { 7, 15, 30, 90, 180, 365 };
 
-    public MarkSubscriptionAsPaidHandler(ISubscriptionRepository repo)
+    public MarkSubscriptionAsPaidHandler(ISubscriptionRepository repo, IDateTimeProvider dateTime)
     {
         _repo = repo;
+        _dateTime = dateTime;
     }
 
     public async Task<Unit> Handle(MarkSubscriptionAsPaidCommand cmd, CancellationToken ct)
@@ -24,7 +26,7 @@ public sealed class MarkSubscriptionAsPaidHandler
         if (subscription.UserId != cmd.UserId)
             throw new UnauthorizedAccessException();
 
-        if (subscription.RenewalDate.Date > DateTime.Today)
+        if (subscription.RenewalDate.Date > _dateTime.Today.Date)
             throw new InvalidOperationException("Ödeme günü henüz gelmedi.");
 
         var days = subscription.RenewalPeriodDays;
