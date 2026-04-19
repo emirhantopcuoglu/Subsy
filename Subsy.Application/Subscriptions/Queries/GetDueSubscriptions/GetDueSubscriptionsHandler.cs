@@ -7,13 +7,18 @@ namespace Subsy.Application.Subscriptions.Queries.GetDueSubscriptions;
 public sealed class GetDueSubscriptionsHandler : IRequestHandler<GetDueSubscriptionsQuery, List<SubscriptionDto>>
 {
     private readonly ISubscriptionRepository _repo;
-    public GetDueSubscriptionsHandler(ISubscriptionRepository repo) => _repo = repo;
+    private readonly IDateTimeProvider _dateTime;
+    public GetDueSubscriptionsHandler(ISubscriptionRepository repo, IDateTimeProvider dateTime)
+    {
+        _repo = repo;
+        _dateTime = dateTime;
+    }
 
     public async Task<List<SubscriptionDto>> Handle(GetDueSubscriptionsQuery q, CancellationToken ct = default)
     {
         var subs = await _repo.GetAllByUserIdAsync(q.UserId, ct);
         return subs
-            .Where(s => !s.IsArchived && s.RenewalDate.Date <= DateTime.Today.Date)
+            .Where(s => !s.IsArchived && s.RenewalDate.Date <= _dateTime.Today.Date)
             .Select(s => new SubscriptionDto
             {
                 Id = s.Id,
