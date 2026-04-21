@@ -2,16 +2,66 @@
 
 public class Subscription
 {
-    public int Id { get; set; }
+    public int Id { get; private set; }
+    public string Name { get; private set; } = default!;
+    public decimal Price { get; private set; }
+    public int RenewalPeriodDays { get; private set; }
+    public DateTime RenewalDate { get; private set; }
+    public string UserId { get; private set; } = default!;
+    public bool IsArchived { get; private set; }
 
-    public string Name { get; set; } = default!;
-    public decimal Price { get; set; }
+    private Subscription() { }
 
-    public int RenewalPeriodDays { get; set; }
+    public static Subscription Create(
+        string userId,
+        string name,
+        decimal price,
+        int renewalPeriodDays,
+        DateTime firstRenewalDate)
+    {
+        return new Subscription
+        {
+            UserId = userId,
+            Name = name,
+            Price = price,
+            RenewalPeriodDays = renewalPeriodDays,
+            RenewalDate = firstRenewalDate,
+            IsArchived = false
+        };
+    }
 
-    public DateTime RenewalDate { get; set; }
+    public void MarkAsPaid(DateTime today)
+    {
+        if (IsArchived)
+            throw new InvalidOperationException("Arşivlenmiş abonelik ödenemez.");
 
-    public string UserId { get; set; } = default!;
+        if (RenewalDate.Date > today.Date)
+            throw new InvalidOperationException("Ödeme günü henüz gelmedi.");
 
-    public bool IsArchived { get; set; } = false;
+        RenewalDate = RenewalDate.AddDays(RenewalPeriodDays);
+    }
+
+    public void Archive()
+    {
+        if (IsArchived)
+            throw new InvalidOperationException("Abonelik zaten arşivlenmiş.");
+
+        IsArchived = true;
+    }
+
+    public void Unarchive()
+    {
+        if (!IsArchived)
+            throw new InvalidOperationException("Abonelik zaten aktif.");
+
+        IsArchived = false;
+    }
+
+    public void UpdateDetails(string name, decimal price, int renewalPeriodDays, DateTime newRenewalDate)
+    {
+        Name = name;
+        Price = price;
+        RenewalPeriodDays = renewalPeriodDays;
+        RenewalDate = newRenewalDate;
+    }
 }

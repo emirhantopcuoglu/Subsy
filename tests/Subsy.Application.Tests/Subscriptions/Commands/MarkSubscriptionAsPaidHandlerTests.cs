@@ -9,7 +9,6 @@ namespace Subsy.Application.Tests.Subscriptions.Commands;
 public class MarkSubscriptionAsPaidHandlerTests
 {
     private const string TestUserId = "user-123";
-
     private static readonly DateTime FixedToday = new(2026, 6, 15);
 
     private static Subscription CreateSubscription(
@@ -17,16 +16,13 @@ public class MarkSubscriptionAsPaidHandlerTests
         int renewalPeriodDays = 30,
         bool isArchived = false)
     {
-        return new Subscription
-        {
-            Id = 1,
-            UserId = TestUserId,
-            Name = "Netflix",
-            Price = 99.99m,
-            RenewalPeriodDays = renewalPeriodDays,
-            RenewalDate = renewalDate,
-            IsArchived = isArchived
-        };
+        var sub = Subscription.Create(
+            TestUserId, "Netflix", 99.99m, renewalPeriodDays, renewalDate);
+
+        if (isArchived)
+            sub.Archive();
+
+        return sub;
     }
 
     private static Mock<IDateTimeProvider> CreateClockMock()
@@ -49,7 +45,6 @@ public class MarkSubscriptionAsPaidHandlerTests
             .ReturnsAsync(subscription);
 
         var clockMock = CreateClockMock();
-
         var handler = new MarkSubscriptionAsPaidHandler(repoMock.Object, clockMock.Object);
         var command = new MarkSubscriptionAsPaidCommand(1, TestUserId);
 
@@ -59,9 +54,7 @@ public class MarkSubscriptionAsPaidHandlerTests
         // Assert
         subscription.RenewalDate.Should().Be(FixedToday.AddDays(30));
         repoMock.Verify(
-            r => r.UpdateAsync(
-                It.Is<Subscription>(s => s.Id == 1),
-                It.IsAny<CancellationToken>()),
+            r => r.UpdateAsync(It.Is<Subscription>(s => s.Name == "Netflix"), It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -77,7 +70,6 @@ public class MarkSubscriptionAsPaidHandlerTests
             .ReturnsAsync(subscription);
 
         var clockMock = CreateClockMock();
-
         var handler = new MarkSubscriptionAsPaidHandler(repoMock.Object, clockMock.Object);
         var command = new MarkSubscriptionAsPaidCommand(1, TestUserId);
 
@@ -95,7 +87,7 @@ public class MarkSubscriptionAsPaidHandlerTests
     [Fact]
     public async Task Handle_WhenSubscriptionIsOverdue_ShouldStillAdvanceFromOriginalDate()
     {
-        // Arrange — 3 gün önce vadesi gelmiþ ama ödenmemiþ
+        // Arrange
         var overdueDate = FixedToday.AddDays(-3);
         var subscription = CreateSubscription(renewalDate: overdueDate, renewalPeriodDays: 30);
 
@@ -105,14 +97,13 @@ public class MarkSubscriptionAsPaidHandlerTests
             .ReturnsAsync(subscription);
 
         var clockMock = CreateClockMock();
-
         var handler = new MarkSubscriptionAsPaidHandler(repoMock.Object, clockMock.Object);
         var command = new MarkSubscriptionAsPaidCommand(1, TestUserId);
 
         // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert — yeni tarih, orijinal vadeden 30 gün sonra (bugünden deðil)
+        // Assert
         subscription.RenewalDate.Should().Be(overdueDate.AddDays(30));
     }
 }

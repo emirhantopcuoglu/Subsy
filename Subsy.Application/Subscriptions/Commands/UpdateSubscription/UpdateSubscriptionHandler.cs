@@ -7,10 +7,12 @@ public sealed class UpdateSubscriptionHandler
     : IRequestHandler<UpdateSubscriptionCommand, Unit>
 {
     private readonly ISubscriptionRepository _repo;
+    private readonly IDateTimeProvider _dateTime;
 
-    public UpdateSubscriptionHandler(ISubscriptionRepository repo)
+    public UpdateSubscriptionHandler(ISubscriptionRepository repo, IDateTimeProvider dateTime)
     {
         _repo = repo;
+        _dateTime = dateTime;
     }
 
     public async Task<Unit> Handle(UpdateSubscriptionCommand cmd, CancellationToken ct)
@@ -19,15 +21,12 @@ public sealed class UpdateSubscriptionHandler
         if (subscription is null)
             throw new KeyNotFoundException("Subscription not found.");
 
-        var year = DateTime.Today.Year;
+        var year = _dateTime.Today.Year;
         var candidate = new DateTime(year, cmd.SelectedMonth, cmd.SelectedDay);
-        if (candidate.Date < DateTime.Today)
+        if (candidate.Date < _dateTime.Today)
             candidate = candidate.AddYears(1);
 
-        subscription.Name = cmd.Name;
-        subscription.Price = cmd.Price;
-        subscription.RenewalPeriodDays = cmd.RenewalPeriodDays;
-        subscription.RenewalDate = candidate;
+        subscription.UpdateDetails(cmd.Name, cmd.Price, cmd.RenewalPeriodDays, candidate);
 
         await _repo.UpdateAsync(subscription, ct);
         return Unit.Value;

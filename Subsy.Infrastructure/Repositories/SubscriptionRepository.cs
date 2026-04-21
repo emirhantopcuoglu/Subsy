@@ -25,7 +25,6 @@ namespace Subsy.Infrastructure.Repositories
         public async Task<Subscription?> GetByIdAsync(int id, string userId, CancellationToken ct)
         {
             return await _context.Subscriptions
-                .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, ct);
         }
 
@@ -37,7 +36,6 @@ namespace Subsy.Infrastructure.Repositories
 
         public async Task UpdateAsync(Subscription subscription, CancellationToken ct = default)
         {
-            _context.Subscriptions.Update(subscription);
             await _context.SaveChangesAsync(ct);
         }
 
