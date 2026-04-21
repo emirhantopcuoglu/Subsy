@@ -1,9 +1,11 @@
-using System.Net;
-using Subsy.Application.DependencyInjection;
-using Subsy.Infrastructure.DependencyInjection;
-using Subsy.Web.Filters;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Subsy.Application.DependencyInjection;
+using Subsy.Infrastructure.BackgroundJobs;
+using Subsy.Infrastructure.DependencyInjection;
+using Subsy.Web.Filters;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,6 +52,14 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseHangfireDashboard("/hangfire");
+
+// Günlük sabah 8'de çalışacak recurring job
+RecurringJob.AddOrUpdate<PaymentReminderJob>(
+    "payment-reminder",
+    job => job.ExecuteAsync(),
+    "0 8 * * *"); // Cron: her gün saat 08:00
 
 app.MapControllerRoute(
     name: "default",
