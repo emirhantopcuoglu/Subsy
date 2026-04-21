@@ -1,7 +1,9 @@
 ﻿using FluentAssertions;
+using MediatR;
 using Moq;
 using Subsy.Application.Common.Interfaces;
 using Subsy.Application.Subscriptions.Commands.CreateSubscription;
+using Subsy.Application.Subscriptions.Commands.MarkSubscriptionAsPaid;
 using Subsy.Domain.Entities;
 
 namespace Subsy.Application.Tests.Subscriptions.Commands;
@@ -32,7 +34,8 @@ public class CreateSubscriptionHandlerTests
 
         var clockMock = CreateClockMock();
 
-        var handler = new CreateSubscriptionHandler(repoMock.Object, clockMock.Object);
+        var publisherMock = new Mock<IPublisher>();
+        var handler = new CreateSubscriptionHandler(repoMock.Object, clockMock.Object, publisherMock.Object);
 
         var command = new CreateSubscriptionCommand(
             TestUserId, "Netflix", 99.99m, 30, SelectedMonth: 8, SelectedDay: 10);
@@ -63,7 +66,8 @@ public class CreateSubscriptionHandlerTests
 
         var clockMock = CreateClockMock();
 
-        var handler = new CreateSubscriptionHandler(repoMock.Object, clockMock.Object);
+        var publisherMock = new Mock<IPublisher>();
+        var handler = new CreateSubscriptionHandler(repoMock.Object, clockMock.Object, publisherMock.Object);
 
         var command = new CreateSubscriptionCommand(
             TestUserId, "Spotify", 49.99m, 30, SelectedMonth: 3, SelectedDay: 1);
@@ -87,7 +91,8 @@ public class CreateSubscriptionHandlerTests
 
         var clockMock = CreateClockMock();
 
-        var handler = new CreateSubscriptionHandler(repoMock.Object, clockMock.Object);
+        var publisherMock = new Mock<IPublisher>();
+        var handler = new CreateSubscriptionHandler(repoMock.Object, clockMock.Object, publisherMock.Object);
 
         var command = new CreateSubscriptionCommand(
             TestUserId, "Netflix", 99.99m, 30, SelectedMonth: 8, SelectedDay: 10);

@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MediatR;
 using Moq;
 using Subsy.Application.Common.Interfaces;
 using Subsy.Application.Subscriptions.Commands.MarkSubscriptionAsPaid;
@@ -45,7 +46,8 @@ public class MarkSubscriptionAsPaidHandlerTests
             .ReturnsAsync(subscription);
 
         var clockMock = CreateClockMock();
-        var handler = new MarkSubscriptionAsPaidHandler(repoMock.Object, clockMock.Object);
+        var publisherMock = new Mock<IPublisher>();
+        var handler = new MarkSubscriptionAsPaidHandler(repoMock.Object, clockMock.Object, publisherMock.Object);
         var command = new MarkSubscriptionAsPaidCommand(1, TestUserId);
 
         // Act
@@ -70,7 +72,8 @@ public class MarkSubscriptionAsPaidHandlerTests
             .ReturnsAsync(subscription);
 
         var clockMock = CreateClockMock();
-        var handler = new MarkSubscriptionAsPaidHandler(repoMock.Object, clockMock.Object);
+        var publisherMock = new Mock<IPublisher>();
+        var handler = new MarkSubscriptionAsPaidHandler(repoMock.Object, clockMock.Object, publisherMock.Object);
         var command = new MarkSubscriptionAsPaidCommand(1, TestUserId);
 
         // Act
@@ -97,7 +100,8 @@ public class MarkSubscriptionAsPaidHandlerTests
             .ReturnsAsync(subscription);
 
         var clockMock = CreateClockMock();
-        var handler = new MarkSubscriptionAsPaidHandler(repoMock.Object, clockMock.Object);
+        var publisherMock = new Mock<IPublisher>();
+        var handler = new MarkSubscriptionAsPaidHandler(repoMock.Object, clockMock.Object, publisherMock.Object);
         var command = new MarkSubscriptionAsPaidCommand(1, TestUserId);
 
         // Act

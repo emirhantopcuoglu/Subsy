@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Subsy.Application.Common.Events;
 using Subsy.Application.Common.Interfaces;
 using Subsy.Domain.Entities;
 
@@ -9,10 +10,14 @@ public sealed class CreateSubscriptionHandler
 {
     private readonly ISubscriptionRepository _repo;
     private readonly IDateTimeProvider _dateTime;
-    public CreateSubscriptionHandler(ISubscriptionRepository repo, IDateTimeProvider dateTime)
+    private readonly IPublisher _publisher;
+
+    public CreateSubscriptionHandler(
+        ISubscriptionRepository repo, IDateTimeProvider dateTime, IPublisher publisher)
     {
         _repo = repo;
         _dateTime = dateTime;
+        _publisher = publisher;
     }
 
     public async Task<Unit> Handle(CreateSubscriptionCommand cmd, CancellationToken ct)
@@ -31,6 +36,9 @@ public sealed class CreateSubscriptionHandler
              candidate);
 
         await _repo.AddAsync(subscription, ct);
+
+        await _publisher.Publish(new SubscriptionCreatedEvent(
+            cmd.UserId, subscription.Id, subscription.Name), ct);
         return Unit.Value;
     }
 }
