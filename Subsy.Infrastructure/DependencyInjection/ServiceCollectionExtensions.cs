@@ -68,6 +68,8 @@ public static class ServiceCollectionExtensions
 
         services.AddHangfireServer();
 
+        services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+
         return services;
     }
 }

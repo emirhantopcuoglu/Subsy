@@ -12,6 +12,7 @@ public class SubsyContext : IdentityDbContext
 
     public DbSet<Subscription> Subscriptions { get; set; } = default!;
     public DbSet<UserProfile> UserProfiles { get; set; } = default!;
+    public DbSet<AuditLog> AuditLogs { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -48,6 +49,15 @@ public class SubsyContext : IdentityDbContext
                 .IsRequired();
 
             cfg.HasIndex(x => new { x.UserId, x.IsArchived, x.RenewalDate });
+        });
+
+        builder.Entity<AuditLog>(cfg =>
+        {
+            cfg.Property(x => x.UserId).IsRequired();
+            cfg.Property(x => x.Action).IsRequired().HasMaxLength(50);
+            cfg.Property(x => x.EntityName).IsRequired().HasMaxLength(50);
+            cfg.Property(x => x.Details).HasMaxLength(500);
+            cfg.HasIndex(x => new { x.UserId, x.CreatedAt });
         });
     }
 }
