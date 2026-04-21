@@ -23,15 +23,12 @@ public sealed class CreateSubscriptionHandler
         if (candidate.Date < _dateTime.Today)
             candidate = candidate.AddYears(1);
 
-        var subscription = new Subscription
-        {
-            UserId = cmd.UserId,
-            Name = cmd.Name,
-            Price = cmd.Price,
-            RenewalPeriodDays = cmd.RenewalPeriodDays,
-            RenewalDate = candidate,
-            IsArchived = false
-        };
+        var subscription = Subscription.Create(
+             cmd.UserId,
+             cmd.Name,
+             cmd.Price,
+             cmd.RenewalPeriodDays,
+             candidate);
 
         await _repo.AddAsync(subscription, ct);
         return Unit.Value;

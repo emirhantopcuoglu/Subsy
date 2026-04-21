@@ -23,13 +23,13 @@ public class GetDueSubscriptionsHandlerTests
     public async Task Handle_ShouldReturnOnlyNonArchivedDueSubscriptions()
     {
         // Arrange
-        var subscriptions = new List<Subscription>
-        {
-            new() { Id = 1, UserId = TestUserId, Name = "Netflix",  Price = 99, RenewalPeriodDays = 30, RenewalDate = FixedToday, IsArchived = false },
-            new() { Id = 2, UserId = TestUserId, Name = "Spotify",  Price = 49, RenewalPeriodDays = 30, RenewalDate = FixedToday.AddDays(-3), IsArchived = false },
-            new() { Id = 3, UserId = TestUserId, Name = "Disney",   Price = 79, RenewalPeriodDays = 30, RenewalDate = FixedToday.AddDays(5), IsArchived = false },
-            new() { Id = 4, UserId = TestUserId, Name = "Gym",      Price = 200, RenewalPeriodDays = 30, RenewalDate = FixedToday.AddDays(-1), IsArchived = true }
-        };
+        var netflix = Subscription.Create(TestUserId, "Netflix", 99, 30, FixedToday);
+        var spotify = Subscription.Create(TestUserId, "Spotify", 49, 30, FixedToday.AddDays(-3));
+        var disney = Subscription.Create(TestUserId, "Disney", 79, 30, FixedToday.AddDays(5));
+        var gym = Subscription.Create(TestUserId, "Gym", 200, 30, FixedToday.AddDays(-1));
+        gym.Archive();
+
+        var subscriptions = new List<Subscription> { netflix, spotify, disney, gym };
 
         var repoMock = new Mock<ISubscriptionRepository>();
         repoMock
@@ -39,6 +39,7 @@ public class GetDueSubscriptionsHandlerTests
         var clockMock = CreateClockMock();
         var handler = new GetDueSubscriptionsHandler(repoMock.Object, clockMock.Object);
         var query = new GetDueSubscriptionsQuery(TestUserId);
+
         // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
@@ -56,7 +57,7 @@ public class GetDueSubscriptionsHandlerTests
         // Arrange
         var subscriptions = new List<Subscription>
         {
-            new() { Id = 1, UserId = TestUserId, Name = "Netflix", Price = 99, RenewalPeriodDays = 30, RenewalDate = FixedToday.AddDays(1), IsArchived = false }
+            Subscription.Create(TestUserId, "Netflix", 99, 30, FixedToday.AddDays(1))
         };
 
         var repoMock = new Mock<ISubscriptionRepository>();

@@ -19,12 +19,9 @@ public sealed class ArchiveSubscriptionHandler
         if (subscription is null)
             throw new KeyNotFoundException();
 
-        if (subscription.UserId != cmd.UserId)
-            throw new UnauthorizedAccessException();
+        subscription.Archive();
 
-        subscription.IsArchived = true;
         await _repo.UpdateAsync(subscription, ct);
-
         return Unit.Value;
     }
 }
