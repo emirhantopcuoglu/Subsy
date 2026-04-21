@@ -7,7 +7,9 @@ using Subsy.Infrastructure.Identity;
 using Subsy.Infrastructure.Persistence;
 using Subsy.Infrastructure.Repositories;
 using Subsy.Infrastructure.Services;
-
+using Hangfire;
+using Hangfire.Storage.SQLite;
+using Subsy.Infrastructure.BackgroundJobs;
 namespace Subsy.Infrastructure.DependencyInjection;
 
 public static class ServiceCollectionExtensions
@@ -51,6 +53,20 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IDateTimeProvider, SystemDateTimeProvider>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddHttpContextAccessor();
+
+        // Email
+        services.AddScoped<IEmailService, SmtpEmailService>();
+
+        // Background Jobs
+        services.AddScoped<PaymentReminderJob>();
+
+        // Hangfire
+        services.AddHangfire(config => config
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSQLiteStorage());
+
+        services.AddHangfireServer();
 
         return services;
     }
