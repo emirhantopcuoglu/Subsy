@@ -23,10 +23,10 @@ public class GetDueSubscriptionsHandlerTests
     public async Task Handle_ShouldReturnOnlyNonArchivedDueSubscriptions()
     {
         // Arrange
-        var netflix = Subscription.Create(TestUserId, "Netflix", 99, 30, FixedToday);
-        var spotify = Subscription.Create(TestUserId, "Spotify", 49, 30, FixedToday.AddDays(-3));
-        var disney = Subscription.Create(TestUserId, "Disney", 79, 30, FixedToday.AddDays(5));
-        var gym = Subscription.Create(TestUserId, "Gym", 200, 30, FixedToday.AddDays(-1));
+        var netflix = Subscription.Create(TestUserId, "Netflix", 99, "TRY", 30, FixedToday);
+        var spotify = Subscription.Create(TestUserId, "Spotify", 49, "TRY", 30, FixedToday.AddDays(-3));
+        var disney = Subscription.Create(TestUserId, "Disney", 79, "TRY", 30, FixedToday.AddDays(5));
+        var gym = Subscription.Create(TestUserId, "Gym", 200, "TRY", 30, FixedToday.AddDays(-1));
         gym.Archive();
 
         var subscriptions = new List<Subscription> { netflix, spotify, disney, gym };
@@ -57,7 +57,7 @@ public class GetDueSubscriptionsHandlerTests
         // Arrange
         var subscriptions = new List<Subscription>
         {
-            Subscription.Create(TestUserId, "Netflix", 99, 30, FixedToday.AddDays(1))
+            Subscription.Create(TestUserId, "Netflix", 99, "TRY", 30, FixedToday.AddDays(1))
         };
 
         var repoMock = new Mock<ISubscriptionRepository>();

@@ -6,6 +6,7 @@ public sealed record CreateSubscriptionCommand(
     string UserId,
     string Name,
     decimal Price,
+    string Currency,
     int RenewalPeriodDays,
     int SelectedMonth,
     int SelectedDay

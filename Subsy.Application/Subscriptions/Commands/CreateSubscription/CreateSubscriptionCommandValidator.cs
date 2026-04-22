@@ -18,6 +18,9 @@ namespace Subsy.Application.Subscriptions.Commands.CreateSubscription
             RuleFor(x => x.Price)
                 .GreaterThan(0).WithMessage("Fiyat 0'dan büyük olmalıdır.");
 
+            RuleFor(x => x.Currency)
+                .NotEmpty().WithMessage("Para birimi boş olamaz.");
+
             RuleFor(x => x.RenewalPeriodDays)
                 .Must(x => AllowedRenewalPeriods.Contains(x))
                 .WithMessage("RenewalPeriodDays sadece 7, 15, 30, 90, 180 veya 365 olabilir.");

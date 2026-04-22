@@ -70,6 +70,12 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 
+        // Exchange rate service with HttpClient
+        services.AddHttpClient<IExchangeRateService, ExchangeRateService>();
+
+        // In-memory cache
+        services.AddMemoryCache();
+
         return services;
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Subsy.Infrastructure.Persistence;
 
@@ -10,9 +11,11 @@ using Subsy.Infrastructure.Persistence;
 namespace Subsy.Infrastructure.Migrations
 {
     [DbContext(typeof(SubsyContext))]
-    partial class SubsyContextModelSnapshot : ModelSnapshot
+    [Migration("20260422204142_AddCurrencyToSubscription")]
+    partial class AddCurrencyToSubscription
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.15");
