@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Subsy.Application.Common.Interfaces;
 using Subsy.Web.Models;
-
-using Microsoft.AspNetCore.Authorization;
 namespace Subsy.Web.Controllers
 {
     public class AccountController : Controller
@@ -61,6 +60,7 @@ namespace Subsy.Web.Controllers
 
         [AllowAnonymous]
         [HttpPost]
+        [EnableRateLimiting("login")]
         public async Task<IActionResult> Login(LoginViewModel loginViewModel)
         {
             if (!ModelState.IsValid) return View(loginViewModel);
