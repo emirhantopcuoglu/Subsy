@@ -32,6 +32,7 @@ public sealed class CreateSubscriptionHandler
              cmd.UserId,
              cmd.Name,
              cmd.Price,
+             cmd.Currency,
              cmd.RenewalPeriodDays,
              candidate);
 

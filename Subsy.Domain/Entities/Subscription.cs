@@ -5,6 +5,7 @@ public class Subscription
     public int Id { get; private set; }
     public string Name { get; private set; } = default!;
     public decimal Price { get; private set; }
+    public string Currency { get; private set; } = "TRY";
     public int RenewalPeriodDays { get; private set; }
     public DateTime RenewalDate { get; private set; }
     public string UserId { get; private set; } = default!;
@@ -16,6 +17,7 @@ public class Subscription
         string userId,
         string name,
         decimal price,
+        string currency,
         int renewalPeriodDays,
         DateTime firstRenewalDate)
     {
@@ -24,6 +26,7 @@ public class Subscription
             UserId = userId,
             Name = name,
             Price = price,
+            Currency = currency.ToUpperInvariant(),
             RenewalPeriodDays = renewalPeriodDays,
             RenewalDate = firstRenewalDate,
             IsArchived = false
@@ -57,10 +60,11 @@ public class Subscription
         IsArchived = false;
     }
 
-    public void UpdateDetails(string name, decimal price, int renewalPeriodDays, DateTime newRenewalDate)
+    public void UpdateDetails(string name, decimal price, string currency, int renewalPeriodDays, DateTime newRenewalDate)
     {
         Name = name;
         Price = price;
+        Currency = currency.ToUpperInvariant();
         RenewalPeriodDays = renewalPeriodDays;
         RenewalDate = newRenewalDate;
     }

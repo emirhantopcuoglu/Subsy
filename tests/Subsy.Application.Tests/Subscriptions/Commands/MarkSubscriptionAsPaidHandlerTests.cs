@@ -18,7 +18,7 @@ public class MarkSubscriptionAsPaidHandlerTests
         bool isArchived = false)
     {
         var sub = Subscription.Create(
-            TestUserId, "Netflix", 99.99m, renewalPeriodDays, renewalDate);
+            TestUserId, "Netflix", 99.99m, "TRY", renewalPeriodDays, renewalDate);
 
         if (isArchived)
             sub.Archive();

@@ -45,6 +45,11 @@ public class SubsyContext : IdentityDbContext
             cfg.Property(x => x.Price)
                 .HasPrecision(18, 2);
 
+            cfg.Property(x => x.Currency)
+                .IsRequired()
+                .HasMaxLength(3)
+                .HasDefaultValue("TRY");
+
             cfg.Property(x => x.RenewalPeriodDays)
                 .IsRequired();
 

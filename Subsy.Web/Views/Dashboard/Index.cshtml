@@ -63,7 +63,7 @@
             </div>
             <div>
                 <p class="text-sm text-gray-500">Bu Ay Harcama</p>
-                <h3 class="text-lg font-bold">@($"{Model.TotalThisMonth:0.00}") ₺</h3>
+                <h3 class="text-lg font-bold">@($"{Model.TotalThisMonth:0.00}")</h3>
                 <p class="text-xs text-gray-400">Toplam ödeme</p>
             </div>
         </div>
@@ -104,7 +104,7 @@
                             <span class="font-medium">@item.Name</span>
                         </a>
                         <span class="text-sm">– @item.RenewalDate.ToString("d MMMM yyyy", CultureInfo.CurrentCulture)</span>
-                        <span class="text-sm text-gray-600">(@item.Price ₺)</span>
+                        <span class="text-sm text-gray-600">(@item.Price)</span>
                     </li>
                 }
             </ul>

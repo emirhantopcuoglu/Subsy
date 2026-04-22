@@ -38,7 +38,7 @@ public class CreateSubscriptionHandlerTests
         var handler = new CreateSubscriptionHandler(repoMock.Object, clockMock.Object, publisherMock.Object);
 
         var command = new CreateSubscriptionCommand(
-            TestUserId, "Netflix", 99.99m, 30, SelectedMonth: 8, SelectedDay: 10);
+            TestUserId, "Netflix", 99.99m, "USD", 30, SelectedMonth: 8, SelectedDay: 10);
 
         // Act
         await handler.Handle(command, CancellationToken.None);
@@ -48,6 +48,7 @@ public class CreateSubscriptionHandlerTests
         captured!.RenewalDate.Should().Be(new DateTime(2026, 8, 10));
         captured.Name.Should().Be("Netflix");
         captured.Price.Should().Be(99.99m);
+        captured.Currency.Should().Be("USD");
         captured.UserId.Should().Be(TestUserId);
         captured.IsArchived.Should().BeFalse();
     }
@@ -70,7 +71,7 @@ public class CreateSubscriptionHandlerTests
         var handler = new CreateSubscriptionHandler(repoMock.Object, clockMock.Object, publisherMock.Object);
 
         var command = new CreateSubscriptionCommand(
-            TestUserId, "Spotify", 49.99m, 30, SelectedMonth: 3, SelectedDay: 1);
+            TestUserId, "Spotify", 49.99m, "EUR", 30, SelectedMonth: 3, SelectedDay: 1);
 
         // Act
         await handler.Handle(command, CancellationToken.None);
@@ -95,7 +96,7 @@ public class CreateSubscriptionHandlerTests
         var handler = new CreateSubscriptionHandler(repoMock.Object, clockMock.Object, publisherMock.Object);
 
         var command = new CreateSubscriptionCommand(
-            TestUserId, "Netflix", 99.99m, 30, SelectedMonth: 8, SelectedDay: 10);
+            TestUserId, "Netflix", 99.99m, "TRY", 30, SelectedMonth: 8, SelectedDay: 10);
 
         // Act
         await handler.Handle(command, CancellationToken.None);
