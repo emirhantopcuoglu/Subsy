@@ -79,14 +79,18 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 app.UseMiddleware<ApiExceptionMiddleware>();
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Subsy API v1");
-    c.RoutePrefix = string.Empty; 
-});
 
-//app.UseHttpsRedirection();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Subsy API v1");
+        c.RoutePrefix = string.Empty;
+    });
+}
+
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
