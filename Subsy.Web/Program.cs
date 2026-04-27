@@ -1,10 +1,12 @@
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Subsy.Application.DependencyInjection;
 using Subsy.Infrastructure.BackgroundJobs;
 using Subsy.Infrastructure.DependencyInjection;
+using Subsy.Infrastructure.Identity;
 using Subsy.Web.Filters;
 using Subsy.Web.Middleware;
 using System.Net;
@@ -61,6 +63,12 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    await RoleSeeder.SeedAsync(roleManager);
+}
 
 if (app.Environment.IsDevelopment())
 {
