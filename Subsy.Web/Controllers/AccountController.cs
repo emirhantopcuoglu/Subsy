@@ -100,5 +100,9 @@ namespace Subsy.Web.Controllers
             TempData["LogoutMessage"] = "Başarıyla çıkış yapıldı.";
             return RedirectToAction("Login", "Account");
         }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public IActionResult AccessDenied() => View();
     }
 }
