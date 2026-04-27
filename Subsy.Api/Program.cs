@@ -15,7 +15,11 @@ builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 
 // JWT Authentication
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "SubsyDefaultDevKey_MinLength32Chars!";
+var jwtKey = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+    throw new InvalidOperationException(
+        "JWT signing key is not configured. Set Jwt:Key via user secrets or the JWT__KEY environment variable.");
+
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "Subsy";
 
 builder.Services.AddAuthentication(options =>
