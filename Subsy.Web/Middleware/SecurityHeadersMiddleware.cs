@@ -25,11 +25,25 @@ public class SecurityHeadersMiddleware
         // HTTPS zorunlu — tarayıcı 1 yıl boyunca sadece HTTPS kulansın
         headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains";
 
-        // XSS koruması 
+        // XSS koruması
         headers["X-XSS-Protection"] = "1; mode=block";
 
         // Permissions Policy
         headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+
+        // Content Security Policy
+        // 'unsafe-inline' is required because several views use inline <script> blocks.
+        // Tighten to nonce-based CSP when views are refactored.
+        headers["Content-Security-Policy"] =
+            "default-src 'self'; " +
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com; " +
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+            "img-src 'self' data:; " +
+            "font-src 'self'; " +
+            "connect-src 'self'; " +
+            "frame-ancestors 'none'; " +
+            "form-action 'self'; " +
+            "base-uri 'self';";
 
         await _next(context);
     }
