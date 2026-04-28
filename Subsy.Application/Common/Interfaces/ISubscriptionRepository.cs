@@ -16,5 +16,6 @@ namespace Subsy.Application.Common.Interfaces
 
         Task<decimal> GetTotalPriceByUserIdAsync(string userId, CancellationToken cancellationToken = default);
 
+        Task<List<Subscription>> GetDueOnDateAsync(DateTime date, CancellationToken cancellationToken = default);
     }
 }

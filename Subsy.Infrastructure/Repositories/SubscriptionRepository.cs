@@ -51,5 +51,12 @@ namespace Subsy.Infrastructure.Repositories
                 .SumAsync(x => x.Price, ct);
         }
 
+        public Task<List<Subscription>> GetDueOnDateAsync(DateTime date, CancellationToken ct = default)
+        {
+            return _context.Subscriptions
+                .AsNoTracking()
+                .Where(s => !s.IsArchived && s.RenewalDate.Date == date.Date)
+                .ToListAsync(ct);
+        }
     }
 }
