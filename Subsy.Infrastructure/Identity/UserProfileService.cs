@@ -10,13 +10,6 @@ namespace Subsy.Infrastructure.Identity;
 
 public sealed class UserProfileService : IUserProfileService
 {
-    private static readonly HashSet<string> AllowedPhotoContentTypes = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "image/jpeg",
-        "image/png",
-        "image/webp"
-    };
-
     private static readonly HashSet<string> AllowedPhotoExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
         ".jpg", ".jpeg", ".png", ".webp"
@@ -139,7 +132,7 @@ public sealed class UserProfileService : IUserProfileService
         byte[] fileBytes,
         CancellationToken cancellationToken = default)
     {
-        if (!AllowedPhotoContentTypes.Contains(contentType))
+        if (!IsAllowedImageSignature(fileBytes))
             throw new InvalidOperationException("Sadece JPG, PNG veya WebP yükleyebilirsiniz.");
 
         var user = await _userManager.FindByIdAsync(userId);
@@ -196,6 +189,27 @@ public sealed class UserProfileService : IUserProfileService
 
             throw;
         }
+    }
+
+    private static bool IsAllowedImageSignature(byte[] bytes)
+    {
+        if (bytes.Length < 12)
+            return false;
+
+        // JPEG: FF D8 FF
+        if (bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF)
+            return true;
+
+        // PNG: 89 50 4E 47 0D 0A 1A 0A
+        if (bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47)
+            return true;
+
+        // WebP: RIFF????WEBP
+        if (bytes[0] == 0x52 && bytes[1] == 0x49 && bytes[2] == 0x46 && bytes[3] == 0x46 &&
+            bytes[8] == 0x57 && bytes[9] == 0x45 && bytes[10] == 0x42 && bytes[11] == 0x50)
+            return true;
+
+        return false;
     }
 
     private async Task<UserProfile> EnsureProfileExistsAsync(string userId, CancellationToken cancellationToken)
