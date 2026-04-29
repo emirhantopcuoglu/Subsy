@@ -1,44 +1,33 @@
-﻿using Microsoft.Extensions.Configuration;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+using Microsoft.Extensions.Options;
+using MimeKit;
 using Subsy.Application.Common.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
+using Subsy.Infrastructure.Settings;
 
-namespace Subsy.Infrastructure.Services
+namespace Subsy.Infrastructure.Services;
+
+public sealed class SmtpEmailService : IEmailService
 {
-    public class SmtpEmailService : IEmailService
+    private readonly SmtpSettings _settings;
+
+    public SmtpEmailService(IOptions<SmtpSettings> options)
     {
-        private readonly IConfiguration _config;
+        _settings = options.Value;
+    }
 
-        public SmtpEmailService(IConfiguration config)
-        {
-            _config = config;
-        }
+    public async Task SendAsync(string to, string subject, string body, CancellationToken ct = default)
+    {
+        var message = new MimeMessage();
+        message.From.Add(MailboxAddress.Parse(_settings.From));
+        message.To.Add(MailboxAddress.Parse(to));
+        message.Subject = subject;
+        message.Body = new TextPart("html") { Text = body };
 
-        public async Task SendAsync(string to, string subject, string body, CancellationToken ct = default)
-        {
-            var smtpHost = _config["Email:SmtpHost"] ?? "localhost";
-            var smtpPort = int.Parse(_config["Email:SmtpPort"] ?? "587");
-            var fromAddress = _config["Email:From"] ?? "noreply@subsy.app";
-            var username = _config["Email:Username"] ?? "";
-            var password = _config["Email:Password"] ?? "";
-
-            using var client = new SmtpClient(smtpHost, smtpPort)
-            {
-                Credentials = new NetworkCredential(username, password),
-                EnableSsl = true
-            };
-
-            var message = new MailMessage(fromAddress, to, subject, body)
-            {
-                IsBodyHtml = true
-            };
-
-            await client.SendMailAsync(message, ct);
-        }
+        using var client = new SmtpClient();
+        await client.ConnectAsync(_settings.Host, _settings.Port, SecureSocketOptions.StartTls, ct);
+        await client.AuthenticateAsync(_settings.Username, _settings.Password, ct);
+        await client.SendAsync(message, ct);
+        await client.DisconnectAsync(quit: true, ct);
     }
 }

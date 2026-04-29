@@ -1,15 +1,17 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Hangfire;
+using Hangfire.Storage.SQLite;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Subsy.Application.Common.Interfaces;
+using Subsy.Infrastructure.BackgroundJobs;
 using Subsy.Infrastructure.Identity;
 using Subsy.Infrastructure.Persistence;
 using Subsy.Infrastructure.Repositories;
 using Subsy.Infrastructure.Services;
-using Hangfire;
-using Hangfire.Storage.SQLite;
-using Subsy.Infrastructure.BackgroundJobs;
+using Subsy.Infrastructure.Settings;
+
 namespace Subsy.Infrastructure.DependencyInjection;
 
 public static class ServiceCollectionExtensions
@@ -55,6 +57,7 @@ public static class ServiceCollectionExtensions
         services.AddHttpContextAccessor();
 
         // Email
+        services.Configure<SmtpSettings>(configuration.GetSection("Email"));
         services.AddScoped<IEmailService, SmtpEmailService>();
 
         // Background Jobs
