@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Subsy.Application.Common.Events;
 using Subsy.Application.Common.Interfaces;
 
 namespace Subsy.Application.Subscriptions.Commands.UpdateSubscription;
@@ -8,11 +9,13 @@ public sealed class UpdateSubscriptionHandler
 {
     private readonly ISubscriptionRepository _repo;
     private readonly IDateTimeProvider _dateTime;
+    private readonly IPublisher _publisher;
 
-    public UpdateSubscriptionHandler(ISubscriptionRepository repo, IDateTimeProvider dateTime)
+    public UpdateSubscriptionHandler(ISubscriptionRepository repo, IDateTimeProvider dateTime, IPublisher publisher)
     {
         _repo = repo;
         _dateTime = dateTime;
+        _publisher = publisher;
     }
 
     public async Task<Unit> Handle(UpdateSubscriptionCommand cmd, CancellationToken ct)
@@ -29,6 +32,8 @@ public sealed class UpdateSubscriptionHandler
         subscription.UpdateDetails(cmd.Name, cmd.Price, cmd.Currency, cmd.RenewalPeriodDays, candidate);
 
         await _repo.UpdateAsync(subscription, ct);
+
+        await _publisher.Publish(new SubscriptionUpdatedEvent(cmd.UserId, subscription.Id, subscription.Name), ct);
         return Unit.Value;
     }
 }
