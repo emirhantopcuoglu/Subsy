@@ -45,7 +45,8 @@ public sealed class UserProfileService : IUserProfileService
             UserName = user.UserName ?? string.Empty,
             Email = user.Email ?? string.Empty,
             RegisteredAt = profile.RegisteredAt,
-            ProfilePhotoPath = profile.ProfilePhotoPath
+            ProfilePhotoPath = profile.ProfilePhotoPath,
+            PreferredCurrency = profile.PreferredCurrency
         };
     }
 
@@ -62,7 +63,8 @@ public sealed class UserProfileService : IUserProfileService
         {
             UserId = userId,
             RegisteredAt = registeredAtUtc,
-            ProfilePhotoPath = null
+            ProfilePhotoPath = null,
+            PreferredCurrency = "TRY"
         });
 
         await _context.SaveChangesAsync(cancellationToken);

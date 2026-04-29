@@ -7,4 +7,6 @@ public class UserProfile
     public DateTime RegisteredAt { get; set; }
 
     public string? ProfilePhotoPath { get; set; }
+
+    public string PreferredCurrency { get; set; } = "TRY";
 }
