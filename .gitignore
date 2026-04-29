@@ -45,4 +45,5 @@ appsettings.Local.json
 # =====================
 # Claude Code
 # =====================
+CLAUDE.md
 .claude/
