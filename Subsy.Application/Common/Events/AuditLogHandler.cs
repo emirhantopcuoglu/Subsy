@@ -7,7 +7,10 @@ namespace Subsy.Application.Common.Events;
 public class AuditLogHandler :
     INotificationHandler<SubscriptionCreatedEvent>,
     INotificationHandler<SubscriptionPaidEvent>,
-    INotificationHandler<SubscriptionArchivedEvent>
+    INotificationHandler<SubscriptionArchivedEvent>,
+    INotificationHandler<SubscriptionUnarchivedEvent>,
+    INotificationHandler<SubscriptionUpdatedEvent>,
+    INotificationHandler<SubscriptionDeletedEvent>
 {
     private readonly IAuditLogRepository _auditRepo;
     private readonly IDateTimeProvider _dateTime;
@@ -39,6 +42,30 @@ public class AuditLogHandler :
         var log = AuditLog.Create(
             e.UserId, "SubscriptionArchived", "Subscription", e.SubscriptionId,
             $"Archived: {e.SubscriptionName}", _dateTime.UtcNow);
+        await _auditRepo.AddAsync(log, ct);
+    }
+
+    public async Task Handle(SubscriptionUnarchivedEvent e, CancellationToken ct)
+    {
+        var log = AuditLog.Create(
+            e.UserId, "SubscriptionUnarchived", "Subscription", e.SubscriptionId,
+            $"Unarchived: {e.SubscriptionName}", _dateTime.UtcNow);
+        await _auditRepo.AddAsync(log, ct);
+    }
+
+    public async Task Handle(SubscriptionUpdatedEvent e, CancellationToken ct)
+    {
+        var log = AuditLog.Create(
+            e.UserId, "SubscriptionUpdated", "Subscription", e.SubscriptionId,
+            $"Updated: {e.SubscriptionName}", _dateTime.UtcNow);
+        await _auditRepo.AddAsync(log, ct);
+    }
+
+    public async Task Handle(SubscriptionDeletedEvent e, CancellationToken ct)
+    {
+        var log = AuditLog.Create(
+            e.UserId, "SubscriptionDeleted", "Subscription", e.SubscriptionId,
+            $"Deleted: {e.SubscriptionName}", _dateTime.UtcNow);
         await _auditRepo.AddAsync(log, ct);
     }
 }
