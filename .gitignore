@@ -41,3 +41,8 @@ Thumbs.db
 # =====================
 appsettings.Development.json
 appsettings.Local.json
+
+# =====================
+# Claude Code
+# =====================
+.claude/
