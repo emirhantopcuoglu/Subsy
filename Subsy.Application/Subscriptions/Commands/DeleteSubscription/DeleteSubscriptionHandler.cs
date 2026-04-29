@@ -1,4 +1,5 @@
-﻿using MediatR;
+using MediatR;
+using Microsoft.Extensions.Logging;
 using Subsy.Application.Common.Interfaces;
 
 namespace Subsy.Application.Subscriptions.Commands.DeleteSubscription;
@@ -7,10 +8,14 @@ public sealed class DeleteSubscriptionHandler
     : IRequestHandler<DeleteSubscriptionCommand, Unit>
 {
     private readonly ISubscriptionRepository _repo;
+    private readonly ILogger<DeleteSubscriptionHandler> _logger;
 
-    public DeleteSubscriptionHandler(ISubscriptionRepository repo)
+    public DeleteSubscriptionHandler(
+        ISubscriptionRepository repo,
+        ILogger<DeleteSubscriptionHandler> logger)
     {
         _repo = repo;
+        _logger = logger;
     }
 
     public async Task<Unit> Handle(DeleteSubscriptionCommand cmd, CancellationToken ct)
@@ -23,6 +28,10 @@ public sealed class DeleteSubscriptionHandler
             throw new UnauthorizedAccessException();
 
         await _repo.DeleteAsync(subscription, ct);
+
+        _logger.LogInformation("Subscription deleted: {SubscriptionId} '{Name}' by user {UserId}",
+            subscription.Id, subscription.Name, cmd.UserId);
+
         return Unit.Value;
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Subsy.Application.Common.Interfaces;
 
 namespace Subsy.Infrastructure.BackgroundJobs;
@@ -10,26 +11,33 @@ public class PaymentReminderJob
     private readonly UserManager<IdentityUser> _userManager;
     private readonly IEmailService _emailService;
     private readonly IDateTimeProvider _dateTime;
+    private readonly ILogger<PaymentReminderJob> _logger;
 
     public PaymentReminderJob(
         ISubscriptionRepository subscriptions,
         UserManager<IdentityUser> userManager,
         IEmailService emailService,
-        IDateTimeProvider dateTime)
+        IDateTimeProvider dateTime,
+        ILogger<PaymentReminderJob> logger)
     {
         _subscriptions = subscriptions;
         _userManager = userManager;
         _emailService = emailService;
         _dateTime = dateTime;
+        _logger = logger;
     }
 
     public async Task ExecuteAsync()
     {
         var tomorrow = _dateTime.Today.AddDays(1);
+        _logger.LogInformation("PaymentReminderJob started for date {Date}", tomorrow);
 
         var dueSoon = await _subscriptions.GetDueOnDateAsync(tomorrow);
         if (dueSoon.Count == 0)
+        {
+            _logger.LogInformation("PaymentReminderJob: no subscriptions due on {Date}", tomorrow);
             return;
+        }
 
         var userIds = dueSoon.Select(s => s.UserId).Distinct().ToList();
         var users = await _userManager.Users
@@ -53,7 +61,16 @@ public class PaymentReminderJob
                 <p>Subsy ile aboneliklerinizi takip edin.</p>
                 """;
 
-            await _emailService.SendAsync(user.Email, subject, body);
+            try
+            {
+                await _emailService.SendAsync(user.Email, subject, body);
+                _logger.LogInformation("Payment reminder sent to {Email} for {Count} subscription(s)",
+                    user.Email, group.Count());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send payment reminder to {Email}", user.Email);
+            }
         }
     }
 }
