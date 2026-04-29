@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
+using Subsy.Application.Common.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -17,15 +18,21 @@ public class AuthController : ControllerBase
     private readonly UserManager<IdentityUser> _userManager;
     private readonly SignInManager<IdentityUser> _signInManager;
     private readonly IConfiguration _config;
+    private readonly IUserProfileService _userProfileService;
+    private readonly IDateTimeProvider _dateTime;
 
     public AuthController(
         UserManager<IdentityUser> userManager,
         SignInManager<IdentityUser> signInManager,
-        IConfiguration config)
+        IConfiguration config,
+        IUserProfileService userProfileService,
+        IDateTimeProvider dateTime)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _config = config;
+        _userProfileService = userProfileService;
+        _dateTime = dateTime;
     }
 
     [AllowAnonymous]
@@ -64,6 +71,8 @@ public class AuthController : ControllerBase
 
         if (!result.Succeeded)
             return BadRequest(new { errors = result.Errors.Select(e => e.Description) });
+
+        await _userProfileService.InitializeProfileAsync(user.Id, _dateTime.UtcNow);
 
         var token = GenerateJwtToken(user);
         return Created("", new { token });
