@@ -6,17 +6,19 @@ namespace Subsy.Application.Finance.Dashboard.Queries;
 public sealed class GetFinanceDashboardHandler : IRequestHandler<GetFinanceDashboardQuery, FinanceDashboardDto>
 {
     private readonly ISubscriptionRepository _repo;
+    private readonly IDateTimeProvider _dateTime;
 
-    public GetFinanceDashboardHandler(ISubscriptionRepository repo)
+    public GetFinanceDashboardHandler(ISubscriptionRepository repo, IDateTimeProvider dateTime)
     {
         _repo = repo;
+        _dateTime = dateTime;
     }
 
     public async Task<FinanceDashboardDto> Handle(GetFinanceDashboardQuery query, CancellationToken ct = default)
     {
         var subs = await _repo.GetAllByUserIdAsync(query.UserId, ct);
 
-        var today = DateTime.Today;
+        var today = _dateTime.Today;
         var monthStart = new DateTime(today.Year, today.Month, 1);
         var monthEnd = monthStart.AddMonths(1);
 
