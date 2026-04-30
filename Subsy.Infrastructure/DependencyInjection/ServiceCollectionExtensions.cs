@@ -73,8 +73,9 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 
-        // Exchange rate service with HttpClient
-        services.AddHttpClient<IExchangeRateService, ExchangeRateService>();
+        // Exchange rate service with HttpClient + resilience (retry, circuit breaker, timeout via Polly)
+        services.AddHttpClient<IExchangeRateService, ExchangeRateService>()
+            .AddStandardResilienceHandler();
 
         // In-memory cache
         services.AddMemoryCache();
