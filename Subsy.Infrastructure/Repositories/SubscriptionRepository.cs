@@ -22,6 +22,42 @@ namespace Subsy.Infrastructure.Repositories
                 .ToListAsync(ct);
         }
 
+        public Task<List<Subscription>> GetActiveByUserIdAsync(string userId, CancellationToken ct = default)
+        {
+            return _context.Subscriptions
+                .AsNoTracking()
+                .Where(s => s.UserId == userId && !s.IsArchived)
+                .ToListAsync(ct);
+        }
+
+        public Task<int> GetActiveCountAsync(string userId, DateTime fromDate, CancellationToken ct = default)
+        {
+            return _context.Subscriptions
+                .CountAsync(s => s.UserId == userId && !s.IsArchived && s.RenewalDate >= fromDate, ct);
+        }
+
+        public Task<int> GetDueCountOnDateAsync(string userId, DateTime date, CancellationToken ct = default)
+        {
+            return _context.Subscriptions
+                .CountAsync(s => s.UserId == userId && !s.IsArchived && s.RenewalDate.Date == date.Date, ct);
+        }
+
+        public Task<decimal> GetTotalInPeriodAsync(string userId, DateTime from, DateTime to, CancellationToken ct = default)
+        {
+            return _context.Subscriptions
+                .Where(s => s.UserId == userId && !s.IsArchived && s.RenewalDate >= from && s.RenewalDate < to)
+                .SumAsync(s => s.Price, ct);
+        }
+
+        public Task<List<Subscription>> GetUpcomingAsync(string userId, DateTime from, DateTime to, CancellationToken ct = default)
+        {
+            return _context.Subscriptions
+                .AsNoTracking()
+                .Where(s => s.UserId == userId && !s.IsArchived && s.RenewalDate.Date >= from.Date && s.RenewalDate.Date <= to.Date)
+                .OrderBy(s => s.RenewalDate)
+                .ToListAsync(ct);
+        }
+
         public async Task<Subscription?> GetByIdAsync(int id, string userId, CancellationToken ct)
         {
             return await _context.Subscriptions

@@ -17,10 +17,9 @@ public sealed class GetActiveSubscriptionsHandler
         GetActiveSubscriptionsQuery request,
         CancellationToken ct)
     {
-        var subs = await _repo.GetAllByUserIdAsync(request.UserId, ct);
+        var subs = await _repo.GetActiveByUserIdAsync(request.UserId, ct);
 
         return subs
-            .Where(s => !s.IsArchived)
             .Select(s => new SubscriptionDto
             {
                 Id = s.Id,
