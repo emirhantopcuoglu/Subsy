@@ -24,10 +24,13 @@ public sealed class GetFinanceDashboardHandler : IRequestHandler<GetFinanceDashb
 
     public async Task<FinanceDashboardDto> Handle(GetFinanceDashboardQuery query, CancellationToken ct = default)
     {
-        var subs = await _repo.GetAllByUserIdAsync(query.UserId, ct);
+        var subsTask = _repo.GetActiveByUserIdAsync(query.UserId, ct);
+        var profileTask = _userProfileService.GetByUserIdAsync(query.UserId, ct);
 
-        var profile = await _userProfileService.GetByUserIdAsync(query.UserId, ct);
-        var preferredCurrency = profile?.PreferredCurrency ?? "TRY";
+        await Task.WhenAll(subsTask, profileTask);
+
+        var subs = subsTask.Result;
+        var preferredCurrency = profileTask.Result?.PreferredCurrency ?? "TRY";
 
         // Fetch all rates once — base = preferredCurrency, so rates[X] = how many X per 1 preferred unit
         var rates = await _exchangeRateService.GetRatesAsync(preferredCurrency, ct);
@@ -47,7 +50,7 @@ public sealed class GetFinanceDashboardHandler : IRequestHandler<GetFinanceDashb
         var monthStart = new DateTime(today.Year, today.Month, 1);
         var monthEnd = monthStart.AddMonths(1);
 
-        var active = subs.Where(s => s.IsArchived == false).ToList();
+        var active = subs;
 
         decimal monthlyEquivalent = active
             .Where(s => s.RenewalPeriodDays > 0)

@@ -11,34 +11,24 @@ public sealed class GetDashboardHandler : IRequestHandler<GetSubscriptionDashboa
 
     public async Task<SubscriptionDashboardDto> Handle(GetSubscriptionDashboardQuery q, CancellationToken ct)
     {
-        var subs = await _repo.GetAllByUserIdAsync(q.UserId, ct);
-
-        var active = subs.Where(s => s.IsArchived == false).ToList();
-
         var today = DateTime.Today;
-        var todayDue = active.Where(s => s.RenewalDate.Date == today).ToList();
-
-        var activeCount = active.Count(s => s.RenewalDate.Date >= today);
-
         var monthStart = new DateTime(today.Year, today.Month, 1);
         var monthEnd = monthStart.AddMonths(1);
-
-        var totalThisMonth = active
-            .Where(s => s.RenewalDate >= monthStart && s.RenewalDate < monthEnd)
-            .Sum(s => s.Price);
-
         var upcomingEnd = today.AddDays(3);
-        var upcoming = active
-            .Where(s => s.RenewalDate.Date >= today && s.RenewalDate.Date <= upcomingEnd)
-            .OrderBy(s => s.RenewalDate)
-            .ToList();
+
+        var activeCountTask = _repo.GetActiveCountAsync(q.UserId, today, ct);
+        var todayDueCountTask = _repo.GetDueCountOnDateAsync(q.UserId, today, ct);
+        var totalThisMonthTask = _repo.GetTotalInPeriodAsync(q.UserId, monthStart, monthEnd, ct);
+        var upcomingTask = _repo.GetUpcomingAsync(q.UserId, today, upcomingEnd, ct);
+
+        await Task.WhenAll(activeCountTask, todayDueCountTask, totalThisMonthTask, upcomingTask);
 
         return new SubscriptionDashboardDto
         {
-            ActiveCount = activeCount,
-            TodayDueCount = todayDue.Count,
-            TotalThisMonth = totalThisMonth,
-            Upcoming = upcoming.Select(s => new UpcomingSubscriptionDto
+            ActiveCount = activeCountTask.Result,
+            TodayDueCount = todayDueCountTask.Result,
+            TotalThisMonth = totalThisMonthTask.Result,
+            Upcoming = upcomingTask.Result.Select(s => new UpcomingSubscriptionDto
             {
                 Id = s.Id,
                 Name = s.Name,
