@@ -1,145 +1,131 @@
-﻿<!DOCTYPE html>
-<html lang="tr" class="h-full">
+<!DOCTYPE html>
+<html lang="tr">
 <head>
     <meta charset="utf-8" />
     <title>@ViewData["Title"] - Subsy</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
-
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 
-<body class="h-full bg-gray-100">
+<body>
     @if (User?.Identity?.IsAuthenticated == true)
     {
-        @await Html.PartialAsync("_Sidebar")
-
-        <main class="min-h-screen ml-64 p-6">
-            @await Component.InvokeAsync("FlashMessage")
-            @RenderBody()
-        </main>
+        <div class="app">
+            @await Html.PartialAsync("_Sidebar")
+            <div class="main">
+                @await Html.PartialAsync("_Topbar")
+                <div class="content page-enter">
+                    @await Component.InvokeAsync("FlashMessage")
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
     }
     else
     {
-        @await Html.PartialAsync("_TopNavbar")
-        <div class="container mt-4">
-            @await Component.InvokeAsync("FlashMessage")
-            @RenderBody()
-        </div>
+        @RenderBody()
     }
 
-    <div id="confirmBoxOverlay" class="fixed inset-0 hidden items-center justify-center bg-slate-900/40 p-4 z-[80]">
-        <div class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
-            <h3 id="confirmBoxTitle" class="text-base font-semibold text-slate-900">İşlemi Onayla</h3>
-            <p id="confirmBoxMessage" class="mt-2 text-sm text-slate-600"></p>
-
-            <div class="mt-5 flex justify-end gap-2">
-                <button id="confirmBoxCancel" type="button"
-                        class="inline-flex items-center rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
-                    Vazgeç
-                </button>
-                <button id="confirmBoxApprove" type="button"
-                        class="inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
-                    Evet, devam et
-                </button>
+    <div id="confirmBoxOverlay" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <span id="confirmBoxTitle" class="modal-title">İşlemi Onayla</span>
+            </div>
+            <div class="modal-body">
+                <p id="confirmBoxMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmBoxCancel" type="button" class="btn btn-ghost">Vazgeç</button>
+                <button id="confirmBoxApprove" type="button" class="btn btn-primary">Evet, devam et</button>
             </div>
         </div>
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const overlay = document.getElementById("confirmBoxOverlay");
-            const titleEl = document.getElementById("confirmBoxTitle");
-            const messageEl = document.getElementById("confirmBoxMessage");
-            const cancelBtn = document.getElementById("confirmBoxCancel");
-            const approveBtn = document.getElementById("confirmBoxApprove");
+        // Dark mode
+        (function () {
+            try {
+                var dark = localStorage.getItem('subsy-dark') === 'true';
+                document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+            } catch (e) {}
+        })();
 
-            if (!overlay || !titleEl || !messageEl || !cancelBtn || !approveBtn) {
-                return;
+        document.addEventListener("DOMContentLoaded", function () {
+            // Dark mode toggle
+            var darkToggle = document.getElementById('darkToggle');
+            if (darkToggle) {
+                darkToggle.addEventListener('click', function () {
+                    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+                    try { localStorage.setItem('subsy-dark', (!isDark).toString()); } catch (e) {}
+                    updateDarkIcon(!isDark);
+                });
+                updateDarkIcon(document.documentElement.getAttribute('data-theme') === 'dark');
             }
 
-            let pendingForm = null;
+            function updateDarkIcon(isDark) {
+                var toggle = document.getElementById('darkToggle');
+                if (!toggle) return;
+                toggle.innerHTML = isDark
+                    ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>'
+                    : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+            }
 
-            const variantClasses = [
-                "bg-indigo-600", "hover:bg-indigo-700",
-                "bg-emerald-600", "hover:bg-emerald-700",
-                "bg-red-600", "hover:bg-red-700"
-            ];
+            // Confirm dialog
+            var overlay = document.getElementById("confirmBoxOverlay");
+            var titleEl = document.getElementById("confirmBoxTitle");
+            var messageEl = document.getElementById("confirmBoxMessage");
+            var cancelBtn = document.getElementById("confirmBoxCancel");
+            var approveBtn = document.getElementById("confirmBoxApprove");
 
-            const applyVariant = (variant) => {
-                approveBtn.classList.remove(...variantClasses);
-                if (variant === "danger") {
-                    approveBtn.classList.add("bg-red-600", "hover:bg-red-700");
-                    return;
-                }
+            if (!overlay) return;
 
-                if (variant === "success") {
-                    approveBtn.classList.add("bg-emerald-600", "hover:bg-emerald-700");
-                    return;
-                }
+            var pendingForm = null;
 
-                approveBtn.classList.add("bg-indigo-600", "hover:bg-indigo-700");
-            };
-
-            const closeDialog = () => {
-                overlay.classList.add("hidden");
-                overlay.classList.remove("flex");
+            var closeDialog = function () {
+                overlay.classList.remove("open");
                 pendingForm = null;
             };
 
-            const openDialog = (form) => {
+            var openDialog = function (form) {
                 pendingForm = form;
                 titleEl.textContent = form.dataset.confirmTitle || "İşlemi Onayla";
                 messageEl.textContent = form.dataset.confirm || "";
                 approveBtn.textContent = form.dataset.confirmConfirmText || "Evet, devam et";
                 cancelBtn.textContent = form.dataset.confirmCancelText || "Vazgeç";
-                applyVariant(form.dataset.confirmVariant || "primary");
 
-                overlay.classList.remove("hidden");
-                overlay.classList.add("flex");
+                approveBtn.className = "btn";
+                var variant = form.dataset.confirmVariant || "primary";
+                if (variant === "danger") approveBtn.classList.add("btn-danger");
+                else if (variant === "success") approveBtn.classList.add("btn-success");
+                else approveBtn.classList.add("btn-primary");
+
+                overlay.classList.add("open");
                 approveBtn.focus();
             };
 
             document.addEventListener("submit", function (event) {
-                const form = event.target;
-                if (!(form instanceof HTMLFormElement)) {
-                    return;
-                }
-
-                const message = form.dataset.confirm;
-                if (!message) {
-                    return;
-                }
-
+                var form = event.target;
+                if (!(form instanceof HTMLFormElement)) return;
+                if (!form.dataset.confirm) return;
                 event.preventDefault();
                 event.stopPropagation();
                 openDialog(form);
             }, true);
 
             approveBtn.addEventListener("click", function () {
-                if (!pendingForm) {
-                    return;
-                }
-
-                const formToSubmit = pendingForm;
+                if (!pendingForm) return;
+                var formToSubmit = pendingForm;
                 closeDialog();
                 formToSubmit.submit();
             });
 
             cancelBtn.addEventListener("click", closeDialog);
-            overlay.addEventListener("click", function (event) {
-                if (event.target === overlay) {
-                    closeDialog();
-                }
-            });
-
-            document.addEventListener("keydown", function (event) {
-                if (event.key === "Escape" && !overlay.classList.contains("hidden")) {
-                    closeDialog();
-                }
-            });
+            overlay.addEventListener("click", function (e) { if (e.target === overlay) closeDialog(); });
+            document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeDialog(); });
         });
     </script>
 

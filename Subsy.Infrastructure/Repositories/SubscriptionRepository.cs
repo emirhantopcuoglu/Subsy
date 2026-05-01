@@ -42,11 +42,12 @@ namespace Subsy.Infrastructure.Repositories
                 .CountAsync(s => s.UserId == userId && !s.IsArchived && s.RenewalDate.Date == date.Date, ct);
         }
 
-        public Task<decimal> GetTotalInPeriodAsync(string userId, DateTime from, DateTime to, CancellationToken ct = default)
+        public async Task<decimal> GetTotalInPeriodAsync(string userId, DateTime from, DateTime to, CancellationToken ct = default)
         {
-            return _context.Subscriptions
+            var sum = await _context.Subscriptions
                 .Where(s => s.UserId == userId && !s.IsArchived && s.RenewalDate >= from && s.RenewalDate < to)
-                .SumAsync(s => s.Price, ct);
+                .SumAsync(s => (double)s.Price, ct);
+            return (decimal)sum;
         }
 
         public Task<List<Subscription>> GetUpcomingAsync(string userId, DateTime from, DateTime to, CancellationToken ct = default)

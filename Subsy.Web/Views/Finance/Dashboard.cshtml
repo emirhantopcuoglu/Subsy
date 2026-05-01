@@ -5,69 +5,48 @@
 @{
     ViewData["Title"] = "Finansal Analiz";
     var tr = new CultureInfo("tr-TR");
-
     var labelsJson = JsonSerializer.Serialize(Model.GroupedByService.Select(x => x.SubscriptionName));
     var dataJson = JsonSerializer.Serialize(Model.GroupedByService.Select(x => x.TotalCost));
 }
 
-<div class="pt-6 max-w-screen-2xl mx-auto space-y-10">
-    <div class="flex items-center justify-between gap-4">
-        <h1 class="text-3xl font-bold text-gray-800">📊 Finansal Analiz</h1>
-        <span class="text-sm text-gray-500">
-            (Not: Ödeme geçmişi yoksa değerler “tahmini/planlı” hesaplanır.)
-        </span>
+<div class="stat-grid" style="margin-bottom:20px;">
+    <div class="stat-card">
+        <div class="stat-label">Aylık Tahmini Maliyet</div>
+        <div class="stat-value" style="font-size:20px; color:var(--accent); margin-top:4px;">@Model.TotalMonthlyCost.ToString("C0", tr)</div>
+        <div class="stat-sub">Aboneliklerin aylık eşdeğeri</div>
     </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        <div class="bg-white p-5 rounded-2xl shadow">
-            <p class="text-sm text-gray-500">Aylık Tahmini Maliyet</p>
-            <p class="text-2xl font-bold text-indigo-600">@Model.TotalMonthlyCost.ToString("C", tr)</p>
-            <p class="text-xs text-gray-400 mt-1">Aboneliklerin aylık eşdeğeri</p>
-        </div>
-
-        <div class="bg-white p-5 rounded-2xl shadow">
-            <p class="text-sm text-gray-500">Toplam Abonelik Maliyeti</p>
-            <p class="text-2xl font-bold text-green-600">@Model.AllTimeSpending.ToString("C", tr)</p>
-            <p class="text-xs text-gray-400 mt-1">Aktif abonelik fiyatlarının toplamı</p>
-        </div>
-
-        <div class="bg-white p-5 rounded-2xl shadow">
-            <p class="text-sm text-gray-500">Aktif Abonelik Sayısı</p>
-            <p class="text-2xl font-bold text-blue-600">@Model.SubscriptionCount</p>
-            <p class="text-xs text-gray-400 mt-1">Sonlandırılmamış</p>
-        </div>
-
-        <div class="bg-white p-5 rounded-2xl shadow">
-            <p class="text-sm text-gray-500">En Çok Maliyet</p>
-
-            @if (Model.TopSpendingService is null)
-            {
-                <p class="text-gray-400 text-sm mt-2">Henüz yeterli veri yok</p>
-            }
-            else
-            {
-                <p class="text-xl font-semibold text-rose-600">
-                    @Model.TopSpendingService.SubscriptionName
-                </p>
-                <p class="text-lg">
-                    @Model.TopSpendingService.TotalCost.ToString("C", tr)
-                </p>
-                <p class="text-xs text-gray-400 mt-1">
-                    Aylık eşdeğer bazında
-                </p>
-            }
-        </div>
+    <div class="stat-card">
+        <div class="stat-label">Toplam Abonelik Maliyeti</div>
+        <div class="stat-value" style="font-size:20px; color:var(--success); margin-top:4px;">@Model.AllTimeSpending.ToString("C0", tr)</div>
+        <div class="stat-sub">Aktif abonelik fiyatlarının toplamı</div>
     </div>
+    <div class="stat-card">
+        <div class="stat-label">Aktif Abonelik Sayısı</div>
+        <div class="stat-value" style="font-size:20px; color:var(--accent); margin-top:4px;">@Model.SubscriptionCount</div>
+        <div class="stat-sub">Sonlandırılmamış</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">En Çok Maliyet</div>
+        @if (Model.TopSpendingService is null)
+        {
+            <div class="stat-value" style="font-size:14px; color:var(--text-muted); margin-top:4px;">Henüz veri yok</div>
+        }
+        else
+        {
+            <div class="stat-value" style="font-size:18px; color:var(--danger); margin-top:4px;">@Model.TopSpendingService.SubscriptionName</div>
+            <div class="stat-sub">@Model.TopSpendingService.TotalCost.ToString("C0", tr) aylık</div>
+        }
+    </div>
+</div>
 
-    <div class="bg-white rounded-2xl shadow p-6 grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div>
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">📈 Servis Bazlı Dağılım (Pasta)</h2>
-            <canvas id="pieChart"></canvas>
-        </div>
-        <div>
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">📊 Servis Bazlı Maliyet (Çubuk)</h2>
-            <canvas id="barChart"></canvas>
-        </div>
+<div class="finance-grid">
+    <div class="card card-p">
+        <div class="section-title" style="margin-bottom:16px;">Servis Dağılımı</div>
+        <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
+    </div>
+    <div class="card card-p">
+        <div class="section-title" style="margin-bottom:16px;">Aylık Maliyet Karşılaştırması</div>
+        <div class="chart-wrap"><canvas id="barChart"></canvas></div>
     </div>
 </div>
 
@@ -77,61 +56,39 @@
         const labels = @Html.Raw(labelsJson);
         const values = @Html.Raw(dataJson);
 
-        const colors = [
-            '#4F46E5','#7C3AED','#EC4899','#10B981','#F59E0B',
-            '#3B82F6','#E11D48','#22C55E','#F97316','#8B5CF6'
-        ];
-
+        const colors = ['#4f46e5','#0891b2','#059669','#d97706','#dc2626','#7c3aed','#0d9488','#db2777','#f59e0b','#3b82f6'];
         const fmtTRY = (v) => v.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' });
 
-        const pieCanvas = document.getElementById('pieChart');
-        new Chart(pieCanvas, {
-            type: 'pie',
+        new Chart(document.getElementById('pieChart'), {
+            type: 'doughnut',
             data: {
                 labels,
-                datasets: [{
-                    data: values,
-                    backgroundColor: colors.slice(0, values.length),
-                    borderColor: '#fff',
-                    borderWidth: 2,
-                }]
+                datasets: [{ data: values, backgroundColor: colors.slice(0, values.length), borderWidth: 2, borderColor: '#fff' }]
             },
             options: {
-                responsive: true,
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'bottom' },
-                    tooltip: {
-                        callbacks: {
-                            label: (ctx) => `${ctx.label}: ${fmtTRY(ctx.parsed || 0)}`
-                        }
-                    }
+                    legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, padding: 12, boxWidth: 10 } },
+                    tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmtTRY(ctx.parsed || 0)}` } }
                 }
             }
         });
 
-        const barCanvas = document.getElementById('barChart');
-        new Chart(barCanvas, {
+        new Chart(document.getElementById('barChart'), {
             type: 'bar',
             data: {
                 labels,
-                datasets: [{
-                    label: 'Aylık Maliyet',
-                    data: values,
-                    backgroundColor: colors.slice(0, values.length),
-                    borderWidth: 1
-                }]
+                datasets: [{ data: values, backgroundColor: colors.slice(0, values.length), borderRadius: 5, borderSkipped: false }]
             },
             options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { callback: (val) => fmtTRY(val) }
-                    }
-                },
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
                     legend: { display: false },
-                    tooltip: { callbacks: { label: (ctx) => fmtTRY(ctx.parsed.y) } }
+                    tooltip: { callbacks: { label: ctx => fmtTRY(ctx.parsed.y) } }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'var(--border)' }, ticks: { font: { family: 'DM Sans', size: 11 }, callback: v => fmtTRY(v) } },
+                    x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 11 } } }
                 }
             }
         });

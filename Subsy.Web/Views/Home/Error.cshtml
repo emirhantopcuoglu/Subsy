@@ -3,28 +3,23 @@
     ViewData["Title"] = "Hata";
 }
 
-<div class="max-w-xl mx-auto bg-white rounded-2xl shadow p-6 mt-10">
-    <h1 class="text-2xl font-bold text-gray-800 mb-2">Bir şeyler ters gitti</h1>
-    <p class="text-gray-600 mb-4">
-        Şu an işleminizi tamamlayamadık. Lütfen sayfayı yenileyin veya daha sonra tekrar deneyin.
-    </p>
-
-    @if (!string.IsNullOrWhiteSpace(Model?.RequestId))
-    {
-        <p class="text-sm text-gray-400">
-            Hata Kodu: <span class="font-mono">@Model.RequestId</span>
+<div class="login-wrap">
+    <div class="login-card">
+        <h1 style="font-size:20px; font-weight:700; color:var(--text-primary); margin-bottom:8px;">Bir şeyler ters gitti</h1>
+        <p style="font-size:13px; color:var(--text-secondary); margin-bottom:16px;">
+            Şu an işleminizi tamamlayamadık. Lütfen sayfayı yenileyin veya daha sonra tekrar deneyin.
         </p>
-    }
 
-    <div class="mt-6 flex gap-3">
-        <a asp-controller="Home" asp-action="Index"
-           class="inline-flex items-center px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition">
-            Ana sayfaya dön
-        </a>
+        @if (!string.IsNullOrWhiteSpace(Model?.RequestId))
+        {
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:20px;">
+                Hata Kodu: <span style="font-family:monospace;">@Model.RequestId</span>
+            </p>
+        }
 
-        <button onclick="location.reload()"
-                class="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition">
-            Yenile
-        </button>
+        <div style="display:flex; gap:8px;">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Ana sayfaya dön</a>
+            <button onclick="location.reload()" class="btn btn-ghost">Yenile</button>
+        </div>
     </div>
 </div>
