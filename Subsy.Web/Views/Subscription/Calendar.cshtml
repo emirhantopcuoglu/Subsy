@@ -1,113 +1,88 @@
-﻿@{
+@{
     ViewData["Title"] = "Takvim";
 }
 
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
 
-<div class="flex flex-col gap-6">
-    <!-- Header + Filters -->
-    <div class="bg-white rounded-3xl shadow p-6">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+<div style="display:flex; flex-direction:column; gap:16px;">
+    <div class="card card-p">
+        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;">
             <div>
-                <h2 class="text-2xl font-semibold flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10m-9 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Takvim
-                </h2>
-                <p class="text-sm text-gray-500 mt-1">Yenileme günlerini takip et, gecikmeleri yakala, hızlı aksiyon al.</p>
+                <div class="section-title">Takvim</div>
+                <div class="section-sub">Yenileme günlerini takip et, gecikmeleri yakala, hızlı aksiyon al.</div>
             </div>
-
-            <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
-                <div class="relative">
-                    <input id="calendarSearch" type="text" placeholder="Abonelik ara..."
-                           class="w-full sm:w-72 rounded-xl border border-gray-200 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200" />
-                </div>
-
-                <label class="inline-flex items-center gap-2 text-sm text-gray-700 select-none">
-                    <input id="toggleArchived" type="checkbox" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-200" />
+            <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+                <input id="calendarSearch" type="text" placeholder="Abonelik ara..." class="form-input" style="width:220px;" />
+                <label style="display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--text-secondary); cursor:pointer; user-select:none;">
+                    <input id="toggleArchived" type="checkbox" style="accent-color:var(--accent); width:14px; height:14px;" />
                     Sonlandırılanları göster
                 </label>
             </div>
         </div>
 
-        <!-- Legend -->
-        <div class="mt-4 flex flex-wrap gap-3 text-sm">
-            <span class="inline-flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-full px-3 py-1">
-                <span class="w-3 h-3 rounded-full" style="background:#EF4444;"></span> Gecikmiş
+        <div style="display:flex; flex-wrap:wrap; gap:8px; font-size:12px;">
+            <span style="display:inline-flex; align-items:center; gap:6px; background:var(--page-bg); border:1px solid var(--border); border-radius:20px; padding:3px 10px;">
+                <span style="width:8px; height:8px; border-radius:50%; background:#EF4444; display:inline-block;"></span> Gecikmiş
             </span>
-            <span class="inline-flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-full px-3 py-1">
-                <span class="w-3 h-3 rounded-full" style="background:#F59E0B;"></span> Bugün
+            <span style="display:inline-flex; align-items:center; gap:6px; background:var(--page-bg); border:1px solid var(--border); border-radius:20px; padding:3px 10px;">
+                <span style="width:8px; height:8px; border-radius:50%; background:#F59E0B; display:inline-block;"></span> Bugün
             </span>
-            <span class="inline-flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-full px-3 py-1">
-                <span class="w-3 h-3 rounded-full" style="background:#EAB308;"></span> 7 gün içinde
+            <span style="display:inline-flex; align-items:center; gap:6px; background:var(--page-bg); border:1px solid var(--border); border-radius:20px; padding:3px 10px;">
+                <span style="width:8px; height:8px; border-radius:50%; background:#EAB308; display:inline-block;"></span> 7 gün içinde
             </span>
-            <span class="inline-flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-full px-3 py-1">
-                <span class="w-3 h-3 rounded-full" style="background:#6366F1;"></span> Yaklaşan
+            <span style="display:inline-flex; align-items:center; gap:6px; background:var(--page-bg); border:1px solid var(--border); border-radius:20px; padding:3px 10px;">
+                <span style="width:8px; height:8px; border-radius:50%; background:#6366F1; display:inline-block;"></span> Yaklaşan
             </span>
-            <span class="inline-flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-full px-3 py-1">
-                <span class="w-3 h-3 rounded-full" style="background:#9CA3AF;"></span> Sonlandırılmış
+            <span style="display:inline-flex; align-items:center; gap:6px; background:var(--page-bg); border:1px solid var(--border); border-radius:20px; padding:3px 10px;">
+                <span style="width:8px; height:8px; border-radius:50%; background:#9CA3AF; display:inline-block;"></span> Sonlandırılmış
             </span>
         </div>
     </div>
 
-    <!-- Main grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Calendar -->
-        <div class="lg:col-span-2 bg-white rounded-3xl shadow p-4">
+    <div style="display:grid; grid-template-columns:1fr 300px; gap:16px;">
+        <div class="card" style="padding:16px;">
             <div id="calendar"></div>
         </div>
 
-        <!-- Right panel -->
-        <div class="bg-white rounded-3xl shadow p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-3">Seçili Gün</h3>
-            <div id="selectedDateLabel" class="text-sm text-gray-500 mb-4">Bir güne tıkla</div>
-
-            <div id="dayList" class="space-y-3">
-                <div class="text-sm text-gray-500">Henüz seçim yok.</div>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+            <div class="card card-p">
+                <div class="section-title" style="margin-bottom:8px;">Seçili Gün</div>
+                <div id="selectedDateLabel" style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">Bir güne tıkla</div>
+                <div id="dayList">
+                    <div style="font-size:13px; color:var(--text-muted);">Henüz seçim yok.</div>
+                </div>
             </div>
 
-            <hr class="my-6" />
-
-            <h3 class="text-lg font-semibold text-gray-800 mb-3">Yaklaşan 7 Gün</h3>
-            <div id="nextList" class="space-y-3">
-                <div class="text-sm text-gray-500">Yükleniyor...</div>
+            <div class="card card-p">
+                <div class="section-title" style="margin-bottom:12px;">Yaklaşan 7 Gün</div>
+                <div id="nextList">
+                    <div style="font-size:13px; color:var(--text-muted);">Yükleniyor...</div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal -->
-<div id="eventModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
-        <div class="flex items-start justify-between gap-4">
-            <div>
-                <h3 id="mTitle" class="text-xl font-semibold text-gray-900"></h3>
-                <p id="mMeta" class="text-sm text-gray-500 mt-1"></p>
-            </div>
-            <button id="mClose" class="text-gray-400 hover:text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+<div id="eventModal" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <span id="mTitle" class="modal-title"></span>
+            <button id="mClose" class="tb-btn" style="width:28px; height:28px; border:none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
         </div>
-
-        <div class="mt-5 flex flex-wrap gap-2">
-            <a id="mEdit" class="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-white bg-amber-500 hover:bg-amber-600 text-sm">
-                Düzenle
-            </a>
-
-            <form id="mMarkPaidForm" method="post" class="inline">
-                <button type="submit" class="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 text-sm">
-                    Ödendi / Yenile
-                </button>
+        <div class="modal-body">
+            <p id="mMeta" style="color:var(--text-secondary); font-size:13px;"></p>
+        </div>
+        <div class="modal-footer">
+            <a id="mEdit" class="btn btn-ghost btn-sm">Düzenle</a>
+            <form id="mMarkPaidForm" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-success btn-sm">Ödendi / Yenile</button>
             </form>
-
-            <form id="mArchiveToggleForm" method="post" class="inline">
-                <button id="mArchiveToggleBtn" type="submit"
-                        class="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-white bg-slate-600 hover:bg-slate-700 text-sm">
-                    Sonlandır
-                </button>
+            <form id="mArchiveToggleForm" method="post" style="display:inline;">
+                <button id="mArchiveToggleBtn" type="submit" class="btn btn-ghost btn-sm">Sonlandır</button>
             </form>
         </div>
     </div>
@@ -119,11 +94,9 @@
         const calendarEl = document.getElementById('calendar');
         const searchEl = document.getElementById('calendarSearch');
         const includeArchivedEl = document.getElementById('toggleArchived');
-
         const selectedDateLabel = document.getElementById('selectedDateLabel');
         const dayList = document.getElementById('dayList');
         const nextList = document.getElementById('nextList');
-
         const modal = document.getElementById('eventModal');
         const mClose = document.getElementById('mClose');
         const mTitle = document.getElementById('mTitle');
@@ -140,32 +113,25 @@
             return d.toLocaleDateString("tr-TR", { year: "numeric", month: "long", day: "numeric" });
         };
 
+        const matchesSearch = (ev) => {
+            const q = (searchEl.value || "").trim().toLowerCase();
+            if (!q) return true;
+            return (ev.extendedProps?.name || ev.title || "").toLowerCase().includes(q);
+        };
+
         const renderDayList = (dateStr) => {
-            const items = allEventsCache
-                .filter(e => e.start === dateStr)
-                .filter(matchesSearch);
-
+            const items = allEventsCache.filter(e => e.start === dateStr).filter(matchesSearch);
             selectedDateLabel.textContent = formatDateTR(dateStr);
-
             if (items.length === 0) {
-                dayList.innerHTML = `<div class="text-sm text-gray-500">Bu gün için abonelik yok.</div>`;
+                dayList.innerHTML = `<div style="font-size:13px; color:var(--text-muted);">Bu gün için abonelik yok.</div>`;
                 return;
             }
-
             dayList.innerHTML = items.map(e => `
-                <button type="button"
-                        class="w-full text-left border border-gray-200 rounded-xl p-3 hover:bg-gray-50"
-                        data-event-id="${e.id}">
-                    <div class="flex items-center justify-between gap-3">
-                        <div class="min-w-0">
-                            <div class="text-sm font-semibold text-gray-800 truncate">${e.title}</div>
-                            <div class="text-xs text-gray-500 mt-1">${e.extendedProps?.status ?? ""}</div>
-                        </div>
-                        <span class="w-3 h-3 rounded-full shrink-0" style="background:${e.color || '#6366F1'}"></span>
-                    </div>
+                <button type="button" class="btn btn-ghost btn-sm" style="width:100%; justify-content:flex-start; margin-bottom:4px;" data-event-id="${e.id}">
+                    <span style="width:8px; height:8px; border-radius:50%; background:${e.color || '#6366F1'}; flex-shrink:0;"></span>
+                    <span style="font-size:12px; font-weight:600; flex:1; text-align:left;">${e.title}</span>
                 </button>
             `).join("");
-
             dayList.querySelectorAll("button[data-event-id]").forEach(btn => {
                 btn.addEventListener("click", () => {
                     const ev = allEventsCache.find(x => x.id === btn.dataset.eventId);
@@ -177,35 +143,24 @@
         const renderNext7 = () => {
             const today = new Date();
             const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-            const end = new Date(start);
-            end.setDate(end.getDate() + 7);
-
-            const items = allEventsCache
-                .filter(e => matchesSearch(e))
+            const end = new Date(start); end.setDate(end.getDate() + 7);
+            const items = allEventsCache.filter(matchesSearch)
                 .map(e => ({ e, d: new Date(e.start + "T00:00:00") }))
                 .filter(x => x.d >= start && x.d <= end)
-                .sort((a, b) => a.d - b.d)
-                .slice(0, 12);
-
+                .sort((a, b) => a.d - b.d).slice(0, 12);
             if (items.length === 0) {
-                nextList.innerHTML = `<div class="text-sm text-gray-500">Yaklaşan 7 gün içinde event yok.</div>`;
+                nextList.innerHTML = `<div style="font-size:13px; color:var(--text-muted);">Yaklaşan 7 gün içinde ödeme yok.</div>`;
                 return;
             }
-
             nextList.innerHTML = items.map(x => `
-                <button type="button"
-                        class="w-full text-left border border-gray-200 rounded-xl p-3 hover:bg-gray-50"
-                        data-event-id="${x.e.id}">
-                    <div class="flex items-center justify-between gap-3">
-                        <div class="min-w-0">
-                            <div class="text-sm font-semibold text-gray-800 truncate">${x.e.title}</div>
-                            <div class="text-xs text-gray-500 mt-1">${formatDateTR(x.e.start)} • ${x.e.extendedProps?.status ?? ""}</div>
-                        </div>
-                        <span class="w-3 h-3 rounded-full shrink-0" style="background:${x.e.color || '#6366F1'}"></span>
+                <button type="button" class="btn btn-ghost btn-sm" style="width:100%; justify-content:flex-start; margin-bottom:4px;" data-event-id="${x.e.id}">
+                    <span style="width:8px; height:8px; border-radius:50%; background:${x.e.color || '#6366F1'}; flex-shrink:0;"></span>
+                    <div style="text-align:left; flex:1;">
+                        <div style="font-size:12px; font-weight:600;">${x.e.title}</div>
+                        <div style="font-size:11px; color:var(--text-muted);">${formatDateTR(x.e.start)}</div>
                     </div>
                 </button>
             `).join("");
-
             nextList.querySelectorAll("button[data-event-id]").forEach(btn => {
                 btn.addEventListener("click", () => {
                     const ev = allEventsCache.find(x => x.id === btn.dataset.eventId);
@@ -214,18 +169,10 @@
             });
         };
 
-        const matchesSearch = (ev) => {
-            const q = (searchEl.value || "").trim().toLowerCase();
-            if (!q) return true;
-            const name = (ev.extendedProps?.name || ev.title || "").toLowerCase();
-            return name.includes(q);
-        };
-
         const openModal = (ev) => {
             const p = ev.extendedProps || {};
             mTitle.textContent = p.name || ev.title;
-            mMeta.textContent = `${formatDateTR(p.renewalDate || ev.start)} • ${p.price ?? ""} ₺ • ${p.status ?? ""}`;
-
+            mMeta.textContent = `${formatDateTR(p.renewalDate || ev.start)} • ${p.price ?? ""} • ${p.status ?? ""}`;
             const subId = p.subscriptionId;
             mEdit.href = `/Subscription/Update/${subId}`;
             mMarkPaidForm.action = `/Subscription/MarkAsPaid/${subId}`;
@@ -233,18 +180,11 @@
             mMarkPaidForm.dataset.confirmTitle = "Ödeme Onayı";
             mMarkPaidForm.dataset.confirmConfirmText = "Evet, işaretle";
             mMarkPaidForm.dataset.confirmVariant = "success";
-            const payable = (p.isPayable === true);
             const paidBtn = mMarkPaidForm.querySelector("button[type='submit']");
-
-            if (!payable) {
-                paidBtn.disabled = true;
-                paidBtn.classList.add("opacity-50", "cursor-not-allowed");
-                paidBtn.title = "Ödeme günü gelmeden yenileyemezsin.";
-            } else {
-                paidBtn.disabled = false;
-                paidBtn.classList.remove("opacity-50", "cursor-not-allowed");
-                paidBtn.title = "";
-            }
+            const payable = p.isPayable === true;
+            paidBtn.disabled = !payable;
+            if (!payable) { paidBtn.classList.add("btn-ghost"); paidBtn.style.opacity = "0.5"; }
+            else { paidBtn.classList.remove("btn-ghost"); paidBtn.style.opacity = ""; }
 
             if (p.isArchived === true) {
                 mArchiveToggleBtn.textContent = "Aktif Et";
@@ -261,16 +201,10 @@
                 mArchiveToggleForm.dataset.confirmConfirmText = "Evet, sonlandır";
                 mArchiveToggleForm.dataset.confirmVariant = "danger";
             }
-
-            modal.classList.remove("hidden");
-            modal.classList.add("flex");
+            modal.classList.add("open");
         };
 
-        const closeModal = () => {
-            modal.classList.add("hidden");
-            modal.classList.remove("flex");
-        };
-
+        const closeModal = () => modal.classList.remove("open");
         mClose.addEventListener("click", closeModal);
         modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
 
@@ -278,49 +212,26 @@
             initialView: 'dayGridMonth',
             height: 'auto',
             locale: 'tr',
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,listWeek'
-            },
-
+            headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
             events: async (info, successCallback, failureCallback) => {
                 try {
                     const url = new URL('/Subscription/CalendarEvents', window.location.origin);
                     url.searchParams.set('start', info.startStr);
                     url.searchParams.set('end', info.endStr);
                     url.searchParams.set('includeArchived', includeArchivedEl.checked ? 'true' : 'false');
-
                     const res = await fetch(url.toString(), { headers: { 'Accept': 'application/json' } });
                     if (!res.ok) throw new Error("Events fetch failed");
-
-                    const data = await res.json();
-                    allEventsCache = data || [];
+                    allEventsCache = await res.json() || [];
                     successCallback(allEventsCache);
-
                     renderNext7();
-                } catch (err) {
-                    failureCallback(err);
-                }
+                } catch (err) { failureCallback(err); }
             },
-
-            dateClick: (info) => {
-                renderDayList(info.dateStr);
-            },
-
-            eventClick: (info) => {
-                openModal(info.event.toPlainObject());
-            }
+            dateClick: (info) => renderDayList(info.dateStr),
+            eventClick: (info) => openModal(info.event.toPlainObject())
         });
 
         calendar.render();
-
-        searchEl.addEventListener("input", () => {
-            renderNext7();
-        });
-
-        includeArchivedEl.addEventListener("change", () => {
-            calendar.refetchEvents();
-        });
+        searchEl.addEventListener("input", renderNext7);
+        includeArchivedEl.addEventListener("change", () => calendar.refetchEvents());
     });
 </script>

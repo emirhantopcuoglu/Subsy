@@ -1,59 +1,45 @@
-﻿@model List<(string Key, string Message, string Type, int Duration)>
-@* Tailwind tabanlı flash mesaj bileşeni *@
+@model List<(string Key, string Message, string Type, int Duration)>
 
 @functions {
-    string GetColor(string type)
+    string AlertClass(string type) => type switch
     {
-        return type switch
-        {
-            "success" => "emerald",
-            "danger" or "error" => "red",
-            "warning" => "amber",
-            "info" => "sky",
-            _ => "gray"
-        };
-    }
+        "success" => "alert-success",
+        "danger" or "error" => "alert-danger",
+        "warning" => "alert-warning",
+        _ => "alert-info"
+    };
 
-    string GetIconPath(string type) => type switch
+    string IconPath(string type) => type switch
     {
-        "success" => "M5 13l4 4L19 7",           // Check
-        "danger" or "error" => "M6 18L18 6M6 6l12 12", // X
-        "warning" => "M13 16h-1v-4h-1m1-4h.01",  // !
-        "info" => "M13 16h-1v-4h-1m1-4h.01",     // i
-        _ => string.Empty
+        "success" => "M5 13l4 4L19 7",
+        "danger" or "error" => "M6 18L18 6M6 6l12 12",
+        "warning" => "M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z",
+        _ => "M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
     };
 }
 
 @{
-    var flashInstanceId = $"flash-{Guid.NewGuid():N}";
+    var instanceId = $"flash-{Guid.NewGuid():N}";
 }
 
 @for (var i = 0; i < Model.Count; i++)
 {
     var msg = Model[i];
-    var color = GetColor(msg.Type);
-    var icon = GetIconPath(msg.Type);
-    var bg = $"bg-{color}-100";
-    var border = $"border-{color}-500";
-    var text = $"text-{color}-800";
-    var elementId = $"{flashInstanceId}-{msg.Key}-{i}";
+    var elementId = $"{instanceId}-{i}";
 
-    <div id="@elementId" class="@bg @border border-l-4 rounded-xl p-4 mb-4 flex items-start gap-3 shadow">
-        @if (!string.IsNullOrEmpty(icon))
-        {
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 @text mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="@icon" />
-            </svg>
-        }
-        <span class="block @text">@msg.Message</span>
+    <div id="@elementId" class="alert @AlertClass(msg.Type)" style="transition: opacity 0.5s ease;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:1px;">
+            <path d="@IconPath(msg.Type)" />
+        </svg>
+        <span>@msg.Message</span>
     </div>
 
     <script>
-        setTimeout(() => {
-            const el = document.getElementById("@elementId");
+        setTimeout(function () {
+            var el = document.getElementById("@elementId");
             if (el) {
-                el.classList.add('opacity-0', 'transition', 'duration-500');
-                setTimeout(() => el.remove(), 500);
+                el.style.opacity = "0";
+                setTimeout(function () { el.remove(); }, 500);
             }
         }, @msg.Duration);
     </script>

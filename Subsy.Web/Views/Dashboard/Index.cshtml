@@ -1,179 +1,152 @@
-﻿@model Subsy.Web.Models.DashboardViewModel
+@model Subsy.Web.Models.DashboardViewModel
 @using System.Globalization
 
 @{
     ViewData["Title"] = "Dashboard";
     var upcomingList = Model.Upcoming ?? new();
+    var tr = new CultureInfo("tr-TR");
 }
 
-<!-- Başlık -->
-<h2 class="text-2xl font-semibold mb-6 flex items-center gap-2">
-    <!-- Bar Chart Icon -->
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18" />
-        <rect x="7" y="13" width="3" height="5" rx="1" />
-        <rect x="12" y="8" width="3" height="10" rx="1" />
-        <rect x="17" y="4" width="3" height="14" rx="1" />
-    </svg>
-    Genel Durum
-</h2>
-
-<!-- İstatistik Kartları -->
-<section class="bg-white/70 backdrop-blur-xl rounded-3xl p-6 shadow mb-10">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
-        <!-- Aktif Abonelik -->
-        <div class="flex items-center gap-4 p-4 bg-white rounded-2xl shadow h-full">
-            <div class="shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-indigo-600/90 text-white">
-                <!-- Check Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">Aktif Abonelik</p>
-                <h3 class="text-lg font-bold">@Model.ActiveCount</h3>
-                <p class="text-xs text-gray-400">Yenileme tarihi geçmemiş</p>
-            </div>
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:oklch(0.52 0.20 260 / 0.12);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="oklch(0.52 0.20 260)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+            </svg>
         </div>
-
-        <!-- Bugün Ödeme -->
-        <div class="flex items-center gap-4 p-4 bg-white rounded-2xl shadow h-full">
-            <div class="shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-amber-500/90 text-white">
-                <!-- Exclamation Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M5.07 20h13.86a2 2 0 0 0 1.74-3l-6.93-12a2 2 0 0 0-3.48 0l-6.93 12a2 2 0 0 0 1.74 3z" />
-                </svg>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">Bugün Ödeme</p>
-                <h3 class="text-lg font-bold">@Model.TodayDueCount</h3>
-                <p class="text-xs text-gray-400">Bugüne denk gelenler</p>
-            </div>
-        </div>
-
-        <!-- Bu Ay Harcama -->
-        <div class="flex items-center gap-4 p-4 bg-white rounded-2xl shadow h-full">
-            <div class="shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-emerald-600/90 text-white">
-                <!-- Cash Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a5 5 0 00-10 0v2H5a2 2 0 00-2 2v6a2 2 0 002 2h14a2 2 0 002-2v-6a2 2 0 00-2-2h-2z" />
-                    <circle cx="12" cy="14" r="2" />
-                </svg>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">Bu Ay Harcama</p>
-                <h3 class="text-lg font-bold">@($"{Model.TotalThisMonth:0.00}")</h3>
-                <p class="text-xs text-gray-400">Toplam ödeme</p>
-            </div>
-        </div>
-
-        <!-- Yaklaşan Ödeme -->
-        <div class="flex items-center gap-4 p-4 bg-white rounded-2xl shadow h-full">
-            <div class="shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-sky-500/90 text-white">
-                <!-- Calendar Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10m-9 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">Yaklaşan Ödeme</p>
-                <h3 class="text-lg font-bold">@upcomingList.Count</h3>
-                <p class="text-xs text-gray-400">3 gün içinde</p>
-            </div>
-        </div>
-
+        <div class="stat-value" style="color:var(--accent);">@Model.ActiveCount</div>
+        <div class="stat-label" style="margin-top:4px;">Aktif Abonelik</div>
+        <div class="stat-sub">Toplam aktif</div>
     </div>
-</section>
 
-<!-- Yaklaşan Ödemeler Uyarısı -->
-@if (upcomingList.Any())
+    <div class="stat-card">
+        <div class="stat-icon" style="background:oklch(0.52 0.20 20 / 0.12);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20"/><path d="M12 6v6l4 2"/>
+            </svg>
+        </div>
+        <div class="stat-value" style="color:var(--danger);">@Model.TodayDueCount</div>
+        <div class="stat-label" style="margin-top:4px;">Ödeme Günü</div>
+        <div class="stat-sub">Bekleyen ödeme</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background:oklch(0.52 0.16 152 / 0.12);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-5"/>
+            </svg>
+        </div>
+        <div class="stat-value" style="color:var(--success);">@Model.TotalThisMonth.ToString("C0", tr)</div>
+        <div class="stat-label" style="margin-top:4px;">Bu Ay Harcama</div>
+        <div class="stat-sub">Toplam ödeme</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background:oklch(0.62 0.16 55 / 0.12);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+        </div>
+        <div class="stat-value" style="color:var(--warning);">@upcomingList.Count</div>
+        <div class="stat-label" style="margin-top:4px;">Yaklaşan Ödeme</div>
+        <div class="stat-sub">3 gün içinde</div>
+    </div>
+</div>
+
+@if (Model.TodayDueCount > 0)
 {
-    <div class="flex items-start gap-3 bg-amber-100/90 border-l-4 border-amber-500 text-amber-800 rounded-xl p-4 shadow mb-8">
-        <!-- Bell Icon -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+    <div class="alert alert-warning" style="margin-bottom:20px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:1px;">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
         </svg>
         <div>
-            <p class="font-semibold">Yaklaşan Ödemeler:</p>
-            <ul class="list-disc pl-5 mt-1 space-y-1">
-                @foreach (var item in upcomingList)
-                {
-                    <li>
-                        <a asp-controller="Subscription" asp-action="Update" asp-route-id="@item.Id" class="hover:underline">
-                            <span class="font-medium">@item.Name</span>
-                        </a>
-                        <span class="text-sm">– @item.RenewalDate.ToString("d MMMM yyyy", CultureInfo.CurrentCulture)</span>
-                        <span class="text-sm text-gray-600">(@item.Price)</span>
-                    </li>
-                }
-            </ul>
+            <strong>@Model.TodayDueCount abonelik</strong> ödeme bekliyor.
+            <a asp-controller="Subscription" asp-action="Due" style="margin-left:8px; font-weight:600; color:inherit; text-decoration:underline;">Görüntüle →</a>
         </div>
     </div>
 }
-else
-{
-    <div class="flex items-start gap-3 bg-white shadow border-l-4 border-sky-400 rounded-xl p-4 mb-8">
-        <!-- Info Icon -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 shrink-0 mt-0.5 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
-        </svg>
-        <p>Şu anda 3 gün içinde ödeme günü gelen bir aboneliğiniz bulunmamaktadır.</p>
+
+<div style="display:grid; grid-template-columns:1fr 340px; gap:16px;">
+    <div class="card">
+        <div style="padding:16px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
+            <div class="section-title">Yaklaşan Ödemeler</div>
+            <a asp-controller="Subscription" asp-action="Active" class="btn btn-ghost btn-sm">Tümünü Gör</a>
+        </div>
+        @if (!upcomingList.Any())
+        {
+            <div class="empty" style="padding:40px 20px;">
+                <div class="empty-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+                <div class="empty-text">3 gün içinde ödeme günü gelen abonelik yok</div>
+            </div>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Abonelik</th>
+                        <th>Tutar</th>
+                        <th>Yenileme</th>
+                        <th>Durum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in upcomingList)
+                    {
+                        var days = (item.RenewalDate - DateTime.Today).Days;
+                        var isOver = days <= 0;
+                        <tr>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <div style="width:28px; height:28px; border-radius:7px; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#fff; flex-shrink:0;">
+                                        @item.Name[0].ToString().ToUpper()
+                                    </div>
+                                    <span style="font-weight:500; font-size:13px;">@item.Name</span>
+                                </div>
+                            </td>
+                            <td style="font-weight:600; font-size:13px;">@item.Price.ToString("C2", tr)</td>
+                            <td style="font-size:12px; color:var(--text-secondary);">@item.RenewalDate.ToString("d MMM yyyy", tr)</td>
+                            <td>
+                                @if (isOver)
+                                {
+                                    <span class="chip chip-red">Gecikmiş</span>
+                                }
+                                else if (days <= 1)
+                                {
+                                    <span class="chip chip-red">Yarın</span>
+                                }
+                                else
+                                {
+                                    <span class="chip chip-blue">@days g kaldı</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
     </div>
-}
 
-<!-- Hızlı Eylemler -->
-<section class="mb-12">
-    <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
-        <!-- Lightbulb Icon -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2a7 7 0 016.995 6.775L19 9a7 7 0 01-3.293 5.94c-.454.322-.707.856-.707 1.414V18a1 1 0 01-1 1h-4a1 1 0 01-1-1v-1.646c0-.558-.253-1.092-.707-1.414A7 7 0 015 9a7 7 0 017-7z" />
-        </svg>
-        Bugün ne yapmak istersiniz?
-    </h3>
-
-    <div class="flex flex-wrap gap-3">
-        <a asp-controller="Subscription" asp-action="Create"
-           class="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-indigo-600 text-indigo-600 hover:bg-indigo-600 hover:text-white transition">
-            <!-- Plus Icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            Yeni Abonelik
-        </a>
-
-        <a asp-controller="Subscription" asp-action="Active"
-           class="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-gray-600 text-gray-700 hover:bg-gray-700 hover:text-white transition">
-            <!-- Layers Icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 2l9 5-9 5-9-5 9-5z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 12l9 5-9 5-9-5 9-5z" />
-            </svg>
-            Aktif Aboneliklerim
-        </a>
-
-        <a asp-controller="Subscription" asp-action="Due"
-           class="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white transition">
-            <!-- Alarm Icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" />
-                <circle cx="12" cy="12" r="9" />
-            </svg>
-            Ödeme Günü Gelenler
-        </a>
+    <div class="card card-p">
+        <div class="section-title" style="margin-bottom:16px;">Hızlı Erişim</div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+            <a asp-controller="Subscription" asp-action="Create" class="btn btn-primary" style="justify-content:center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                Yeni Abonelik Ekle
+            </a>
+            <a asp-controller="Subscription" asp-action="Active" class="btn btn-ghost" style="justify-content:center;">
+                Aktif Abonelikler
+            </a>
+            <a asp-controller="Subscription" asp-action="Due" class="btn btn-ghost" style="justify-content:center;">
+                Ödeme Günü Gelenler
+            </a>
+            <a asp-controller="Finance" asp-action="Dashboard" class="btn btn-ghost" style="justify-content:center;">
+                Finansal Analiz
+            </a>
+        </div>
     </div>
-</section>
-
-<!-- Yakında Gelecek Grafikler -->
-<section class="mb-20">
-    <div class="flex flex-col items-center justify-center gap-4 p-8 bg-white rounded-3xl shadow text-gray-500 text-center">
-        <!-- Graph Icon -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18" />
-            <polyline points="4 17 9 11 13 15 18 9" />
-        </svg>
-        <p class="max-w-md">
-            Yakında burada abonelik harcamalarınıza dair
-            <span class="font-medium text-gray-700">grafikler</span> olacak.
-        </p>
-    </div>
+</div>

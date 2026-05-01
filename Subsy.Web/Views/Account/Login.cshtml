@@ -1,46 +1,36 @@
-﻿@model LoginViewModel
+@model LoginViewModel
 
-<!-- Tam ekran ortalanmış giriş kartı -->
-<section class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="w-full max-w-md space-y-8 bg-white shadow-xl rounded-3xl p-8">
-        <!-- Başlık -->
-        <div class="text-center">
-            <h2 class="text-3xl font-extrabold text-indigo-600 tracking-tight">Giriş Yap</h2>
-        </div>
+<div class="login-wrap">
+    <div class="login-card">
+        <div class="login-logo">sub<span>sy</span></div>
+        <div style="font-size:13px; color:var(--text-secondary); margin-bottom:24px;">Aboneliklerinizi yönetin</div>
 
-        <form asp-controller="Account" asp-action="Login" method="post" class="mt-8 space-y-6">
-            <div asp-validation-summary="All" class="text-red-600 text-sm"></div>
+        <div asp-validation-summary="All" class="validation-summary-errors"></div>
 
-            <!-- E-posta -->
-            <div>
-                <label asp-for="Email" class="block text-sm font-medium text-gray-700 mb-1">E-Posta</label>
-                <input asp-for="Email" class="block w-full px-4 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="E-posta adresinizi giriniz" />
-                <span asp-validation-for="Email" class="text-red-600 text-sm"></span>
+        <form asp-controller="Account" asp-action="Login" method="post">
+            <div class="form-group">
+                <label asp-for="Email" class="form-label">E-posta</label>
+                <input asp-for="Email" class="form-input" placeholder="ornek@email.com" />
+                <span asp-validation-for="Email" class="field-validation-error"></span>
             </div>
 
-            <!-- Şifre -->
-            <div>
-                <label asp-for="Password" class="block text-sm font-medium text-gray-700 mb-1">Şifre</label>
-                <input asp-for="Password" type="password" class="block w-full px-4 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Şifrenizi giriniz" />
-                <span asp-validation-for="Password" class="text-red-600 text-sm"></span>
+            <div class="form-group">
+                <label asp-for="Password" class="form-label">Parola</label>
+                <input asp-for="Password" type="password" class="form-input" placeholder="••••••••" />
+                <span asp-validation-for="Password" class="field-validation-error"></span>
             </div>
 
-            <!-- Beni Hatırla -->
-            <div class="flex items-center">
-                <input asp-for="RememberMe" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
-                <label asp-for="RememberMe" class="ml-2 block text-sm text-gray-700 select-none">Beni Hatırla</label>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:20px;">
+                <input asp-for="RememberMe" type="checkbox" style="accent-color:var(--accent); width:14px; height:14px;" />
+                <label asp-for="RememberMe" style="font-size:13px; color:var(--text-secondary); cursor:pointer; user-select:none;">Beni Hatırla</label>
             </div>
 
-            <!-- Gönder Butonu -->
-            <div>
-                <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-white bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold shadow-md">
-                    <!-- Login Icon -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5m0 0l-5-5m5 5H3" />
-                    </svg>
-                    Giriş Yap
-                </button>
-            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:10px;">Giriş Yap</button>
         </form>
+
+        <div style="margin-top:16px; text-align:center; font-size:13px; color:var(--text-secondary);">
+            Hesabınız yok mu?
+            <a asp-controller="Account" asp-action="Register" style="color:var(--accent); font-weight:500;">Kayıt Ol</a>
+        </div>
     </div>
-</section>
+</div>
