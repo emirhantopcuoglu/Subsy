@@ -32,14 +32,14 @@ public class SecurityHeadersMiddleware
         headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
 
         // Content Security Policy
-        // 'unsafe-inline' is required because several views use inline <script> blocks.
-        // Tighten to nonce-based CSP when views are refactored.
+        // 'unsafe-inline' is required because several views use inline <script> blocks
+        // and inline style attributes. Tighten to nonce-based CSP when views are refactored.
         headers["Content-Security-Policy"] =
             "default-src 'self'; " +
-            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com; " +
-            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; " +
             "img-src 'self' data:; " +
-            "font-src 'self'; " +
+            "font-src 'self' https://fonts.gstatic.com; " +
             "connect-src 'self'; " +
             "frame-ancestors 'none'; " +
             "form-action 'self'; " +

@@ -53,7 +53,7 @@ body, .card, .stat-card, .sub-card, .topbar, .login-card, .form-input {
 }
 
 html, body { height: 100%; }
-body { font-family: 'DM Sans', sans-serif; background: var(--page-bg); color: var(--text-primary); line-height: 1.5; overflow-x: hidden; }
+body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: var(--page-bg); color: var(--text-primary); line-height: 1.5; overflow-x: hidden; }
 input, select, button, textarea { font-family: inherit; }
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
