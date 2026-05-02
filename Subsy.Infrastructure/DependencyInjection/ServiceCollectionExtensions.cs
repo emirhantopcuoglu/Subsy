@@ -49,12 +49,17 @@ public static class ServiceCollectionExtensions
             .AddEntityFrameworkStores<SubsyContext>()
             .AddDefaultTokenProviders();
 
-        // File storage: R2 when configured, local disk otherwise
-        var r2AccountId = configuration["R2:AccountId"];
-        if (!string.IsNullOrWhiteSpace(r2AccountId))
+        // File storage: Supabase when configured, local disk otherwise
+        var supabaseUrl = configuration["Supabase:Url"];
+        if (!string.IsNullOrWhiteSpace(supabaseUrl))
         {
-            services.Configure<R2Settings>(configuration.GetSection("R2"));
-            services.AddSingleton<IFileStorageService, R2StorageService>();
+            services.Configure<SupabaseStorageSettings>(configuration.GetSection("Supabase"));
+            services.AddHttpClient<SupabaseStorageService>((sp, client) =>
+            {
+                var key = configuration["Supabase:ServiceKey"] ?? string.Empty;
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {key}");
+            });
+            services.AddScoped<IFileStorageService, SupabaseStorageService>();
         }
         else
         {
