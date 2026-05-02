@@ -1,11 +1,40 @@
 @model List<SubscriptionsViewModel>
 @using System.Globalization
+@using Subsy.Domain.Enums
 
 @{
     ViewData["Title"] = "Sonlandırılanlar";
     var tr = new CultureInfo("tr-TR");
     string[] avatarColors = { "#4f46e5","#0891b2","#059669","#d97706","#dc2626","#7c3aed","#0d9488","#db2777" };
     string AvatarColor(string name) => avatarColors[char.ToUpper(name[0]) % avatarColors.Length];
+
+    var categoryLabels = new Dictionary<SubscriptionCategory, string>
+    {
+        { SubscriptionCategory.Other, "Diğer" },
+        { SubscriptionCategory.Entertainment, "Eğlence" },
+        { SubscriptionCategory.Music, "Müzik" },
+        { SubscriptionCategory.Software, "Yazılım" },
+        { SubscriptionCategory.Gaming, "Oyun" },
+        { SubscriptionCategory.Cloud, "Bulut" },
+        { SubscriptionCategory.Education, "Eğitim" },
+        { SubscriptionCategory.News, "Haber" },
+        { SubscriptionCategory.Health, "Sağlık" },
+        { SubscriptionCategory.Shopping, "Alışveriş" }
+    };
+
+    var categoryChipClass = new Dictionary<SubscriptionCategory, string>
+    {
+        { SubscriptionCategory.Other, "chip-other" },
+        { SubscriptionCategory.Entertainment, "chip-entertainment" },
+        { SubscriptionCategory.Music, "chip-music" },
+        { SubscriptionCategory.Software, "chip-software" },
+        { SubscriptionCategory.Gaming, "chip-gaming" },
+        { SubscriptionCategory.Cloud, "chip-cloud" },
+        { SubscriptionCategory.Education, "chip-education" },
+        { SubscriptionCategory.News, "chip-news" },
+        { SubscriptionCategory.Health, "chip-health" },
+        { SubscriptionCategory.Shopping, "chip-shopping" }
+    };
 }
 
 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
@@ -35,17 +64,30 @@ else
         {
             var color = AvatarColor(sub.Name);
             var periodLabel = sub.RenewalPeriodDays switch { 7 => "Haftalık", 30 => "Aylık", 365 => "Yıllık", _ => $"{sub.RenewalPeriodDays}g" };
+            var hasFavicon = !string.IsNullOrWhiteSpace(sub.WebsiteUrl);
+            var faviconUrl = hasFavicon ? $"https://www.google.com/s2/favicons?domain={new Uri(sub.WebsiteUrl!).Host}&sz=64" : "" ;
 
             <div class="sub-card">
                 <div style="display:flex; align-items:flex-start; gap:10px; justify-content:space-between;">
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <div class="sub-avatar" style="background:@color; opacity:0.6;">@sub.Name[0].ToString().ToUpper()</div>
+                        @if (hasFavicon)
+                        {
+                            <img src="@faviconUrl" alt="@sub.Name" class="sub-favicon" style="opacity:0.6;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+                            <div class="sub-avatar" style="background:@color; opacity:0.6; display:none;">@sub.Name[0].ToString().ToUpper()</div>
+                        }
+                        else
+                        {
+                            <div class="sub-avatar" style="background:@color; opacity:0.6;">@sub.Name[0].ToString().ToUpper()</div>
+                        }
                         <div>
                             <div class="sub-name" style="color:var(--text-secondary);">@sub.Name</div>
                             <div class="sub-meta">@sub.Currency · @periodLabel</div>
                         </div>
                     </div>
-                    <span class="chip chip-gray">Arşiv</span>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                        <span class="chip chip-gray">Arşiv</span>
+                        <span class="chip chip-cat @categoryChipClass[sub.Category]">@categoryLabels[sub.Category]</span>
+                    </div>
                 </div>
 
                 <div>

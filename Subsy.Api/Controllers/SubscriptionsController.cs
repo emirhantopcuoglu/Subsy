@@ -10,6 +10,7 @@ using Subsy.Application.Subscriptions.Commands.UpdateSubscription;
 using Subsy.Application.Subscriptions.Queries.GetActiveSubscriptions;
 using Subsy.Application.Subscriptions.Queries.GetDueSubscriptions;
 using Subsy.Application.Subscriptions.Queries.GetSubscriptionById;
+using Subsy.Domain.Enums;
 using System.Security.Claims;
 
 namespace Subsy.Api.Controllers;
@@ -57,7 +58,8 @@ public class SubscriptionsController : ControllerBase
     {
         await _mediator.Send(new CreateSubscriptionCommand(
             UserId, request.Name, request.Price, request.Currency,
-            request.RenewalPeriodDays, request.SelectedMonth, request.SelectedDay), ct);
+            request.RenewalPeriodDays, request.SelectedMonth, request.SelectedDay,
+            request.Category, request.WebsiteUrl), ct);
 
         return Created();
     }
@@ -81,7 +83,8 @@ public class SubscriptionsController : ControllerBase
     {
         await _mediator.Send(new UpdateSubscriptionCommand(
             id, UserId, request.Name, request.Price, request.Currency,
-            request.RenewalPeriodDays, request.SelectedMonth, request.SelectedDay), ct);
+            request.RenewalPeriodDays, request.SelectedMonth, request.SelectedDay,
+            request.Category, request.WebsiteUrl), ct);
 
         return Ok(new { message = "Subscription updated." });
     }
@@ -103,8 +106,12 @@ public class SubscriptionsController : ControllerBase
 
 public record CreateSubscriptionRequest(
     string Name, decimal Price, string Currency,
-    int RenewalPeriodDays, int SelectedMonth, int SelectedDay);
+    int RenewalPeriodDays, int SelectedMonth, int SelectedDay,
+    SubscriptionCategory Category = SubscriptionCategory.Other,
+    string? WebsiteUrl = null);
 
 public record UpdateSubscriptionRequest(
     string Name, decimal Price, string Currency,
-    int RenewalPeriodDays, int SelectedMonth, int SelectedDay);
+    int RenewalPeriodDays, int SelectedMonth, int SelectedDay,
+    SubscriptionCategory Category = SubscriptionCategory.Other,
+    string? WebsiteUrl = null);

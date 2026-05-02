@@ -182,6 +182,38 @@ input, select, button, textarea { font-family: inherit; }
 .chip-blue { background: var(--accent-light); color: var(--accent); }
 .chip-gray { background: #f2f1ee; color: var(--text-secondary); }
 
+/* ── Category chips ────────────────────────────────────────── */
+.chip-cat { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 12px; }
+.chip-entertainment { background: oklch(0.92 0.06 330); color: oklch(0.45 0.18 330); }
+.chip-music { background: oklch(0.92 0.06 300); color: oklch(0.45 0.18 300); }
+.chip-software { background: oklch(0.92 0.06 260); color: oklch(0.45 0.18 260); }
+.chip-gaming { background: oklch(0.92 0.06 145); color: oklch(0.40 0.16 145); }
+.chip-cloud { background: oklch(0.92 0.06 230); color: oklch(0.45 0.18 230); }
+.chip-education { background: oklch(0.92 0.06 80); color: oklch(0.45 0.16 80); }
+.chip-news { background: oklch(0.92 0.06 55); color: oklch(0.45 0.16 55); }
+.chip-health { background: oklch(0.92 0.06 152); color: oklch(0.40 0.16 152); }
+.chip-shopping { background: oklch(0.92 0.06 20); color: oklch(0.45 0.18 20); }
+.chip-other { background: #f2f1ee; color: var(--text-secondary); }
+[data-theme="dark"] .chip-entertainment { background: oklch(0.25 0.06 330); color: oklch(0.75 0.12 330); }
+[data-theme="dark"] .chip-music { background: oklch(0.25 0.06 300); color: oklch(0.75 0.12 300); }
+[data-theme="dark"] .chip-software { background: oklch(0.25 0.06 260); color: oklch(0.75 0.12 260); }
+[data-theme="dark"] .chip-gaming { background: oklch(0.25 0.06 145); color: oklch(0.75 0.12 145); }
+[data-theme="dark"] .chip-cloud { background: oklch(0.25 0.06 230); color: oklch(0.75 0.12 230); }
+[data-theme="dark"] .chip-education { background: oklch(0.25 0.06 80); color: oklch(0.75 0.12 80); }
+[data-theme="dark"] .chip-news { background: oklch(0.25 0.06 55); color: oklch(0.75 0.12 55); }
+[data-theme="dark"] .chip-health { background: oklch(0.25 0.06 152); color: oklch(0.75 0.12 152); }
+[data-theme="dark"] .chip-shopping { background: oklch(0.25 0.06 20); color: oklch(0.75 0.12 20); }
+[data-theme="dark"] .chip-other { background: #252530; color: var(--text-secondary); }
+
+/* ── Favicon avatar ────────────────────────────────────────── */
+.sub-favicon { width: 38px; height: 38px; border-radius: 9px; object-fit: contain; background: var(--page-bg); padding: 4px; flex-shrink: 0; }
+
+/* ── Filter/sort toolbar ───────────────────────────────────── */
+.toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.toolbar-select { padding: 6px 28px 6px 10px; border: 1px solid var(--border); border-radius: 7px; font-size: 12px; font-weight: 500; color: var(--text-secondary); background: var(--card-bg); cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236b6a75' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; }
+.toolbar-select:focus { border-color: var(--accent); outline: none; }
+[data-theme="dark"] .toolbar-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%238e8ea8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); }
+
 /* ── Finance ────────────────────────────────────────────────── */
 .finance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .chart-wrap { position: relative; height: 260px; }

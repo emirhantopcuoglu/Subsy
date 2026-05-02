@@ -1,9 +1,24 @@
 @model SubscriptionsViewModel
 @using System.Globalization
+@using Subsy.Domain.Enums
 
 @{
     ViewData["Title"] = "Abonelik Düzenle";
     var today = DateTime.Today;
+
+    var categoryLabels = new Dictionary<SubscriptionCategory, string>
+    {
+        { SubscriptionCategory.Other, "Diğer" },
+        { SubscriptionCategory.Entertainment, "Eğlence" },
+        { SubscriptionCategory.Music, "Müzik" },
+        { SubscriptionCategory.Software, "Yazılım" },
+        { SubscriptionCategory.Gaming, "Oyun" },
+        { SubscriptionCategory.Cloud, "Bulut" },
+        { SubscriptionCategory.Education, "Eğitim" },
+        { SubscriptionCategory.News, "Haber" },
+        { SubscriptionCategory.Health, "Sağlık" },
+        { SubscriptionCategory.Shopping, "Alışveriş" }
+    };
 }
 
 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
@@ -26,6 +41,12 @@
             <span asp-validation-for="Name" class="field-validation-error"></span>
         </div>
 
+        <div class="form-group">
+            <label asp-for="WebsiteUrl" class="form-label">Web Sitesi (opsiyonel)</label>
+            <input asp-for="WebsiteUrl" class="form-input" type="url" placeholder="https://www.netflix.com" />
+            <span asp-validation-for="WebsiteUrl" class="field-validation-error"></span>
+        </div>
+
         <div class="form-grid-2">
             <div class="form-group">
                 <label asp-for="Price" class="form-label">Tutar</label>
@@ -44,18 +65,29 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <label asp-for="RenewalPeriodDays" class="form-label">Yenileme Sıklığı</label>
-            <select asp-for="RenewalPeriodDays" class="form-input form-select">
-                <option value="">Seçiniz...</option>
-                <option value="7">Haftalık</option>
-                <option value="15">İki Haftada Bir</option>
-                <option value="30">Aylık</option>
-                <option value="90">3 Ayda Bir</option>
-                <option value="180">6 Ayda Bir</option>
-                <option value="365">Yıllık</option>
-            </select>
-            <span asp-validation-for="RenewalPeriodDays" class="field-validation-error"></span>
+        <div class="form-grid-2">
+            <div class="form-group">
+                <label asp-for="RenewalPeriodDays" class="form-label">Yenileme Sıklığı</label>
+                <select asp-for="RenewalPeriodDays" class="form-input form-select">
+                    <option value="">Seçiniz...</option>
+                    <option value="7">Haftalık</option>
+                    <option value="15">İki Haftada Bir</option>
+                    <option value="30">Aylık</option>
+                    <option value="90">3 Ayda Bir</option>
+                    <option value="180">6 Ayda Bir</option>
+                    <option value="365">Yıllık</option>
+                </select>
+                <span asp-validation-for="RenewalPeriodDays" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Category" class="form-label">Kategori</label>
+                <select asp-for="Category" class="form-input form-select">
+                    @foreach (SubscriptionCategory cat in Enum.GetValues(typeof(SubscriptionCategory)))
+                    {
+                        <option value="@((int)cat)">@categoryLabels[cat]</option>
+                    }
+                </select>
+            </div>
         </div>
 
         <div class="form-grid-2">

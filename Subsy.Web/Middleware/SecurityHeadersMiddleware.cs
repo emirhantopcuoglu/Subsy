@@ -38,7 +38,7 @@ public class SecurityHeadersMiddleware
             "default-src 'self'; " +
             "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; " +
-            "img-src 'self' data:; " +
+            "img-src 'self' data: https://www.google.com https://t0.gstatic.com https://t1.gstatic.com https://t2.gstatic.com https://t3.gstatic.com; " +
             "font-src 'self' https://fonts.gstatic.com; " +
             "connect-src 'self'; " +
             "frame-ancestors 'none'; " +

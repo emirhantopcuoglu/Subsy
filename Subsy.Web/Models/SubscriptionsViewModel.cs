@@ -1,4 +1,6 @@
-﻿namespace Subsy.Web.Models;
+﻿using Subsy.Domain.Enums;
+
+namespace Subsy.Web.Models;
 
 public sealed class SubscriptionsViewModel
 {
@@ -11,4 +13,6 @@ public sealed class SubscriptionsViewModel
     public int SelectedDay { get; set; }
     public DateTime RenewalDate { get; set; }
     public bool IsArchived { get; set; }
+    public SubscriptionCategory Category { get; set; }
+    public string? WebsiteUrl { get; set; }
 }

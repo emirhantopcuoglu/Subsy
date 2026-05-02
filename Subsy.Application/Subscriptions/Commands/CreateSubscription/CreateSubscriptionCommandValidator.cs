@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Subsy.Domain.Enums;
 
 namespace Subsy.Application.Subscriptions.Commands.CreateSubscription
 {
@@ -32,6 +33,15 @@ namespace Subsy.Application.Subscriptions.Commands.CreateSubscription
             RuleFor(x => x.SelectedDay)
                 .InclusiveBetween(1, 31)
                 .WithMessage("Day 1 ile 31 arasında olmalıdır.");
+
+            RuleFor(x => x.Category)
+                .IsInEnum().WithMessage("Geçersiz kategori.");
+
+            RuleFor(x => x.WebsiteUrl)
+                .MaximumLength(500).WithMessage("URL en fazla 500 karakter olabilir.")
+                .Must(url => url is null || Uri.TryCreate(url, UriKind.Absolute, out var u) && (u.Scheme == "http" || u.Scheme == "https"))
+                .When(x => !string.IsNullOrWhiteSpace(x.WebsiteUrl))
+                .WithMessage("Geçerli bir URL giriniz.");
         }
     }
 }

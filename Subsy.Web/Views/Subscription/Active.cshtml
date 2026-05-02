@@ -1,17 +1,48 @@
 @model List<SubscriptionsViewModel>
 @using System.Globalization
+@using Subsy.Domain.Enums
 
 @{
     ViewData["Title"] = "Aktif Abonelikler";
     var tr = new CultureInfo("tr-TR");
     string[] avatarColors = { "#4f46e5","#0891b2","#059669","#d97706","#dc2626","#7c3aed","#0d9488","#db2777" };
     string AvatarColor(string name) => avatarColors[char.ToUpper(name[0]) % avatarColors.Length];
+
+    var categoryLabels = new Dictionary<SubscriptionCategory, string>
+    {
+        { SubscriptionCategory.Other, "Diğer" },
+        { SubscriptionCategory.Entertainment, "Eğlence" },
+        { SubscriptionCategory.Music, "Müzik" },
+        { SubscriptionCategory.Software, "Yazılım" },
+        { SubscriptionCategory.Gaming, "Oyun" },
+        { SubscriptionCategory.Cloud, "Bulut" },
+        { SubscriptionCategory.Education, "Eğitim" },
+        { SubscriptionCategory.News, "Haber" },
+        { SubscriptionCategory.Health, "Sağlık" },
+        { SubscriptionCategory.Shopping, "Alışveriş" }
+    };
+
+    var categoryChipClass = new Dictionary<SubscriptionCategory, string>
+    {
+        { SubscriptionCategory.Other, "chip-other" },
+        { SubscriptionCategory.Entertainment, "chip-entertainment" },
+        { SubscriptionCategory.Music, "chip-music" },
+        { SubscriptionCategory.Software, "chip-software" },
+        { SubscriptionCategory.Gaming, "chip-gaming" },
+        { SubscriptionCategory.Cloud, "chip-cloud" },
+        { SubscriptionCategory.Education, "chip-education" },
+        { SubscriptionCategory.News, "chip-news" },
+        { SubscriptionCategory.Health, "chip-health" },
+        { SubscriptionCategory.Shopping, "chip-shopping" }
+    };
+
+    var currencies = Model.Select(m => m.Currency).Distinct().OrderBy(c => c).ToList();
 }
 
 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
     <div>
         <div class="section-title">Aktif Abonelikler</div>
-        <div class="section-sub">@Model.Count abonelik</div>
+        <div class="section-sub"><span id="visible-count">@Model.Count</span> abonelik</div>
     </div>
     <a asp-controller="Subscription" asp-action="Create" class="btn btn-primary">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -34,7 +65,40 @@
 }
 else
 {
-    <div class="sub-grid">
+    <div class="toolbar">
+        <select id="sortBy" class="toolbar-select" onchange="applyFilters()">
+            <option value="name-asc">Ada Göre (A-Z)</option>
+            <option value="name-desc">Ada Göre (Z-A)</option>
+            <option value="price-asc">Fiyat (Düşükten Yükseğe)</option>
+            <option value="price-desc">Fiyat (Yüksekten Düşüğe)</option>
+            <option value="date-asc">Yenileme (Yakın)</option>
+            <option value="date-desc">Yenileme (Uzak)</option>
+        </select>
+
+        @if (currencies.Count > 1)
+        {
+            <select id="filterCurrency" class="toolbar-select" onchange="applyFilters()">
+                <option value="">Tüm Para Birimleri</option>
+                @foreach (var c in currencies)
+                {
+                    <option value="@c">@c</option>
+                }
+            </select>
+        }
+
+        <select id="filterCategory" class="toolbar-select" onchange="applyFilters()">
+            <option value="">Tüm Kategoriler</option>
+            @foreach (SubscriptionCategory cat in Enum.GetValues(typeof(SubscriptionCategory)))
+            {
+                if (Model.Any(m => m.Category == cat))
+                {
+                    <option value="@((int)cat)">@categoryLabels[cat]</option>
+                }
+            }
+        </select>
+    </div>
+
+    <div class="sub-grid" id="sub-grid">
         @foreach (var sub in Model)
         {
             var period = sub.RenewalPeriodDays <= 0 ? 30 : sub.RenewalPeriodDays;
@@ -44,28 +108,46 @@ else
             var expired = remaining <= 0;
             var periodLabel = period switch { 7 => "Haftalık", 15 => "İki Haftada Bir", 30 => "Aylık", 90 => "3 Ayda Bir", 180 => "6 Ayda Bir", 365 => "Yıllık", _ => $"{period}g" };
             var color = AvatarColor(sub.Name);
+            var hasFavicon = !string.IsNullOrWhiteSpace(sub.WebsiteUrl);
+            var faviconUrl = hasFavicon ? $"https://www.google.com/s2/favicons?domain={new Uri(sub.WebsiteUrl!).Host}&sz=64" : "";
 
-            <div class="sub-card @(expired ? "overdue" : "")">
+            <div class="sub-card @(expired ? "overdue" : "")"
+                 data-name="@sub.Name"
+                 data-price="@sub.Price"
+                 data-date="@sub.RenewalDate.ToString("yyyy-MM-dd")"
+                 data-currency="@sub.Currency"
+                 data-category="@((int)sub.Category)">
                 <div style="display:flex; align-items:flex-start; gap:10px; justify-content:space-between;">
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <div class="sub-avatar" style="background:@color;">@sub.Name[0].ToString().ToUpper()</div>
+                        @if (hasFavicon)
+                        {
+                            <img src="@faviconUrl" alt="@sub.Name" class="sub-favicon" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+                            <div class="sub-avatar" style="background:@color; display:none;">@sub.Name[0].ToString().ToUpper()</div>
+                        }
+                        else
+                        {
+                            <div class="sub-avatar" style="background:@color;">@sub.Name[0].ToString().ToUpper()</div>
+                        }
                         <div>
                             <div class="sub-name">@sub.Name</div>
                             <div class="sub-meta">@sub.Currency · @periodLabel</div>
                         </div>
                     </div>
-                    @if (expired)
-                    {
-                        <span class="chip chip-red">Gecikmiş</span>
-                    }
-                    else if (remaining <= 3)
-                    {
-                        <span class="chip chip-blue">@remaining g</span>
-                    }
-                    else
-                    {
-                        <span class="chip chip-green">@remaining g</span>
-                    }
+                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                        @if (expired)
+                        {
+                            <span class="chip chip-red">Gecikmiş</span>
+                        }
+                        else if (remaining <= 3)
+                        {
+                            <span class="chip chip-blue">@remaining g</span>
+                        }
+                        else
+                        {
+                            <span class="chip chip-green">@remaining g</span>
+                        }
+                        <span class="chip chip-cat @categoryChipClass[sub.Category]">@categoryLabels[sub.Category]</span>
+                    </div>
                 </div>
 
                 <div>
@@ -115,4 +197,46 @@ else
             </div>
         }
     </div>
+}
+
+@section Scripts {
+    <script>
+        function applyFilters() {
+            var sortBy = document.getElementById("sortBy").value;
+            var currencyEl = document.getElementById("filterCurrency");
+            var currency = currencyEl ? currencyEl.value : "";
+            var categoryEl = document.getElementById("filterCategory");
+            var category = categoryEl ? categoryEl.value : "";
+            var grid = document.getElementById("sub-grid");
+            if (!grid) return;
+
+            var cards = Array.from(grid.querySelectorAll(".sub-card"));
+
+            cards.forEach(function (card) {
+                var show = true;
+                if (currency && card.dataset.currency !== currency) show = false;
+                if (category && card.dataset.category !== category) show = false;
+                card.style.display = show ? "" : "none";
+            });
+
+            var visible = cards.filter(function (c) { return c.style.display !== "none"; });
+
+            visible.sort(function (a, b) {
+                switch (sortBy) {
+                    case "name-asc": return a.dataset.name.localeCompare(b.dataset.name, "tr");
+                    case "name-desc": return b.dataset.name.localeCompare(a.dataset.name, "tr");
+                    case "price-asc": return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+                    case "price-desc": return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+                    case "date-asc": return a.dataset.date.localeCompare(b.dataset.date);
+                    case "date-desc": return b.dataset.date.localeCompare(a.dataset.date);
+                    default: return 0;
+                }
+            });
+
+            visible.forEach(function (card) { grid.appendChild(card); });
+
+            var countEl = document.getElementById("visible-count");
+            if (countEl) countEl.textContent = visible.length;
+        }
+    </script>
 }

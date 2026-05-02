@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Subsy.Domain.Entities;
+using Subsy.Domain.Enums;
 
 namespace Subsy.Infrastructure.Persistence;
 
@@ -52,6 +53,12 @@ public class SubsyContext : IdentityDbContext
 
             cfg.Property(x => x.RenewalPeriodDays)
                 .IsRequired();
+
+            cfg.Property(x => x.Category)
+                .HasDefaultValue(SubscriptionCategory.Other);
+
+            cfg.Property(x => x.WebsiteUrl)
+                .HasMaxLength(500);
 
             cfg.HasIndex(x => new { x.UserId, x.IsArchived, x.RenewalDate });
         });

@@ -19,9 +19,12 @@ public sealed class GetArchivedSubscriptionsHandler : IRequestHandler<GetArchive
                 Id = s.Id,
                 Name = s.Name,
                 Price = s.Price,
+                Currency = s.Currency,
                 RenewalPeriodDays = s.RenewalPeriodDays,
                 RenewalDate = s.RenewalDate,
-                IsArchived = s.IsArchived
+                IsArchived = s.IsArchived,
+                Category = s.Category,
+                WebsiteUrl = s.WebsiteUrl
             })
             .ToList();
     }
