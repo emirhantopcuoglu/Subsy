@@ -54,12 +54,11 @@ public static class ServiceCollectionExtensions
         if (!string.IsNullOrWhiteSpace(supabaseUrl))
         {
             services.Configure<SupabaseStorageSettings>(configuration.GetSection("Supabase"));
-            services.AddHttpClient<SupabaseStorageService>((sp, client) =>
+            services.AddHttpClient<IFileStorageService, SupabaseStorageService>((sp, client) =>
             {
                 var key = configuration["Supabase:ServiceKey"] ?? string.Empty;
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {key}");
             });
-            services.AddScoped<IFileStorageService, SupabaseStorageService>();
         }
         else
         {

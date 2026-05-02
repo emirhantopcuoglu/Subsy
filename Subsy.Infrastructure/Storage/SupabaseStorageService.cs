@@ -26,7 +26,11 @@ public sealed class SupabaseStorageService : IFileStorageService
         content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
 
         var response = await _http.PostAsync(url, content, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            throw new HttpRequestException($"Supabase upload failed {(int)response.StatusCode}: {body}");
+        }
 
         return $"{_settings.Url.TrimEnd('/')}/storage/v1/object/public/{_settings.BucketName}/{key}";
     }
