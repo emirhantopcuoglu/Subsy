@@ -10,10 +10,11 @@ It allows users to manage, track, and analyze their recurring subscriptions in a
 
 ## Version
 
-Current Version: **v0.2.1**
+Current Version: **v0.3.0**
 
 * v0.2.0 – Dashboard, Finance analytics, Calendar, User Profile
 * v0.2.1 – Global error handling, flash message refactor, production hardening
+* v0.3.0 – Cloud object storage (Cloudflare R2) for profile photo uploads
 
 ---
 

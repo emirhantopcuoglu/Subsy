@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Subsy.Application.Common.Interfaces;
 using Subsy.Application.UserProfile.Common;
@@ -18,18 +17,18 @@ public sealed class UserProfileService : IUserProfileService
     private readonly UserManager<IdentityUser> _userManager;
     private readonly SignInManager<IdentityUser> _signInManager;
     private readonly SubsyContext _context;
-    private readonly IWebHostEnvironment _environment;
+    private readonly IFileStorageService _fileStorage;
 
     public UserProfileService(
         UserManager<IdentityUser> userManager,
         SignInManager<IdentityUser> signInManager,
         SubsyContext context,
-        IWebHostEnvironment environment)
+        IFileStorageService fileStorage)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _context = context;
-        _environment = environment;
+        _fileStorage = fileStorage;
     }
 
     public async Task<UserProfileDto?> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default)
@@ -155,42 +154,22 @@ public sealed class UserProfileService : IUserProfileService
         if (!AllowedPhotoExtensions.Contains(ext))
             throw new InvalidOperationException("Geçersiz dosya uzantısı.");
 
-        var fileName = $"{Guid.NewGuid():N}{ext}";
+        var key = $"{Guid.NewGuid():N}{ext}";
 
-        var webRoot = _environment.WebRootPath;
-        if (string.IsNullOrWhiteSpace(webRoot))
-            throw new InvalidOperationException("Web root klasörü bulunamadı.");
+        var oldKey = string.IsNullOrWhiteSpace(profile.ProfilePhotoPath)
+            ? null
+            : Path.GetFileName(profile.ProfilePhotoPath);
 
-        var photosDirectory = Path.Combine(webRoot, "images", "profiles");
-        Directory.CreateDirectory(photosDirectory);
+        var publicUrl = await _fileStorage.UploadAsync(key, fileBytes, contentType, cancellationToken);
 
-        var fullPath = Path.Combine(photosDirectory, fileName);
-
-        try
+        if (!string.IsNullOrWhiteSpace(oldKey))
         {
-            await File.WriteAllBytesAsync(fullPath, fileBytes, cancellationToken);
-
-            if (!string.IsNullOrWhiteSpace(profile.ProfilePhotoPath))
-            {
-                var oldFileName = Path.GetFileName(profile.ProfilePhotoPath);
-                if (!string.IsNullOrWhiteSpace(oldFileName))
-                {
-                    var oldPath = Path.Combine(photosDirectory, oldFileName);
-                    if (File.Exists(oldPath))
-                        File.Delete(oldPath);
-                }
-            }
-
-            profile.ProfilePhotoPath = $"/images/profiles/{fileName}";
-            await _context.SaveChangesAsync(cancellationToken);
+            try { await _fileStorage.DeleteAsync(oldKey, cancellationToken); }
+            catch { /* best-effort: do not fail the request if old file cleanup fails */ }
         }
-        catch
-        {
-            if (File.Exists(fullPath))
-                File.Delete(fullPath);
 
-            throw;
-        }
+        profile.ProfilePhotoPath = publicUrl;
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
     private static bool IsAllowedImageSignature(byte[] bytes)

@@ -11,6 +11,7 @@ using Subsy.Infrastructure.Persistence;
 using Subsy.Infrastructure.Repositories;
 using Subsy.Infrastructure.Services;
 using Subsy.Infrastructure.Settings;
+using Subsy.Infrastructure.Storage;
 
 namespace Subsy.Infrastructure.DependencyInjection;
 
@@ -47,6 +48,18 @@ public static class ServiceCollectionExtensions
             })
             .AddEntityFrameworkStores<SubsyContext>()
             .AddDefaultTokenProviders();
+
+        // File storage: R2 when configured, local disk otherwise
+        var r2AccountId = configuration["R2:AccountId"];
+        if (!string.IsNullOrWhiteSpace(r2AccountId))
+        {
+            services.Configure<R2Settings>(configuration.GetSection("R2"));
+            services.AddSingleton<IFileStorageService, R2StorageService>();
+        }
+        else
+        {
+            services.AddSingleton<IFileStorageService, LocalFileStorageService>();
+        }
 
         // Repositories
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
