@@ -1,96 +1,106 @@
 @model FinanceViewModel
 @using System.Globalization
 @using System.Text.Json
+@using Subsy.Application.Finance.Dashboard
 
 @{
     ViewData["Title"] = "Finansal Analiz";
     var tr = new CultureInfo("tr-TR");
 
-    var serviceLabels = JsonSerializer.Serialize(Model.GroupedByService.Select(x => x.SubscriptionName));
-    var serviceData   = JsonSerializer.Serialize(Model.GroupedByService.Select(x => x.TotalCost));
-
     var catLabels = JsonSerializer.Serialize(Model.GroupedByCategory.Select(x => x.CategoryName));
-    var catData   = JsonSerializer.Serialize(Model.GroupedByCategory.Select(x => x.TotalCost));
-
-    var trendLabels = JsonSerializer.Serialize(Model.TwelveMonthTrend.Select(x => x.Label));
-    var trendData   = JsonSerializer.Serialize(Model.TwelveMonthTrend.Select(x => x.Amount));
-
-    var planLabels = JsonSerializer.Serialize(new[] { "Aylık Planlar", "Yıllık Planlar" });
-    var planData   = JsonSerializer.Serialize(new[] { Model.MonthlyPlanTotal, Model.YearlyPlanTotal });
+    var catData = JsonSerializer.Serialize(Model.GroupedByCategory.Select(x => x.TotalCost));
 }
 
-@* ── Stat cards ──────────────────────────────────────────── *@
+@* ── Stat kartlar ────────────────────────────────────────── *@
 <div class="stat-grid" style="margin-bottom:20px;">
     <div class="stat-card">
-        <div class="stat-label">Aylık Tahmini Maliyet</div>
+        <div class="stat-label">Aylık Maliyet</div>
         <div class="stat-value" style="font-size:20px; color:var(--accent); margin-top:4px;">@Model.TotalMonthlyCost.ToString("C0", tr)</div>
-        <div class="stat-sub">Aboneliklerin aylık eşdeğeri</div>
+        <div class="stat-sub">Aylık eşdeğer toplamı</div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Toplam Abonelik Maliyeti</div>
-        <div class="stat-value" style="font-size:20px; color:var(--success); margin-top:4px;">@Model.AllTimeSpending.ToString("C0", tr)</div>
-        <div class="stat-sub">Aktif abonelik fiyatlarının toplamı</div>
+        <div class="stat-label">Yıllık Tahmin</div>
+        <div class="stat-value" style="font-size:20px; color:oklch(0.55 0.18 290); margin-top:4px;">@Model.TotalYearlyCost.ToString("C0", tr)</div>
+        <div class="stat-sub">12 aylık projeksiyon</div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Aktif Abonelik Sayısı</div>
-        <div class="stat-value" style="font-size:20px; color:var(--accent); margin-top:4px;">@Model.SubscriptionCount</div>
-        <div class="stat-sub">Sonlandırılmamış</div>
+        <div class="stat-label">Günlük Ortalama</div>
+        <div class="stat-value" style="font-size:20px; color:var(--warning); margin-top:4px;">@Model.DailyAverage.ToString("C2", tr)</div>
+        <div class="stat-sub">Her gün aboneliklere giden</div>
     </div>
     <div class="stat-card">
         <div class="stat-label">En Çok Maliyet</div>
         @if (Model.TopSpendingService is null)
         {
-            <div class="stat-value" style="font-size:14px; color:var(--text-muted); margin-top:4px;">Henüz veri yok</div>
+            <div class="stat-value" style="font-size:14px; color:var(--text-muted); margin-top:4px;">Veri yok</div>
         }
         else
         {
             <div class="stat-value" style="font-size:18px; color:var(--danger); margin-top:4px;">@Model.TopSpendingService.SubscriptionName</div>
-            <div class="stat-sub">@Model.TopSpendingService.TotalCost.ToString("C0", tr) aylık</div>
+            <div class="stat-sub">@Model.TopSpendingService.TotalCost.ToString("C0", tr) / ay</div>
         }
     </div>
 </div>
 
-@* ── Yıllık vs aylık plan kartları ───────────────────────── *@
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px;">
-    <div class="stat-card" style="display:flex; align-items:center; gap:16px;">
-        <div class="stat-icon" style="background:oklch(0.52 0.20 260 / 0.12); width:44px; height:44px; flex-shrink:0;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="oklch(0.52 0.20 260)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
-            </svg>
-        </div>
-        <div>
-            <div class="stat-label">Yıllık Plan Toplamı (Aylık Eşdeğer)</div>
-            <div class="stat-value" style="font-size:20px; color:oklch(0.52 0.20 260); margin-top:2px;">@Model.YearlyPlanTotal.ToString("C0", tr)</div>
-            <div class="stat-sub">≥ 300 günlük abonelikler</div>
-        </div>
+@* ── Akıllı içgörüler ────────────────────────────────────── *@
+@if (Model.Insights.Any())
+{
+    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+        @foreach (var insight in Model.Insights)
+        {
+            var borderColor = insight.Type switch
+            {
+                "warning" => "var(--warning)",
+                "info" => "var(--accent)",
+                _ => "var(--border)"
+            };
+            <div class="card" style="padding:14px 18px; border-left:3px solid @borderColor; display:flex; align-items:center; gap:12px;">
+                <span style="font-size:18px; flex-shrink:0;">@insight.Icon</span>
+                <span style="font-size:13px; color:var(--text-primary);">@insight.Message</span>
+            </div>
+        }
     </div>
-    <div class="stat-card" style="display:flex; align-items:center; gap:16px;">
-        <div class="stat-icon" style="background:oklch(0.62 0.16 55 / 0.12); width:44px; height:44px; flex-shrink:0;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-            </svg>
-        </div>
-        <div>
-            <div class="stat-label">Aylık Plan Toplamı</div>
-            <div class="stat-value" style="font-size:20px; color:var(--warning); margin-top:2px;">@Model.MonthlyPlanTotal.ToString("C0", tr)</div>
-            <div class="stat-sub">&lt; 300 günlük abonelikler</div>
-        </div>
-    </div>
-</div>
+}
 
-@* ── 12 aylık trend ───────────────────────────────────────── *@
-<div class="card card-p" style="margin-bottom:20px;">
-    <div class="section-title" style="margin-bottom:4px;">12 Aylık Harcama Trendi</div>
-    <div style="font-size:12px; color:var(--text-secondary); margin-bottom:16px;">Son 12 ay gerçekleşen abonelik ödemeleri</div>
-    <div class="chart-wrap" style="height:220px;"><canvas id="trendChart"></canvas></div>
-</div>
+@* ── Ödeme takvimi + Kategori dağılımı ───────────────────── *@
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
 
-@* ── Servis dağılımı + Kategori pasta ────────────────────── *@
-<div class="finance-grid" style="margin-bottom:20px;">
+    @* Ödeme takvimi *@
     <div class="card card-p">
-        <div class="section-title" style="margin-bottom:16px;">Servis Dağılımı</div>
-        <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
+        <div class="section-title" style="margin-bottom:16px;">Önümüzdeki 30 Gün</div>
+        @if (!Model.PaymentCalendar.Any())
+        {
+            <div class="empty" style="padding:30px 0;">
+                <div class="empty-text">30 gün içinde ödeme yok</div>
+            </div>
+        }
+        else
+        {
+            <div style="display:flex; flex-direction:column; gap:16px;">
+                @foreach (var week in Model.PaymentCalendar)
+                {
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span style="font-size:12px; font-weight:600; color:var(--text-secondary);">@week.Label</span>
+                            <span style="font-size:12px; font-weight:700; color:var(--text-primary);">@week.Total.ToString("C0", tr)</span>
+                        </div>
+                        @foreach (var item in week.Items)
+                        {
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--border);">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="font-size:11px; color:var(--text-muted); min-width:50px;">@item.Date.ToString("d MMM", tr)</span>
+                                    <span style="font-size:13px; font-weight:500;">@item.Name</span>
+                                </div>
+                                <span style="font-size:13px; font-weight:600;">@item.Amount.ToString("C0", tr)</span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
     </div>
+
+    @* Kategori dağılımı *@
     <div class="card card-p">
         <div class="section-title" style="margin-bottom:16px;">Kategori Dağılımı</div>
         @if (!Model.GroupedByCategory.Any())
@@ -106,90 +116,67 @@
     </div>
 </div>
 
-@* ── Aylık maliyet karşılaştırması + Yıllık vs Aylık ─────── *@
-<div class="finance-grid">
-    <div class="card card-p">
-        <div class="section-title" style="margin-bottom:16px;">Aylık Maliyet Karşılaştırması</div>
-        <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+@* ── Maliyet tablosu ─────────────────────────────────────── *@
+<div class="card" style="margin-bottom:20px;">
+    <div style="padding:16px 18px; border-bottom:1px solid var(--border);">
+        <div class="section-title">Abonelik Maliyet Tablosu</div>
+        <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">Aylık eşdeğer maliyete göre sıralı</div>
     </div>
-    <div class="card card-p">
-        <div class="section-title" style="margin-bottom:16px;">Yıllık vs Aylık Plan</div>
-        <div class="chart-wrap"><canvas id="planChart"></canvas></div>
-        @if (Model.YearlyPlanTotal + Model.MonthlyPlanTotal > 0)
-        {
-            <div style="margin-top:16px; display:flex; flex-direction:column; gap:8px;">
-                @{
-                    var total = Model.YearlyPlanTotal + Model.MonthlyPlanTotal;
-                    var monthlyPct = total > 0 ? (double)Model.MonthlyPlanTotal / (double)total * 100 : 0;
-                    var yearlyPct = total > 0 ? (double)Model.YearlyPlanTotal / (double)total * 100 : 0;
+    @if (!Model.CostTable.Any())
+    {
+        <div class="empty" style="padding:40px;">
+            <div class="empty-text">Aktif abonelik yok</div>
+        </div>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Servis</th>
+                    <th>Kategori</th>
+                    <th>Periyot</th>
+                    <th>Fiyat</th>
+                    <th>Aylık Eşd.</th>
+                    <th>Günlük</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in Model.CostTable)
+                {
+                    <tr>
+                        <td style="font-weight:600; font-size:13px;">@row.Name</td>
+                        <td>
+                            <span class="chip chip-blue" style="font-size:11px;">@row.CategoryName</span>
+                        </td>
+                        <td style="font-size:12px; color:var(--text-secondary);">@row.Period</td>
+                        <td style="font-size:13px;">
+                            @if (row.OriginalCurrency != "TRY")
+                            {
+                                <span style="color:var(--text-muted);">@row.OriginalPrice.ToString("N2") @row.OriginalCurrency</span>
+                            }
+                            else
+                            {
+                                @row.OriginalPrice.ToString("C0", tr)
+                            }
+                        </td>
+                        <td style="font-weight:600; font-size:13px; color:var(--accent);">@row.MonthlyCost.ToString("C0", tr)</td>
+                        <td style="font-size:12px; color:var(--text-secondary);">@row.DailyCost.ToString("C2", tr)</td>
+                    </tr>
                 }
-                <div style="display:flex; align-items:center; justify-content:space-between;">
-                    <span style="font-size:12px; color:var(--text-secondary);">Aylık planlar</span>
-                    <span style="font-size:12px; font-weight:600;">%@monthlyPct.ToString("F0")</span>
-                </div>
-                <div class="progress-track" style="height:6px;">
-                    <div class="progress-fill" style="width:@monthlyPct.ToString("F0")%; background:var(--warning);"></div>
-                </div>
-                <div style="display:flex; align-items:center; justify-content:space-between;">
-                    <span style="font-size:12px; color:var(--text-secondary);">Yıllık planlar</span>
-                    <span style="font-size:12px; font-weight:600;">%@yearlyPct.ToString("F0")</span>
-                </div>
-                <div class="progress-track" style="height:6px;">
-                    <div class="progress-fill" style="width:@yearlyPct.ToString("F0")%; background:oklch(0.52 0.20 260);"></div>
-                </div>
-            </div>
-        }
-    </div>
+            </tbody>
+        </table>
+    }
 </div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const colors = ['#4f46e5','#0891b2','#059669','#d97706','#dc2626','#7c3aed','#0d9488','#db2777','#f59e0b','#3b82f6','#10b981','#f97316'];
+        const colors = ['#4f46e5','#0891b2','#059669','#d97706','#dc2626','#7c3aed','#0d9488','#db2777','#f59e0b','#3b82f6'];
         const fmtTRY = (v) => v.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' });
 
-        // Servis dağılımı doughnut
-        const serviceLabels = @Html.Raw(serviceLabels);
-        const serviceData   = @Html.Raw(serviceData);
-
-        new Chart(document.getElementById('pieChart'), {
-            type: 'doughnut',
-            data: {
-                labels: serviceLabels,
-                datasets: [{ data: serviceData, backgroundColor: colors.slice(0, serviceData.length), borderWidth: 2, borderColor: '#fff' }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, padding: 12, boxWidth: 10 } },
-                    tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmtTRY(ctx.parsed || 0)}` } }
-                }
-            }
-        });
-
-        // Aylık maliyet bar
-        new Chart(document.getElementById('barChart'), {
-            type: 'bar',
-            data: {
-                labels: serviceLabels,
-                datasets: [{ data: serviceData, backgroundColor: colors.slice(0, serviceData.length), borderRadius: 5, borderSkipped: false }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { callbacks: { label: ctx => fmtTRY(ctx.parsed.y) } }
-                },
-                scales: {
-                    y: { beginAtZero: true, grid: { color: 'var(--border)' }, ticks: { font: { family: 'DM Sans', size: 11 }, callback: v => fmtTRY(v) } },
-                    x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 11 } } }
-                }
-            }
-        });
-
-        // Kategori doughnut
         const catLabels = @Html.Raw(catLabels);
-        const catData   = @Html.Raw(catData);
+        const catData = @Html.Raw(catData);
 
         if (catData.length > 0) {
             new Chart(document.getElementById('categoryChart'), {
@@ -200,6 +187,7 @@
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
+                    cutout: '60%',
                     plugins: {
                         legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, padding: 12, boxWidth: 10 } },
                         tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmtTRY(ctx.parsed || 0)}` } }
@@ -207,58 +195,5 @@
                 }
             });
         }
-
-        // 12 aylık trend line chart
-        const trendLabels = @Html.Raw(trendLabels);
-        const trendData   = @Html.Raw(trendData);
-
-        new Chart(document.getElementById('trendChart'), {
-            type: 'line',
-            data: {
-                labels: trendLabels,
-                datasets: [{
-                    label: 'Aylık Harcama',
-                    data: trendData,
-                    borderColor: '#4f46e5',
-                    backgroundColor: 'rgba(79,70,229,0.08)',
-                    borderWidth: 2.5,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { callbacks: { label: ctx => fmtTRY(ctx.parsed.y) } }
-                },
-                scales: {
-                    y: { beginAtZero: true, grid: { color: 'var(--border)' }, ticks: { font: { family: 'DM Sans', size: 11 }, callback: v => fmtTRY(v) } },
-                    x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 11 } } }
-                }
-            }
-        });
-
-        // Yıllık vs Aylık plan doughnut
-        const planLabels = @Html.Raw(planLabels);
-        const planData   = @Html.Raw(planData);
-
-        new Chart(document.getElementById('planChart'), {
-            type: 'doughnut',
-            data: {
-                labels: planLabels,
-                datasets: [{ data: planData, backgroundColor: ['#d97706', '#4f46e5'], borderWidth: 2, borderColor: '#fff' }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                cutout: '65%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 11 }, padding: 12, boxWidth: 10 } },
-                    tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmtTRY(ctx.parsed || 0)}` } }
-                }
-            }
-        });
     </script>
 }

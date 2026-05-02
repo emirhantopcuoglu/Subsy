@@ -23,36 +23,15 @@ public class FinanceController : Controller
         var model = new FinanceViewModel
         {
             TotalMonthlyCost = dto.TotalMonthlyCost,
-            AllTimeSpending = dto.AllTimeSpending,
+            TotalYearlyCost = dto.TotalYearlyCost,
+            DailyAverage = dto.DailyAverage,
             Currency = dto.Currency,
             SubscriptionCount = dto.SubscriptionCount,
-            YearlyPlanTotal = dto.YearlyPlanTotal,
-            MonthlyPlanTotal = dto.MonthlyPlanTotal,
-            TopSpendingService = dto.TopSpendingService is null
-                ? null
-                : new ServiceSummary
-                {
-                    SubscriptionName = dto.TopSpendingService.SubscriptionName,
-                    TotalCost = dto.TopSpendingService.TotalCost
-                },
-            GroupedByService = dto.GroupedByService
-                .Select(x => new ServiceSummary
-                {
-                    SubscriptionName = x.SubscriptionName,
-                    TotalCost = x.TotalCost
-                })
-                .ToList(),
-            GroupedByCategory = dto.GroupedByCategory
-                .Select(x => new CategorySummary
-                {
-                    CategoryName = x.CategoryName,
-                    TotalCost = x.TotalCost,
-                    Count = x.Count
-                })
-                .ToList(),
-            TwelveMonthTrend = dto.TwelveMonthTrend
-                .Select(p => (p.Label, p.Amount))
-                .ToList()
+            TopSpendingService = dto.TopSpendingService,
+            GroupedByCategory = dto.GroupedByCategory,
+            Insights = dto.Insights,
+            PaymentCalendar = dto.PaymentCalendar,
+            CostTable = dto.CostTable
         };
 
         return View(model);
