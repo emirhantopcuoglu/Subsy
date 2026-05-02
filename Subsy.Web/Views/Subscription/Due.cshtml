@@ -100,7 +100,7 @@ else
                 </div>
 
                 <div>
-                    <div class="sub-price">@sub.Price.ToString("C2", tr)</div>
+                    <div class="sub-price">@sub.Price.ToString("N2", tr) @sub.Currency</div>
                     <div class="sub-meta" style="margin-top:2px;">Yenileme: @sub.RenewalDate.ToString("d MMM yyyy", tr)</div>
                 </div>
 

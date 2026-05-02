@@ -95,6 +95,7 @@ public sealed class GetDashboardHandler : IRequestHandler<GetSubscriptionDashboa
                 Id = s.Id,
                 Name = s.Name,
                 Price = s.Price,
+                Currency = s.Currency,
                 RenewalDate = s.RenewalDate,
                 RenewalPeriodDays = s.RenewalPeriodDays,
                 IsArchived = s.IsArchived

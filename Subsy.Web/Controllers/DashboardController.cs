@@ -38,6 +38,7 @@ public class DashboardController : Controller
         Id = x.Id,
         Name = x.Name,
         Price = x.Price,
+        Currency = x.Currency,
         RenewalDate = x.RenewalDate,
         RenewalPeriodDays = x.RenewalPeriodDays,
         IsArchived = x.IsArchived

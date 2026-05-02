@@ -39,14 +39,14 @@
     </div>
 
     <div class="stat-card">
-        <div class="stat-icon" style="background:oklch(0.52 0.16 152 / 0.12);">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-5"/>
+        <div class="stat-icon" style="background:oklch(0.55 0.18 290 / 0.12);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="oklch(0.55 0.18 290)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
             </svg>
         </div>
-        <div class="stat-value" style="color:var(--success);">@Model.TotalThisMonth.ToString("C0", tr)</div>
-        <div class="stat-label" style="margin-top:4px;">Bu Ay Harcama</div>
-        <div class="stat-sub">Kalan ödemeler</div>
+        <div class="stat-value" style="color:oklch(0.55 0.18 290);">@Model.YearlyCost.ToString("C0", tr)</div>
+        <div class="stat-label" style="margin-top:4px;">Yıllık Tahmin</div>
+        <div class="stat-sub">Aylık eşdeğer × 12</div>
     </div>
 
     <div class="stat-card">
@@ -61,31 +61,16 @@
     </div>
 </div>
 
-<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:24px;">
-
-    <div class="stat-card" style="display:flex; flex-direction:column; justify-content:space-between;">
-        <div>
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-                <div class="stat-icon" style="background:oklch(0.55 0.18 290 / 0.12); flex-shrink:0;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="oklch(0.55 0.18 290)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
-                    </svg>
-                </div>
-                <div class="stat-label" style="margin:0;">Yıllık Tahmini Harcama</div>
-            </div>
-            <div class="stat-value" style="font-size:22px; color:oklch(0.55 0.18 290);">@Model.YearlyCost.ToString("C0", tr)</div>
-            <div class="stat-sub" style="margin-top:6px;">Aylık eşdeğer × 12</div>
-        </div>
-    </div>
-
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px;">
     <div class="stat-card">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-            <div class="stat-icon" style="background:oklch(0.52 0.16 200 / 0.12); flex-shrink:0;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="oklch(0.52 0.16 200)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+            <div class="stat-icon" style="background:oklch(0.52 0.16 152 / 0.12); flex-shrink:0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 22V12m0 0l-4 4m4-4l4 4"/><circle cx="12" cy="5" r="2"/>
                 </svg>
             </div>
             <div class="stat-label" style="margin:0;">Bu Ay Özeti</div>
+            <div style="margin-left:auto; font-size:14px; font-weight:700; color:var(--text-primary);">@totalMonthly.ToString("C0", tr)</div>
         </div>
         <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
             <span style="font-size:11px; color:var(--success); font-weight:600;">Ödendi: @Model.PaidThisMonth.ToString("C0", tr)</span>
@@ -187,7 +172,7 @@
                                     <span style="font-weight:500; font-size:13px;">@item.Name</span>
                                 </div>
                             </td>
-                            <td style="font-weight:600; font-size:13px;">@item.Price.ToString("C2", tr)</td>
+                            <td style="font-weight:600; font-size:13px;">@item.Price.ToString("N2", tr) @item.Currency</td>
                             <td style="font-size:12px; color:var(--text-secondary);">@item.RenewalDate.ToString("d MMM yyyy", tr)</td>
                             <td>
                                 @if (isOver)

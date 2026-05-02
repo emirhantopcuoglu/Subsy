@@ -118,7 +118,8 @@ public sealed class GetFinanceDashboardHandler : IRequestHandler<GetFinanceDashb
         var calendar = BuildPaymentCalendar(subs, today, ToPreferred);
 
         // Smart insights
-        var insights = BuildInsights(subsWithCost.Select(x => (x.Sub, x.Monthly)).ToList(), totalMonthly, today, groupedByCategory, ToPreferred);
+        var ci = new CultureInfo("tr-TR");
+        var insights = BuildInsights(subsWithCost.Select(x => (x.Sub, x.Monthly)).ToList(), totalMonthly, today, groupedByCategory, ToPreferred, ci);
 
         var topService = grouped.FirstOrDefault();
 
@@ -176,7 +177,7 @@ public sealed class GetFinanceDashboardHandler : IRequestHandler<GetFinanceDashb
 
             if (weekItems.Count > 0)
             {
-                var label = $"{currentWeekStart:d MMM} – {weekEnd.AddDays(-1):d MMM}";
+                var label = $"{currentWeekStart.ToString("d MMM", tr)} – {weekEnd.AddDays(-1).ToString("d MMM", tr)}";
                 weeks.Add(new PaymentCalendarWeek
                 {
                     Label = label,
@@ -191,17 +192,20 @@ public sealed class GetFinanceDashboardHandler : IRequestHandler<GetFinanceDashb
         return weeks;
     }
 
+    private static string Fmt(decimal amount, CultureInfo ci) => amount.ToString("C0", ci);
+    private static string Fmt2(decimal amount, CultureInfo ci) => amount.ToString("C2", ci);
+
     private static List<InsightDto> BuildInsights(
         List<(Subscription Sub, decimal Monthly)> subs,
         decimal totalMonthly,
         DateTime today,
         List<CategorySummaryDto> categories,
-        Func<decimal, string, decimal> toPreferred)
+        Func<decimal, string, decimal> toPreferred,
+        CultureInfo ci)
     {
         var insights = new List<InsightDto>();
         if (subs.Count == 0) return insights;
 
-        // Top N subscriptions dominate spending
         if (subs.Count >= 3)
         {
             var top2 = subs.OrderByDescending(x => x.Monthly).Take(2).Sum(x => x.Monthly);
@@ -213,7 +217,6 @@ public sealed class GetFinanceDashboardHandler : IRequestHandler<GetFinanceDashb
             }
         }
 
-        // Category with multiple subscriptions
         var multiCat = categories.Where(c => c.Count >= 2).OrderByDescending(c => c.Count).FirstOrDefault();
         if (multiCat is not null)
         {
@@ -221,20 +224,18 @@ public sealed class GetFinanceDashboardHandler : IRequestHandler<GetFinanceDashb
             insights.Add(new InsightDto("🔁", $"{multiCat.CategoryName} kategorisinde {multiCat.Count} aboneliğin var: {string.Join(", ", catSubs)}.", "info"));
         }
 
-        // Upcoming payments in next 7 days
         var next7 = subs.Where(x => x.Sub.RenewalDate >= today && x.Sub.RenewalDate <= today.AddDays(7)).ToList();
         if (next7.Count > 0)
         {
             var total7 = next7.Sum(x => toPreferred(x.Sub.Price, x.Sub.Currency));
-            insights.Add(new InsightDto("📅", $"Önümüzdeki 7 günde {next7.Count} ödeme var, toplam {total7:C0}.", "neutral"));
+            insights.Add(new InsightDto("📅", $"Önümüzdeki 7 günde {next7.Count} ödeme var, toplam {Fmt(total7, ci)}.", "neutral"));
         }
 
-        // Most expensive single subscription vs daily perspective
         var most = subs.OrderByDescending(x => x.Monthly).FirstOrDefault();
         if (most.Sub is not null && most.Monthly > 0)
         {
             var daily = most.Monthly / 30m;
-            insights.Add(new InsightDto("📊", $"En pahalı aboneliğin ({most.Sub.Name}) günde {daily:C2} maliyetinde.", "neutral"));
+            insights.Add(new InsightDto("📊", $"En pahalı aboneliğin ({most.Sub.Name}) günde {Fmt2(daily, ci)} maliyetinde.", "neutral"));
         }
 
         return insights;

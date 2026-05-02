@@ -19,6 +19,7 @@ public sealed class UpcomingSubscriptionDto
     public int Id { get; set; }
     public string Name { get; set; } = default!;
     public decimal Price { get; set; }
+    public string Currency { get; set; } = "TRY";
     public DateTime RenewalDate { get; set; }
     public int RenewalPeriodDays { get; set; }
     public bool IsArchived { get; set; }
