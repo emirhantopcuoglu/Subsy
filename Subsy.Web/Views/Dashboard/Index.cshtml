@@ -1,5 +1,6 @@
 @model Subsy.Web.Models.DashboardViewModel
 @using System.Globalization
+@using Subsy.Application.Common
 
 @{
     ViewData["Title"] = "Dashboard";
@@ -99,12 +100,23 @@
                     {
                         var days = (item.RenewalDate - DateTime.Today).Days;
                         var isOver = days <= 0;
+                        var faviconUrl = ServiceRegistry.GetFaviconUrl(item.Name);
                         <tr>
                             <td>
                                 <div style="display:flex; align-items:center; gap:10px;">
-                                    <div style="width:28px; height:28px; border-radius:7px; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#fff; flex-shrink:0;">
-                                        @item.Name[0].ToString().ToUpper()
-                                    </div>
+                                    @if (faviconUrl is not null)
+                                    {
+                                        <img src="@faviconUrl" alt="@item.Name" class="sub-favicon" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+                                        <div style="width:28px; height:28px; border-radius:7px; background:var(--accent); display:none; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#fff; flex-shrink:0;">
+                                            @item.Name[0].ToString().ToUpper()
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div style="width:28px; height:28px; border-radius:7px; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#fff; flex-shrink:0;">
+                                            @item.Name[0].ToString().ToUpper()
+                                        </div>
+                                    }
                                     <span style="font-weight:500; font-size:13px;">@item.Name</span>
                                 </div>
                             </td>

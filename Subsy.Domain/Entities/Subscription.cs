@@ -1,4 +1,6 @@
-﻿namespace Subsy.Domain.Entities;
+﻿using Subsy.Domain.Enums;
+
+namespace Subsy.Domain.Entities;
 
 public class Subscription
 {
@@ -10,6 +12,7 @@ public class Subscription
     public DateTime RenewalDate { get; private set; }
     public string UserId { get; private set; } = default!;
     public bool IsArchived { get; private set; }
+    public SubscriptionCategory Category { get; private set; }
 
     private Subscription() { }
 
@@ -19,7 +22,8 @@ public class Subscription
         decimal price,
         string currency,
         int renewalPeriodDays,
-        DateTime firstRenewalDate)
+        DateTime firstRenewalDate,
+        SubscriptionCategory category = SubscriptionCategory.Other)
     {
         return new Subscription
         {
@@ -29,7 +33,8 @@ public class Subscription
             Currency = currency.ToUpperInvariant(),
             RenewalPeriodDays = renewalPeriodDays,
             RenewalDate = firstRenewalDate,
-            IsArchived = false
+            IsArchived = false,
+            Category = category
         };
     }
 
@@ -60,12 +65,19 @@ public class Subscription
         IsArchived = false;
     }
 
-    public void UpdateDetails(string name, decimal price, string currency, int renewalPeriodDays, DateTime newRenewalDate)
+    public void UpdateDetails(
+        string name,
+        decimal price,
+        string currency,
+        int renewalPeriodDays,
+        DateTime newRenewalDate,
+        SubscriptionCategory category = SubscriptionCategory.Other)
     {
         Name = name;
         Price = price;
         Currency = currency.ToUpperInvariant();
         RenewalPeriodDays = renewalPeriodDays;
         RenewalDate = newRenewalDate;
+        Category = category;
     }
 }

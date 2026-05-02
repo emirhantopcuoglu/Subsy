@@ -1,11 +1,41 @@
 @model List<SubscriptionsViewModel>
 @using System.Globalization
+@using Subsy.Domain.Enums
+@using Subsy.Application.Common
 
 @{
     ViewData["Title"] = "Ödeme Günü";
     var tr = new CultureInfo("tr-TR");
     string[] avatarColors = { "#4f46e5","#0891b2","#059669","#d97706","#dc2626","#7c3aed","#0d9488","#db2777" };
     string AvatarColor(string name) => avatarColors[char.ToUpper(name[0]) % avatarColors.Length];
+
+    var categoryLabels = new Dictionary<SubscriptionCategory, string>
+    {
+        { SubscriptionCategory.Other, "Diğer" },
+        { SubscriptionCategory.Entertainment, "Eğlence" },
+        { SubscriptionCategory.Music, "Müzik" },
+        { SubscriptionCategory.Software, "Yazılım" },
+        { SubscriptionCategory.Gaming, "Oyun" },
+        { SubscriptionCategory.Cloud, "Bulut" },
+        { SubscriptionCategory.Education, "Eğitim" },
+        { SubscriptionCategory.News, "Haber" },
+        { SubscriptionCategory.Health, "Sağlık" },
+        { SubscriptionCategory.Shopping, "Alışveriş" }
+    };
+
+    var categoryChipClass = new Dictionary<SubscriptionCategory, string>
+    {
+        { SubscriptionCategory.Other, "chip-other" },
+        { SubscriptionCategory.Entertainment, "chip-entertainment" },
+        { SubscriptionCategory.Music, "chip-music" },
+        { SubscriptionCategory.Software, "chip-software" },
+        { SubscriptionCategory.Gaming, "chip-gaming" },
+        { SubscriptionCategory.Cloud, "chip-cloud" },
+        { SubscriptionCategory.Education, "chip-education" },
+        { SubscriptionCategory.News, "chip-news" },
+        { SubscriptionCategory.Health, "chip-health" },
+        { SubscriptionCategory.Shopping, "chip-shopping" }
+    };
 }
 
 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
@@ -37,24 +67,36 @@ else
             var expiredDays = Math.Abs(remaining);
             var color = AvatarColor(sub.Name);
             var periodLabel = sub.RenewalPeriodDays switch { 7 => "Haftalık", 30 => "Aylık", 365 => "Yıllık", _ => $"{sub.RenewalPeriodDays}g" };
+            var faviconUrl = ServiceRegistry.GetFaviconUrl(sub.Name);
 
             <div class="sub-card overdue">
                 <div style="display:flex; align-items:flex-start; gap:10px; justify-content:space-between;">
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <div class="sub-avatar" style="background:@color;">@sub.Name[0].ToString().ToUpper()</div>
+                        @if (faviconUrl is not null)
+                        {
+                            <img src="@faviconUrl" alt="@sub.Name" class="sub-favicon" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+                            <div class="sub-avatar" style="background:@color; display:none;">@sub.Name[0].ToString().ToUpper()</div>
+                        }
+                        else
+                        {
+                            <div class="sub-avatar" style="background:@color;">@sub.Name[0].ToString().ToUpper()</div>
+                        }
                         <div>
                             <div class="sub-name">@sub.Name</div>
                             <div class="sub-meta">@sub.Currency · @periodLabel</div>
                         </div>
                     </div>
-                    @if (expiredDays == 0)
-                    {
-                        <span class="chip chip-red">Bugün</span>
-                    }
-                    else
-                    {
-                        <span class="chip chip-red">@expiredDays g gecikmiş</span>
-                    }
+                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                        @if (expiredDays == 0)
+                        {
+                            <span class="chip chip-red">Bugün</span>
+                        }
+                        else
+                        {
+                            <span class="chip chip-red">@expiredDays g gecikmiş</span>
+                        }
+                        <span class="chip chip-cat @categoryChipClass[sub.Category]">@categoryLabels[sub.Category]</span>
+                    </div>
                 </div>
 
                 <div>

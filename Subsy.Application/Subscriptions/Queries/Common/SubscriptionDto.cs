@@ -1,4 +1,6 @@
-﻿namespace Subsy.Application.Subscriptions.Queries.Common;
+﻿using Subsy.Domain.Enums;
+
+namespace Subsy.Application.Subscriptions.Queries.Common;
 
 public sealed class SubscriptionDto
 {
@@ -9,4 +11,5 @@ public sealed class SubscriptionDto
     public int RenewalPeriodDays { get; init; }
     public DateTime RenewalDate { get; init; }
     public bool IsArchived { get; init; }
+    public SubscriptionCategory Category { get; init; }
 }

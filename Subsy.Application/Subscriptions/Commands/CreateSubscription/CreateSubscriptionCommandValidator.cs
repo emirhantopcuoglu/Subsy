@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Subsy.Domain.Enums;
 
 namespace Subsy.Application.Subscriptions.Commands.CreateSubscription
 {
@@ -32,6 +33,9 @@ namespace Subsy.Application.Subscriptions.Commands.CreateSubscription
             RuleFor(x => x.SelectedDay)
                 .InclusiveBetween(1, 31)
                 .WithMessage("Day 1 ile 31 arasında olmalıdır.");
+
+            RuleFor(x => x.Category)
+                .IsInEnum().WithMessage("Geçersiz kategori.");
         }
     }
 }

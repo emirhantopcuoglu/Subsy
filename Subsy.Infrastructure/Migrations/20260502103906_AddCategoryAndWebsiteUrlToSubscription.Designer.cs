@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Subsy.Infrastructure.Persistence;
 
@@ -10,9 +11,11 @@ using Subsy.Infrastructure.Persistence;
 namespace Subsy.Infrastructure.Migrations
 {
     [DbContext(typeof(SubsyContext))]
-    partial class SubsyContextModelSnapshot : ModelSnapshot
+    [Migration("20260502103906_AddCategoryAndWebsiteUrlToSubscription")]
+    partial class AddCategoryAndWebsiteUrlToSubscription
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.15");
@@ -284,6 +287,10 @@ namespace Subsy.Infrastructure.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("WebsiteUrl")
+                        .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

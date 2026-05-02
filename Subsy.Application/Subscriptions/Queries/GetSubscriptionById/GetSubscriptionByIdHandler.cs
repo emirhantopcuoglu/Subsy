@@ -24,9 +24,11 @@ public sealed class GetSubscriptionByIdHandler
             Id = sub.Id,
             Name = sub.Name,
             Price = sub.Price,
+            Currency = sub.Currency,
             RenewalPeriodDays = sub.RenewalPeriodDays,
             RenewalDate = sub.RenewalDate,
-            IsArchived = sub.IsArchived
+            IsArchived = sub.IsArchived,
+            Category = sub.Category
         };
     }
 }
