@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Subsy.Application.Subscriptions.Queries.GetSubscriptionDashboard;
@@ -23,6 +23,10 @@ public class DashboardController : Controller
             ActiveCount = dto.ActiveCount,
             TodayDueCount = dto.TodayDueCount,
             TotalThisMonth = dto.TotalThisMonth,
+            YearlyCost = dto.YearlyCost,
+            PaidThisMonth = dto.PaidThisMonth,
+            RemainingThisMonth = dto.RemainingThisMonth,
+            SixMonthTrend = dto.SixMonthTrend.Select(p => (p.Label, p.Amount)).ToList(),
             Upcoming = dto.Upcoming.Select(MapUpcomingToVm).ToList()
         };
 

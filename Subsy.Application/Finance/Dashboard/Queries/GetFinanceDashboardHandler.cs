@@ -1,5 +1,8 @@
+using System.Globalization;
 using MediatR;
 using Subsy.Application.Common.Interfaces;
+using Subsy.Domain.Entities;
+using Subsy.Domain.Enums;
 
 namespace Subsy.Application.Finance.Dashboard.Queries;
 
@@ -32,7 +35,6 @@ public sealed class GetFinanceDashboardHandler : IRequestHandler<GetFinanceDashb
         var subs = subsTask.Result;
         var preferredCurrency = profileTask.Result?.PreferredCurrency ?? "TRY";
 
-        // Fetch all rates once — base = preferredCurrency, so rates[X] = how many X per 1 preferred unit
         var rates = await _exchangeRateService.GetRatesAsync(preferredCurrency, ct);
 
         decimal ToPreferred(decimal amount, string currency)
@@ -48,21 +50,16 @@ public sealed class GetFinanceDashboardHandler : IRequestHandler<GetFinanceDashb
 
         var today = _dateTime.Today;
         var monthStart = new DateTime(today.Year, today.Month, 1);
-        var monthEnd = monthStart.AddMonths(1);
 
-        var active = subs;
-
-        decimal monthlyEquivalent = active
+        // Monthly equivalent (normalized to 30 days)
+        decimal monthlyEquivalent = subs
             .Where(s => s.RenewalPeriodDays > 0)
             .Sum(s => ToPreferred(s.Price, s.Currency) * 30m / s.RenewalPeriodDays);
 
-        decimal dueThisMonth = active
-            .Where(s => s.RenewalDate >= monthStart && s.RenewalDate < monthEnd)
-            .Sum(s => ToPreferred(s.Price, s.Currency));
+        decimal totalSnapshot = subs.Sum(s => ToPreferred(s.Price, s.Currency));
 
-        decimal totalSnapshot = active.Sum(s => ToPreferred(s.Price, s.Currency));
-
-        var grouped = active
+        // Grouped by service name
+        var grouped = subs
             .Where(s => s.RenewalPeriodDays > 0)
             .GroupBy(s => s.Name)
             .Select(g => new ServiceSummaryDto
@@ -73,6 +70,54 @@ public sealed class GetFinanceDashboardHandler : IRequestHandler<GetFinanceDashb
             .OrderByDescending(x => x.TotalCost)
             .ToList();
 
+        // Grouped by category
+        var categoryNames = new Dictionary<SubscriptionCategory, string>
+        {
+            [SubscriptionCategory.Entertainment] = "Eğlence",
+            [SubscriptionCategory.Music] = "Müzik",
+            [SubscriptionCategory.Software] = "Yazılım",
+            [SubscriptionCategory.Gaming] = "Oyun",
+            [SubscriptionCategory.Cloud] = "Bulut",
+            [SubscriptionCategory.Education] = "Eğitim",
+            [SubscriptionCategory.News] = "Haber",
+            [SubscriptionCategory.Health] = "Sağlık",
+            [SubscriptionCategory.Shopping] = "Alışveriş",
+            [SubscriptionCategory.Other] = "Diğer"
+        };
+
+        var groupedByCategory = subs
+            .Where(s => s.RenewalPeriodDays > 0)
+            .GroupBy(s => s.Category)
+            .Select(g => new CategorySummaryDto
+            {
+                CategoryName = categoryNames.GetValueOrDefault(g.Key, "Diğer"),
+                TotalCost = g.Sum(x => ToPreferred(x.Price, x.Currency) * 30m / x.RenewalPeriodDays),
+                Count = g.Count()
+            })
+            .OrderByDescending(x => x.TotalCost)
+            .ToList();
+
+        // 12-month trend
+        var tr = new CultureInfo("tr-TR");
+        var trend = new List<MonthlyTrendPoint>();
+        for (int i = 11; i >= 0; i--)
+        {
+            var mStart = monthStart.AddMonths(-i);
+            var mEnd = mStart.AddMonths(1);
+            var label = mStart.ToString("MMM yy", tr);
+            decimal amount = subs.Sum(s => GetAmountInMonth(s, mStart, mEnd, ToPreferred));
+            trend.Add(new MonthlyTrendPoint(label, Math.Round(amount, 2)));
+        }
+
+        // Yearly vs monthly plan totals
+        decimal yearlyPlanTotal = subs
+            .Where(s => s.RenewalPeriodDays >= 300)
+            .Sum(s => ToPreferred(s.Price, s.Currency) * 30m / s.RenewalPeriodDays);
+
+        decimal monthlyPlanTotal = subs
+            .Where(s => s.RenewalPeriodDays > 0 && s.RenewalPeriodDays < 300)
+            .Sum(s => ToPreferred(s.Price, s.Currency) * 30m / s.RenewalPeriodDays);
+
         var topService = grouped.FirstOrDefault();
 
         return new FinanceDashboardDto
@@ -81,8 +126,29 @@ public sealed class GetFinanceDashboardHandler : IRequestHandler<GetFinanceDashb
             AllTimeSpending = totalSnapshot,
             Currency = preferredCurrency,
             GroupedByService = grouped,
+            GroupedByCategory = groupedByCategory,
+            TwelveMonthTrend = trend,
             TopSpendingService = topService,
-            SubscriptionCount = active.Count
+            SubscriptionCount = subs.Count,
+            YearlyPlanTotal = yearlyPlanTotal,
+            MonthlyPlanTotal = monthlyPlanTotal
         };
+    }
+
+    private static decimal GetAmountInMonth(
+        Subscription s, DateTime monthStart, DateTime monthEnd,
+        Func<decimal, string, decimal> toPreferred)
+    {
+        if (s.RenewalPeriodDays <= 0) return 0;
+
+        var d = s.RenewalDate;
+
+        while (d >= monthEnd)
+            d = d.AddDays(-s.RenewalPeriodDays);
+
+        while (d < monthStart)
+            d = d.AddDays(s.RenewalPeriodDays);
+
+        return (d >= monthStart && d < monthEnd) ? toPreferred(s.Price, s.Currency) : 0m;
     }
 }

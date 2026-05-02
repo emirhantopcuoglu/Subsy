@@ -1,11 +1,18 @@
 @model Subsy.Web.Models.DashboardViewModel
 @using System.Globalization
+@using System.Text.Json
 @using Subsy.Application.Common
 
 @{
     ViewData["Title"] = "Dashboard";
     var upcomingList = Model.Upcoming ?? new();
     var tr = new CultureInfo("tr-TR");
+
+    var trendLabels = JsonSerializer.Serialize(Model.SixMonthTrend.Select(p => p.Label));
+    var trendValues = JsonSerializer.Serialize(Model.SixMonthTrend.Select(p => p.Amount));
+
+    var totalMonthly = Model.PaidThisMonth + Model.RemainingThisMonth;
+    var paidPct = totalMonthly > 0 ? (double)Model.PaidThisMonth / (double)totalMonthly * 100 : 0;
 }
 
 <div class="stat-grid">
@@ -39,7 +46,7 @@
         </div>
         <div class="stat-value" style="color:var(--success);">@Model.TotalThisMonth.ToString("C0", tr)</div>
         <div class="stat-label" style="margin-top:4px;">Bu Ay Harcama</div>
-        <div class="stat-sub">Toplam ödeme</div>
+        <div class="stat-sub">Kalan ödemeler</div>
     </div>
 
     <div class="stat-card">
@@ -51,6 +58,66 @@
         <div class="stat-value" style="color:var(--warning);">@upcomingList.Count</div>
         <div class="stat-label" style="margin-top:4px;">Yaklaşan Ödeme</div>
         <div class="stat-sub">3 gün içinde</div>
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:24px;">
+
+    <div class="stat-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                <div class="stat-icon" style="background:oklch(0.55 0.18 290 / 0.12); flex-shrink:0;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="oklch(0.55 0.18 290)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+                    </svg>
+                </div>
+                <div class="stat-label" style="margin:0;">Yıllık Tahmini Harcama</div>
+            </div>
+            <div class="stat-value" style="font-size:22px; color:oklch(0.55 0.18 290);">@Model.YearlyCost.ToString("C0", tr)</div>
+            <div class="stat-sub" style="margin-top:6px;">Aylık eşdeğer × 12</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+            <div class="stat-icon" style="background:oklch(0.52 0.16 200 / 0.12); flex-shrink:0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="oklch(0.52 0.16 200)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22V12m0 0l-4 4m4-4l4 4"/><circle cx="12" cy="5" r="2"/>
+                </svg>
+            </div>
+            <div class="stat-label" style="margin:0;">Bu Ay Özeti</div>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span style="font-size:11px; color:var(--success); font-weight:600;">Ödendi: @Model.PaidThisMonth.ToString("C0", tr)</span>
+            <span style="font-size:11px; color:var(--text-secondary); font-weight:600;">Kalan: @Model.RemainingThisMonth.ToString("C0", tr)</span>
+        </div>
+        <div class="progress-track" style="height:8px; margin-bottom:8px;">
+            <div class="progress-fill" style="width:@paidPct.ToString("F0")%; background:var(--success);"></div>
+        </div>
+        <div style="font-size:11px; color:var(--text-muted);">
+            @if (totalMonthly == 0)
+            {
+                <span>Bu ay ödeme planı yok</span>
+            }
+            else
+            {
+                <span>%@paidPct.ToString("F0") ödendi</span>
+            }
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+            <div class="stat-icon" style="background:oklch(0.52 0.16 152 / 0.12); flex-shrink:0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+            </div>
+            <div class="stat-label" style="margin:0;">6 Aylık Trend</div>
+        </div>
+        <div style="height:60px; position:relative;">
+            <canvas id="sparklineChart"></canvas>
+        </div>
     </div>
 </div>
 
@@ -162,3 +229,38 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const sparkLabels = @Html.Raw(trendLabels);
+        const sparkValues = @Html.Raw(trendValues);
+
+        new Chart(document.getElementById('sparklineChart'), {
+            type: 'line',
+            data: {
+                labels: sparkLabels,
+                datasets: [{
+                    data: sparkValues,
+                    borderColor: 'var(--success)',
+                    backgroundColor: 'oklch(0.52 0.16 152 / 0.12)',
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 4,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: {
+                    callbacks: { label: ctx => ctx.parsed.y.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' }) }
+                }},
+                scales: {
+                    x: { display: false },
+                    y: { display: false }
+                }
+            }
+        });
+    </script>
+}
