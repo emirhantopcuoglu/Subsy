@@ -4,15 +4,20 @@ public sealed class SubscriptionDashboardDto
 {
     public int ActiveCount { get; set; }
     public int TodayDueCount { get; set; }
-    public decimal TotalThisMonth { get; set; }
     public decimal YearlyCost { get; set; }
-    public decimal PaidThisMonth { get; set; }
-    public decimal RemainingThisMonth { get; set; }
-    public List<MonthlySpendPoint> SixMonthTrend { get; set; } = new();
+    public decimal MonthlyCost { get; set; }
+    public decimal DailyAverage { get; set; }
+    public NextPaymentDto? NextPayment { get; set; }
     public List<UpcomingSubscriptionDto> Upcoming { get; set; } = new();
 }
 
-public sealed record MonthlySpendPoint(string Label, decimal Amount);
+public sealed class NextPaymentDto
+{
+    public string Name { get; set; } = default!;
+    public decimal Amount { get; set; }
+    public DateTime Date { get; set; }
+    public int DaysLeft { get; set; }
+}
 
 public sealed class UpcomingSubscriptionDto
 {

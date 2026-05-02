@@ -1,8 +1,6 @@
-using System.Globalization;
 using MediatR;
 using Subsy.Application.Common.Interfaces;
 using Subsy.Application.Subscriptions.Queries.GetSubscriptionDashboard;
-using Subsy.Domain.Entities;
 
 namespace Subsy.Application.Subscriptions.Queries.GetDashboard;
 
@@ -25,8 +23,6 @@ public sealed class GetDashboardHandler : IRequestHandler<GetSubscriptionDashboa
     public async Task<SubscriptionDashboardDto> Handle(GetSubscriptionDashboardQuery q, CancellationToken ct)
     {
         var today = DateTime.Today;
-        var monthStart = new DateTime(today.Year, today.Month, 1);
-        var monthEnd = monthStart.AddMonths(1);
         var upcomingEnd = today.AddDays(3);
 
         var activeCountTask = _repo.GetActiveCountAsync(q.UserId, today, ct);
@@ -50,46 +46,38 @@ public sealed class GetDashboardHandler : IRequestHandler<GetSubscriptionDashboa
             return amount;
         }
 
-        decimal totalThisMonth = active
-            .Where(s => s.RenewalDate >= monthStart && s.RenewalDate < monthEnd)
-            .Sum(s => ToPreferred(s.Price, s.Currency));
-
-        decimal paidThisMonth = active
+        decimal monthlyCost = active
             .Where(s => s.RenewalPeriodDays > 0)
-            .Sum(s =>
-            {
-                var prev = s.RenewalDate.AddDays(-s.RenewalPeriodDays);
-                return prev >= monthStart && prev < today ? ToPreferred(s.Price, s.Currency) : 0m;
-            });
+            .Sum(s => ToPreferred(s.Price, s.Currency) * 30m / s.RenewalPeriodDays);
 
-        decimal remainingThisMonth = active
-            .Where(s => s.RenewalDate >= today && s.RenewalDate < monthEnd)
-            .Sum(s => ToPreferred(s.Price, s.Currency));
-
-        decimal yearlyCost = active
+        decimal dailyAverage = active
             .Where(s => s.RenewalPeriodDays > 0)
-            .Sum(s => ToPreferred(s.Price, s.Currency) * 30m / s.RenewalPeriodDays * 12m);
+            .Sum(s => ToPreferred(s.Price, s.Currency) / s.RenewalPeriodDays);
 
-        var tr = new CultureInfo("tr-TR");
-        var trend = new List<MonthlySpendPoint>();
-        for (int i = 5; i >= 0; i--)
+        decimal yearlyCost = monthlyCost * 12m;
+
+        // Next upcoming payment (closest future renewal)
+        var nextSub = active
+            .Where(s => s.RenewalDate >= today)
+            .OrderBy(s => s.RenewalDate)
+            .FirstOrDefault();
+
+        NextPaymentDto? nextPayment = nextSub is null ? null : new NextPaymentDto
         {
-            var mStart = monthStart.AddMonths(-i);
-            var mEnd = mStart.AddMonths(1);
-            var label = mStart.ToString("MMM", tr);
-            decimal amount = active.Sum(s => GetAmountInMonth(s, mStart, mEnd, ToPreferred));
-            trend.Add(new MonthlySpendPoint(label, Math.Round(amount, 2)));
-        }
+            Name = nextSub.Name,
+            Amount = ToPreferred(nextSub.Price, nextSub.Currency),
+            Date = nextSub.RenewalDate,
+            DaysLeft = (nextSub.RenewalDate - today).Days
+        };
 
         return new SubscriptionDashboardDto
         {
             ActiveCount = activeCountTask.Result,
             TodayDueCount = todayDueCountTask.Result,
-            TotalThisMonth = totalThisMonth,
             YearlyCost = yearlyCost,
-            PaidThisMonth = paidThisMonth,
-            RemainingThisMonth = remainingThisMonth,
-            SixMonthTrend = trend,
+            MonthlyCost = monthlyCost,
+            DailyAverage = dailyAverage,
+            NextPayment = nextPayment,
             Upcoming = upcomingTask.Result.Select(s => new UpcomingSubscriptionDto
             {
                 Id = s.Id,
@@ -101,26 +89,5 @@ public sealed class GetDashboardHandler : IRequestHandler<GetSubscriptionDashboa
                 IsArchived = s.IsArchived
             }).ToList()
         };
-    }
-
-    private static decimal GetAmountInMonth(
-        Subscription s, DateTime monthStart, DateTime monthEnd,
-        Func<decimal, string, decimal> toPreferred)
-    {
-        if (s.RenewalPeriodDays <= 0) return 0;
-        if (s.CreatedAt >= monthEnd) return 0;
-
-        var d = s.RenewalDate;
-
-        while (d >= monthEnd)
-            d = d.AddDays(-s.RenewalPeriodDays);
-
-        while (d < monthStart)
-            d = d.AddDays(s.RenewalPeriodDays);
-
-        if (d >= monthStart && d < monthEnd && s.CreatedAt <= d)
-            return toPreferred(s.Price, s.Currency);
-
-        return 0m;
     }
 }

@@ -22,11 +22,16 @@ public class DashboardController : Controller
         {
             ActiveCount = dto.ActiveCount,
             TodayDueCount = dto.TodayDueCount,
-            TotalThisMonth = dto.TotalThisMonth,
             YearlyCost = dto.YearlyCost,
-            PaidThisMonth = dto.PaidThisMonth,
-            RemainingThisMonth = dto.RemainingThisMonth,
-            SixMonthTrend = dto.SixMonthTrend.Select(p => (p.Label, p.Amount)).ToList(),
+            MonthlyCost = dto.MonthlyCost,
+            DailyAverage = dto.DailyAverage,
+            NextPayment = dto.NextPayment is null ? null : new NextPaymentViewModel
+            {
+                Name = dto.NextPayment.Name,
+                Amount = dto.NextPayment.Amount,
+                Date = dto.NextPayment.Date,
+                DaysLeft = dto.NextPayment.DaysLeft
+            },
             Upcoming = dto.Upcoming.Select(MapUpcomingToVm).ToList()
         };
 
