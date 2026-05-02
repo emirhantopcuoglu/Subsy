@@ -95,7 +95,7 @@
                 </select>
                 <span asp-validation-for="RenewalPeriodDays" class="field-validation-error"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group" id="categoryGroup" style="display:none;">
                 <label asp-for="Category" class="form-label">Kategori</label>
                 <select asp-for="Category" class="form-input form-select" id="categorySelect">
                     @foreach (SubscriptionCategory cat in Enum.GetValues(typeof(SubscriptionCategory)))
@@ -147,6 +147,7 @@
             var customInput = customGroup.querySelector("input");
             var categorySelect = document.getElementById("categorySelect");
 
+            var categoryGroup = document.getElementById("categoryGroup");
             if (val === "__other__") {
                 customGroup.style.display = "";
                 hiddenName.disabled = true;
@@ -154,6 +155,7 @@
                 customInput.disabled = false;
                 customInput.focus();
                 categorySelect.value = "0";
+                categoryGroup.style.display = "";
             } else if (val) {
                 customGroup.style.display = "none";
                 customInput.name = "";
@@ -163,12 +165,14 @@
                 var opt = sel.options[sel.selectedIndex];
                 var cat = opt.getAttribute("data-category");
                 if (cat) categorySelect.value = cat;
+                categoryGroup.style.display = "none";
             } else {
                 customGroup.style.display = "none";
                 customInput.name = "";
                 customInput.disabled = true;
                 hiddenName.disabled = false;
                 hiddenName.value = "";
+                categoryGroup.style.display = "none";
             }
         }
 
