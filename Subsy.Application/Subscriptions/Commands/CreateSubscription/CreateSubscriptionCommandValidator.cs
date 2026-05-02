@@ -36,12 +36,6 @@ namespace Subsy.Application.Subscriptions.Commands.CreateSubscription
 
             RuleFor(x => x.Category)
                 .IsInEnum().WithMessage("Geçersiz kategori.");
-
-            RuleFor(x => x.WebsiteUrl)
-                .MaximumLength(500).WithMessage("URL en fazla 500 karakter olabilir.")
-                .Must(url => url is null || Uri.TryCreate(url, UriKind.Absolute, out var u) && (u.Scheme == "http" || u.Scheme == "https"))
-                .When(x => !string.IsNullOrWhiteSpace(x.WebsiteUrl))
-                .WithMessage("Geçerli bir URL giriniz.");
         }
     }
 }

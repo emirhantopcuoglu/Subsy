@@ -1,6 +1,7 @@
 @model List<SubscriptionsViewModel>
 @using System.Globalization
 @using Subsy.Domain.Enums
+@using Subsy.Application.Common
 
 @{
     ViewData["Title"] = "Ödeme Günü";
@@ -66,13 +67,12 @@ else
             var expiredDays = Math.Abs(remaining);
             var color = AvatarColor(sub.Name);
             var periodLabel = sub.RenewalPeriodDays switch { 7 => "Haftalık", 30 => "Aylık", 365 => "Yıllık", _ => $"{sub.RenewalPeriodDays}g" };
-            var hasFavicon = !string.IsNullOrWhiteSpace(sub.WebsiteUrl);
-            var faviconUrl = hasFavicon ? $"https://www.google.com/s2/favicons?domain={new Uri(sub.WebsiteUrl!).Host}&sz=64" : "";
+            var faviconUrl = ServiceRegistry.GetFaviconUrl(sub.Name);
 
             <div class="sub-card overdue">
                 <div style="display:flex; align-items:flex-start; gap:10px; justify-content:space-between;">
                     <div style="display:flex; align-items:center; gap:10px;">
-                        @if (hasFavicon)
+                        @if (faviconUrl is not null)
                         {
                             <img src="@faviconUrl" alt="@sub.Name" class="sub-favicon" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
                             <div class="sub-avatar" style="background:@color; display:none;">@sub.Name[0].ToString().ToUpper()</div>

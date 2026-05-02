@@ -11,6 +11,5 @@ public sealed record CreateSubscriptionCommand(
     int RenewalPeriodDays,
     int SelectedMonth,
     int SelectedDay,
-    SubscriptionCategory Category = SubscriptionCategory.Other,
-    string? WebsiteUrl = null
+    SubscriptionCategory Category = SubscriptionCategory.Other
 ) : IRequest<Unit>;

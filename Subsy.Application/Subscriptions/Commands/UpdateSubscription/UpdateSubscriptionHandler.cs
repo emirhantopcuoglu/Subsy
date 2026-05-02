@@ -29,7 +29,7 @@ public sealed class UpdateSubscriptionHandler
         if (candidate.Date < _dateTime.Today)
             candidate = candidate.AddYears(1);
 
-        subscription.UpdateDetails(cmd.Name, cmd.Price, cmd.Currency, cmd.RenewalPeriodDays, candidate, cmd.Category, cmd.WebsiteUrl);
+        subscription.UpdateDetails(cmd.Name, cmd.Price, cmd.Currency, cmd.RenewalPeriodDays, candidate, cmd.Category);
 
         await _repo.UpdateAsync(subscription, ct);
 

@@ -57,9 +57,6 @@ public class SubsyContext : IdentityDbContext
             cfg.Property(x => x.Category)
                 .HasDefaultValue(SubscriptionCategory.Other);
 
-            cfg.Property(x => x.WebsiteUrl)
-                .HasMaxLength(500);
-
             cfg.HasIndex(x => new { x.UserId, x.IsArchived, x.RenewalDate });
         });
 

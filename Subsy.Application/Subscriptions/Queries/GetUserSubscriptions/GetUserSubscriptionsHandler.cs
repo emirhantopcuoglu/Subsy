@@ -26,8 +26,7 @@ public sealed class GetUserSubscriptionsHandler : IRequestHandler<GetUserSubscri
             RenewalPeriodDays = s.RenewalPeriodDays,
             RenewalDate = s.RenewalDate,
             IsArchived = s.IsArchived,
-            Category = s.Category,
-            WebsiteUrl = s.WebsiteUrl
+            Category = s.Category
         }).ToList();
     }
 }

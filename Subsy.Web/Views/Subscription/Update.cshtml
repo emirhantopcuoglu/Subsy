@@ -1,6 +1,7 @@
 @model SubscriptionsViewModel
 @using System.Globalization
 @using Subsy.Domain.Enums
+@using Subsy.Application.Common
 
 @{
     ViewData["Title"] = "Abonelik Düzenle";
@@ -19,6 +20,9 @@
         { SubscriptionCategory.Health, "Sağlık" },
         { SubscriptionCategory.Shopping, "Alışveriş" }
     };
+
+    var grouped = ServiceRegistry.GetGrouped();
+    var isKnownService = ServiceRegistry.TryGet(Model.Name) is not null;
 }
 
 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
@@ -36,16 +40,46 @@
         <input type="hidden" asp-for="Id" />
 
         <div class="form-group">
-            <label asp-for="Name" class="form-label">Servis Adı</label>
-            <input asp-for="Name" class="form-input" />
+            <label class="form-label">Servis</label>
+            <select id="serviceSelect" class="form-input form-select" onchange="onServiceChange()">
+                <option value="">Servis seçiniz...</option>
+                @foreach (var group in grouped)
+                {
+                    <optgroup label="@categoryLabels[group.Key]">
+                        @foreach (var svc in group)
+                        {
+                            <option value="@svc.Name" data-category="@((int)svc.Category)"
+                                    selected="@(svc.Name == Model.Name)">@svc.Name</option>
+                        }
+                    </optgroup>
+                }
+                <optgroup label="─────────">
+                    <option value="__other__" selected="@(!isKnownService)">Diğer (Elle Giriş)</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <div class="form-group" id="customNameGroup" style="display:@(isKnownService ? "none" : "");">
+            <label class="form-label">Servis Adı</label>
+            @if (isKnownService)
+            {
+                <input id="customNameInput" class="form-input" value="" placeholder="Abonelik adını yazın..." disabled />
+            }
+            else
+            {
+                <input id="customNameInput" class="form-input" value="@Model.Name" placeholder="Abonelik adını yazın..." name="Name" />
+            }
             <span asp-validation-for="Name" class="field-validation-error"></span>
         </div>
 
-        <div class="form-group">
-            <label asp-for="WebsiteUrl" class="form-label">Web Sitesi (opsiyonel)</label>
-            <input asp-for="WebsiteUrl" class="form-input" type="url" placeholder="https://www.netflix.com" />
-            <span asp-validation-for="WebsiteUrl" class="field-validation-error"></span>
-        </div>
+        @if (isKnownService)
+        {
+            <input type="hidden" name="Name" id="hiddenName" value="@Model.Name" />
+        }
+        else
+        {
+            <input type="hidden" name="Name" id="hiddenName" value="" disabled />
+        }
 
         <div class="form-grid-2">
             <div class="form-group">
@@ -81,7 +115,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Category" class="form-label">Kategori</label>
-                <select asp-for="Category" class="form-input form-select">
+                <select asp-for="Category" class="form-input form-select" id="categorySelect">
                     @foreach (SubscriptionCategory cat in Enum.GetValues(typeof(SubscriptionCategory)))
                     {
                         <option value="@((int)cat)">@categoryLabels[cat]</option>
@@ -130,6 +164,38 @@
 
 @section Scripts {
     <script>
+        function onServiceChange() {
+            var sel = document.getElementById("serviceSelect");
+            var val = sel.value;
+            var customGroup = document.getElementById("customNameGroup");
+            var hiddenName = document.getElementById("hiddenName");
+            var customInput = document.getElementById("customNameInput");
+            var categorySelect = document.getElementById("categorySelect");
+
+            if (val === "__other__") {
+                customGroup.style.display = "";
+                hiddenName.disabled = true;
+                customInput.name = "Name";
+                customInput.disabled = false;
+                customInput.focus();
+            } else if (val) {
+                customGroup.style.display = "none";
+                customInput.name = "";
+                customInput.disabled = true;
+                hiddenName.disabled = false;
+                hiddenName.value = val;
+                var opt = sel.options[sel.selectedIndex];
+                var cat = opt.getAttribute("data-category");
+                if (cat) categorySelect.value = cat;
+            } else {
+                customGroup.style.display = "none";
+                customInput.name = "";
+                customInput.disabled = true;
+                hiddenName.disabled = false;
+                hiddenName.value = "";
+            }
+        }
+
         function updateDays() {
             var month = parseInt(document.getElementById("month").value);
             var daySelect = document.getElementById("day");
@@ -145,6 +211,7 @@
                 daySelect.appendChild(option);
             }
         }
+
         document.addEventListener("DOMContentLoaded", updateDays);
     </script>
 }

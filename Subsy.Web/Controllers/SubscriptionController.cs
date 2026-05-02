@@ -78,7 +78,7 @@ namespace Subsy.Web.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             await _mediator.Send(new CreateSubscriptionCommand(
-                userId, vm.Name, vm.Price, vm.Currency, vm.RenewalPeriodDays, vm.SelectedMonth, vm.SelectedDay, vm.Category, vm.WebsiteUrl), ct);
+                userId, vm.Name, vm.Price, vm.Currency, vm.RenewalPeriodDays, vm.SelectedMonth, vm.SelectedDay, vm.Category), ct);
 
             TempData["FlashSuccess"] = "Abonelik başarıyla oluşturuldu.";
             return RedirectToAction("Index","Dashboard");
@@ -118,8 +118,7 @@ namespace Subsy.Web.Controllers
                 vm.RenewalPeriodDays,
                 vm.SelectedMonth,
                 vm.SelectedDay,
-                vm.Category,
-                vm.WebsiteUrl), ct);
+                vm.Category), ct);
 
             TempData["FlashSuccess"] = "Abonelik başarıyla güncellendi.";
             return RedirectToAction("Index", "Dashboard");
@@ -206,8 +205,7 @@ namespace Subsy.Web.Controllers
             SelectedMonth = d.RenewalDate.Month,
             SelectedDay = d.RenewalDate.Day,
             IsArchived = d.IsArchived,
-            Category = d.Category,
-            WebsiteUrl = d.WebsiteUrl
+            Category = d.Category
         };
     }
 }

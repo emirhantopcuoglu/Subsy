@@ -28,8 +28,7 @@ public sealed class GetDueSubscriptionsHandler : IRequestHandler<GetDueSubscript
                 RenewalPeriodDays = s.RenewalPeriodDays,
                 RenewalDate = s.RenewalDate,
                 IsArchived = s.IsArchived,
-                Category = s.Category,
-                WebsiteUrl = s.WebsiteUrl
+                Category = s.Category
             })
             .ToList();
     }

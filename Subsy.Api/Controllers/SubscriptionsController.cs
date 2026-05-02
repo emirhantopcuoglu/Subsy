@@ -59,10 +59,10 @@ public class SubscriptionsController : ControllerBase
         await _mediator.Send(new CreateSubscriptionCommand(
             UserId, request.Name, request.Price, request.Currency,
             request.RenewalPeriodDays, request.SelectedMonth, request.SelectedDay,
-            request.Category, request.WebsiteUrl), ct);
+            request.Category), ct);
 
         return Created();
-    }
+}
 
     [HttpPost("{id}/pay")]
     public async Task<IActionResult> MarkAsPaid(int id, CancellationToken ct)
@@ -84,7 +84,7 @@ public class SubscriptionsController : ControllerBase
         await _mediator.Send(new UpdateSubscriptionCommand(
             id, UserId, request.Name, request.Price, request.Currency,
             request.RenewalPeriodDays, request.SelectedMonth, request.SelectedDay,
-            request.Category, request.WebsiteUrl), ct);
+            request.Category), ct);
 
         return Ok(new { message = "Subscription updated." });
     }
@@ -107,11 +107,9 @@ public class SubscriptionsController : ControllerBase
 public record CreateSubscriptionRequest(
     string Name, decimal Price, string Currency,
     int RenewalPeriodDays, int SelectedMonth, int SelectedDay,
-    SubscriptionCategory Category = SubscriptionCategory.Other,
-    string? WebsiteUrl = null);
+    SubscriptionCategory Category = SubscriptionCategory.Other);
 
 public record UpdateSubscriptionRequest(
     string Name, decimal Price, string Currency,
     int RenewalPeriodDays, int SelectedMonth, int SelectedDay,
-    SubscriptionCategory Category = SubscriptionCategory.Other,
-    string? WebsiteUrl = null);
+    SubscriptionCategory Category = SubscriptionCategory.Other);

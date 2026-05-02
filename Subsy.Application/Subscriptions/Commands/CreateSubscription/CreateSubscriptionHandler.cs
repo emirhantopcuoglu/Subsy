@@ -41,8 +41,7 @@ public sealed class CreateSubscriptionHandler
              cmd.Currency,
              cmd.RenewalPeriodDays,
              candidate,
-             cmd.Category,
-             cmd.WebsiteUrl);
+             cmd.Category);
 
         await _repo.AddAsync(subscription, ct);
 

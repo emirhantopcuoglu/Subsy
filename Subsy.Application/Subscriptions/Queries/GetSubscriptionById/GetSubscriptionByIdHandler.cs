@@ -28,8 +28,7 @@ public sealed class GetSubscriptionByIdHandler
             RenewalPeriodDays = sub.RenewalPeriodDays,
             RenewalDate = sub.RenewalDate,
             IsArchived = sub.IsArchived,
-            Category = sub.Category,
-            WebsiteUrl = sub.WebsiteUrl
+            Category = sub.Category
         };
     }
 }

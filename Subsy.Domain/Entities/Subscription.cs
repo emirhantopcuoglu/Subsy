@@ -13,7 +13,6 @@ public class Subscription
     public string UserId { get; private set; } = default!;
     public bool IsArchived { get; private set; }
     public SubscriptionCategory Category { get; private set; }
-    public string? WebsiteUrl { get; private set; }
 
     private Subscription() { }
 
@@ -24,8 +23,7 @@ public class Subscription
         string currency,
         int renewalPeriodDays,
         DateTime firstRenewalDate,
-        SubscriptionCategory category = SubscriptionCategory.Other,
-        string? websiteUrl = null)
+        SubscriptionCategory category = SubscriptionCategory.Other)
     {
         return new Subscription
         {
@@ -36,8 +34,7 @@ public class Subscription
             RenewalPeriodDays = renewalPeriodDays,
             RenewalDate = firstRenewalDate,
             IsArchived = false,
-            Category = category,
-            WebsiteUrl = websiteUrl?.Trim()
+            Category = category
         };
     }
 
@@ -74,8 +71,7 @@ public class Subscription
         string currency,
         int renewalPeriodDays,
         DateTime newRenewalDate,
-        SubscriptionCategory category = SubscriptionCategory.Other,
-        string? websiteUrl = null)
+        SubscriptionCategory category = SubscriptionCategory.Other)
     {
         Name = name;
         Price = price;
@@ -83,6 +79,5 @@ public class Subscription
         RenewalPeriodDays = renewalPeriodDays;
         RenewalDate = newRenewalDate;
         Category = category;
-        WebsiteUrl = websiteUrl?.Trim();
     }
 }

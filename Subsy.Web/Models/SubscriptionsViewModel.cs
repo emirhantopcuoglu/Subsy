@@ -14,5 +14,4 @@ public sealed class SubscriptionsViewModel
     public DateTime RenewalDate { get; set; }
     public bool IsArchived { get; set; }
     public SubscriptionCategory Category { get; set; }
-    public string? WebsiteUrl { get; set; }
 }

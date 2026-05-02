@@ -12,5 +12,4 @@ public sealed class SubscriptionDto
     public DateTime RenewalDate { get; init; }
     public bool IsArchived { get; init; }
     public SubscriptionCategory Category { get; init; }
-    public string? WebsiteUrl { get; init; }
 }
