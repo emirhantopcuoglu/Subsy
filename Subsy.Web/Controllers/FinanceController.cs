@@ -1,48 +1,39 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Subsy.Application.Finance.Dashboard.Queries;
 using Subsy.Web.Models;
 using System.Security.Claims;
 
-namespace Subsy.Web.Controllers
+namespace Subsy.Web.Controllers;
+
+[Authorize]
+public class FinanceController : Controller
 {
-    public class FinanceController : Controller
+    private readonly IMediator _mediator;
+
+    public FinanceController(IMediator mediator) => _mediator = mediator;
+
+    public async Task<IActionResult> Dashboard(CancellationToken ct)
     {
-        private readonly IMediator _mediator;
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-        public FinanceController(IMediator mediator)
+        var dto = await _mediator.Send(new GetFinanceDashboardQuery(userId), ct);
+
+        var model = new FinanceViewModel
         {
-            _mediator = mediator;
-        }
+            TotalMonthlyCost = dto.TotalMonthlyCost,
+            TotalYearlyCost = dto.TotalYearlyCost,
+            DailyAverage = dto.DailyAverage,
+            Currency = dto.Currency,
+            SubscriptionCount = dto.SubscriptionCount,
+            TopSpendingService = dto.TopSpendingService,
+            GroupedByCategory = dto.GroupedByCategory,
+            Insights = dto.Insights,
+            PaymentCalendar = dto.PaymentCalendar,
+            CostTable = dto.CostTable
+        };
 
-        public async Task<IActionResult> Dashboard(CancellationToken ct)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-
-            var dto = await _mediator.Send(new GetFinanceDashboardQuery(userId), ct);
-
-            var model = new FinanceViewModel
-            {
-                TotalMonthlyCost = dto.TotalMonthlyCost,
-                AllTimeSpending = dto.AllTimeSpending,
-                SubscriptionCount = dto.SubscriptionCount,
-                TopSpendingService = dto.TopSpendingService is null
-                    ? null
-                    : new ServiceSummary
-                    {
-                        SubscriptionName = dto.TopSpendingService.SubscriptionName,
-                        TotalCost = dto.TopSpendingService.TotalCost
-                    },
-                GroupedByService = dto.GroupedByService
-                    .Select(x => new ServiceSummary
-                    {
-                        SubscriptionName = x.SubscriptionName,
-                        TotalCost = x.TotalCost
-                    })
-                    .ToList()
-            };
-
-            return View(model);
-        }
+        return View(model);
     }
 }

@@ -13,6 +13,7 @@ public class Subscription
     public string UserId { get; private set; } = default!;
     public bool IsArchived { get; private set; }
     public SubscriptionCategory Category { get; private set; }
+    public DateTime CreatedAt { get; private set; }
 
     private Subscription() { }
 
@@ -34,7 +35,8 @@ public class Subscription
             RenewalPeriodDays = renewalPeriodDays,
             RenewalDate = firstRenewalDate,
             IsArchived = false,
-            Category = category
+            Category = category,
+            CreatedAt = DateTime.UtcNow
         };
     }
 

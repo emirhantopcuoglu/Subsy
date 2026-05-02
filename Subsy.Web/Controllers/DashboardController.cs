@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Subsy.Application.Subscriptions.Queries.GetSubscriptionDashboard;
@@ -22,7 +22,16 @@ public class DashboardController : Controller
         {
             ActiveCount = dto.ActiveCount,
             TodayDueCount = dto.TodayDueCount,
-            TotalThisMonth = dto.TotalThisMonth,
+            YearlyCost = dto.YearlyCost,
+            MonthlyCost = dto.MonthlyCost,
+            DailyAverage = dto.DailyAverage,
+            NextPayment = dto.NextPayment is null ? null : new NextPaymentViewModel
+            {
+                Name = dto.NextPayment.Name,
+                Amount = dto.NextPayment.Amount,
+                Date = dto.NextPayment.Date,
+                DaysLeft = dto.NextPayment.DaysLeft
+            },
             Upcoming = dto.Upcoming.Select(MapUpcomingToVm).ToList()
         };
 
@@ -34,6 +43,7 @@ public class DashboardController : Controller
         Id = x.Id,
         Name = x.Name,
         Price = x.Price,
+        Currency = x.Currency,
         RenewalDate = x.RenewalDate,
         RenewalPeriodDays = x.RenewalPeriodDays,
         IsArchived = x.IsArchived
