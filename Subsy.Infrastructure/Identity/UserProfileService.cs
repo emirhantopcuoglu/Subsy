@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Webp;
+using SixLabors.ImageSharp.Processing;
 using Subsy.Application.Common.Interfaces;
 using Subsy.Application.UserProfile.Common;
 using Subsy.Domain.Entities;
@@ -9,10 +12,6 @@ namespace Subsy.Infrastructure.Identity;
 
 public sealed class UserProfileService : IUserProfileService
 {
-    private static readonly HashSet<string> AllowedPhotoExtensions = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ".jpg", ".jpeg", ".png", ".webp"
-    };
 
     private readonly UserManager<IdentityUser> _userManager;
     private readonly SignInManager<IdentityUser> _signInManager;
@@ -142,34 +141,29 @@ public sealed class UserProfileService : IUserProfileService
 
         var profile = await EnsureProfileExistsAsync(userId, cancellationToken);
 
-        var ext = Path.GetExtension(originalFileName);
-        if (string.IsNullOrWhiteSpace(ext))
-        {
-            ext = contentType.Equals("image/jpeg", StringComparison.OrdinalIgnoreCase) ? ".jpg"
-                : contentType.Equals("image/png", StringComparison.OrdinalIgnoreCase) ? ".png"
-                : ".webp";
-        }
+        var processedBytes = await ResizeToWebpAsync(fileBytes, size: 256);
 
-        ext = ext.ToLowerInvariant();
-        if (!AllowedPhotoExtensions.Contains(ext))
-            throw new InvalidOperationException("Geçersiz dosya uzantısı.");
+        // Deterministic key per user — always overwrites the previous photo, no cleanup needed.
+        var key = $"{userId}.webp";
 
-        var key = $"{Guid.NewGuid():N}{ext}";
-
-        var oldKey = string.IsNullOrWhiteSpace(profile.ProfilePhotoPath)
-            ? null
-            : Path.GetFileName(profile.ProfilePhotoPath);
-
-        var publicUrl = await _fileStorage.UploadAsync(key, fileBytes, contentType, cancellationToken);
-
-        if (!string.IsNullOrWhiteSpace(oldKey))
-        {
-            try { await _fileStorage.DeleteAsync(oldKey, cancellationToken); }
-            catch { /* best-effort: do not fail the request if old file cleanup fails */ }
-        }
+        var publicUrl = await _fileStorage.UploadAsync(key, processedBytes, "image/webp", cancellationToken);
 
         profile.ProfilePhotoPath = publicUrl;
         await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    private static async Task<byte[]> ResizeToWebpAsync(byte[] source, int size)
+    {
+        using var image = Image.Load(source);
+        image.Mutate(x => x.Resize(new ResizeOptions
+        {
+            Size = new Size(size, size),
+            Mode = ResizeMode.Crop
+        }));
+
+        using var output = new MemoryStream();
+        await image.SaveAsync(output, new WebpEncoder { Quality = 80 });
+        return output.ToArray();
     }
 
     private static bool IsAllowedImageSignature(byte[] bytes)

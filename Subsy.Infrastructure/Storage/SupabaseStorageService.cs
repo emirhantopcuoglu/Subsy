@@ -25,7 +25,10 @@ public sealed class SupabaseStorageService : IFileStorageService
         using var content = new ByteArrayContent(data);
         content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
 
-        var response = await _http.PostAsync(url, content, cancellationToken);
+        using var request = new HttpRequestMessage(HttpMethod.Post, url) { Content = content };
+        request.Headers.Add("x-upsert", "true");
+
+        var response = await _http.SendAsync(request, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
             var body = await response.Content.ReadAsStringAsync(cancellationToken);
