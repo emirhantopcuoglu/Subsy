@@ -188,7 +188,7 @@ namespace Subsy.Web.Controllers
             var authenticatorUri = GenerateQrCodeUri("Subsy", email, key!);
 
             ViewBag.SharedKey = formattedKey;
-            ViewBag.AuthenticatorUri = authenticatorUri;
+            ViewBag.QrCodeDataUri = GenerateQrCodeDataUri(authenticatorUri);
             ViewBag.TwoFactorEnabled = user.TwoFactorEnabled;
 
             return View();
@@ -285,6 +285,15 @@ namespace Subsy.Web.Controllers
             var encodedEmail = Uri.EscapeDataString(email);
             var encodedKey = Uri.EscapeDataString(key);
             return $"otpauth://totp/{encodedIssuer}:{encodedEmail}?secret={encodedKey}&issuer={encodedIssuer}&digits=6&period=30";
+        }
+
+        private static string GenerateQrCodeDataUri(string content)
+        {
+            using var qrGenerator = new QRCoder.QRCodeGenerator();
+            using var qrData = qrGenerator.CreateQrCode(content, QRCoder.QRCodeGenerator.ECCLevel.Q);
+            using var qrCode = new QRCoder.PngByteQRCode(qrData);
+            var pngBytes = qrCode.GetGraphic(6);
+            return $"data:image/png;base64,{Convert.ToBase64String(pngBytes)}";
         }
     }
 }

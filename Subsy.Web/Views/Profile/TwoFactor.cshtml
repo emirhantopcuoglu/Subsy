@@ -41,7 +41,8 @@
             </ol>
 
             <div style="margin-bottom:16px;">
-                <canvas id="qrCanvas" style="border-radius:8px; border:1px solid var(--border); display:block; margin-bottom:12px;"></canvas>
+                <img src="@ViewBag.QrCodeDataUri" alt="2FA QR Kod"
+                     style="width:200px; height:200px; border-radius:8px; border:1px solid var(--border); display:block; margin-bottom:12px; image-rendering:pixelated;" />
                 <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">Elle girmek için anahtar:</div>
                 <code style="font-size:13px; background:var(--page-bg); padding:6px 10px; border-radius:6px; border:1px solid var(--border); display:block; letter-spacing:1px; user-select:all;">@ViewBag.SharedKey</code>
             </div>
@@ -59,25 +60,3 @@
     </div>
 </div>
 
-@section Scripts {
-    @if (!enabled)
-    {
-        <script>
-            (function () {
-                var uri = '@Html.Raw(ViewBag.AuthenticatorUri)';
-                var s = document.createElement('script');
-                s.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
-                s.onload = function () {
-                    QRCode.toCanvas(document.getElementById('qrCanvas'), uri, {
-                        width: 200,
-                        margin: 2,
-                        color: { dark: '#000000', light: '#ffffff' }
-                    }, function (error) {
-                        if (error) document.getElementById('qrCanvas').style.display = 'none';
-                    });
-                };
-                document.head.appendChild(s);
-            })();
-        </script>
-    }
-}
