@@ -1,0 +1,39 @@
+@model Subsy.Application.Admin.Queries.GetAdminStats.AdminStatsDto
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:16px; margin-bottom:28px;">
+    <div class="stat-card">
+        <div class="stat-label">Toplam Kullanıcı</div>
+        <div class="stat-value">@Model.TotalUsers</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Admin Kullanıcı</div>
+        <div class="stat-value">@Model.AdminUsers</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Toplam Abonelik</div>
+        <div class="stat-value">@Model.TotalSubscriptions</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Aktif Abonelik</div>
+        <div class="stat-value">@Model.ActiveSubscriptions</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Son 30 Günde Yeni Kullanıcı</div>
+        <div class="stat-value">@Model.NewUsersLast30Days</div>
+    </div>
+</div>
+
+<div class="card" style="padding:20px 24px;">
+    <div style="font-size:13px; font-weight:600; color:var(--text-secondary); margin-bottom:12px;">Hızlı Erişim</div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a asp-area="Admin" asp-controller="Users" asp-action="Index" class="btn btn-ghost" style="font-size:13px;">
+            Kullanıcıları Yönet
+        </a>
+        <a href="/hangfire" target="_blank" rel="noopener" class="btn btn-ghost" style="font-size:13px;">
+            Arka Plan İşler ↗
+        </a>
+    </div>
+</div>

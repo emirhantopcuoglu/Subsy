@@ -91,6 +91,17 @@
             Finansal Analiz
         </a>
 
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="s-label">Sistem</div>
+            <a class="s-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index" style="color: oklch(0.72 0.14 20);">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                Admin Paneli
+            </a>
+        }
+
         <div class="s-label">Hesap</div>
 
         <a class="@NavClass("Profile", "Index")" asp-controller="Profile" asp-action="Index">

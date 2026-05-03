@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Duyuru Gönder";
+}
+
+<div style="max-width:680px;">
+    <div class="card" style="padding:28px;">
+        <h2 style="font-size:16px; font-weight:600; margin-bottom:4px;">Toplu E-posta Duyurusu</h2>
+        <p style="font-size:13px; color:var(--text-secondary); margin-bottom:24px;">
+            E-postası doğrulanmış ve engellenmemiş tüm kullanıcılara mail gönderilir.
+        </p>
+
+        <form asp-controller="Notifications" asp-action="Send" method="post"
+              data-confirm="Bu mail tüm aktif kullanıcılara gönderilecek."
+              data-confirm-title="Duyuru Gönder">
+            <div class="form-group">
+                <label class="form-label">Konu</label>
+                <input type="text" name="subject" class="form-input" placeholder="Subsy — Duyuru" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">İçerik (HTML destekler)</label>
+                <textarea name="body" class="form-input" rows="10"
+                          placeholder="<h2>Merhaba,</h2><p>...</p>"
+                          style="resize:vertical; font-family:monospace; font-size:13px;"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Gönder</button>
+        </form>
+    </div>
+</div>

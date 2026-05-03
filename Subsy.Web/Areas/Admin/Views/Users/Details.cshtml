@@ -1,0 +1,90 @@
+@using Subsy.Application.Admin.Queries.GetUserDetail
+@model AdminUserDetailDto
+@{
+    ViewData["Title"] = $"{Model.UserName} — Detay";
+}
+
+<div style="margin-bottom:16px;">
+    <a asp-action="Index" class="btn btn-ghost" style="font-size:13px;">← Kullanıcılar</a>
+</div>
+
+<div style="display:grid; gap:20px; grid-template-columns:1fr 1fr;">
+
+    <div class="card" style="padding:24px; grid-column:1 / -1;">
+        <h2 style="font-size:15px; font-weight:600; margin-bottom:16px;">Kullanıcı Bilgileri</h2>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px;">
+            <div>
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">Kullanıcı Adı</div>
+                <div style="font-weight:500;">@Model.UserName</div>
+            </div>
+            <div>
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">E-posta</div>
+                <div>@Model.Email</div>
+            </div>
+            <div>
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">Kayıt Tarihi</div>
+                <div>@(Model.RegisteredAt?.ToString("dd.MM.yyyy") ?? "—")</div>
+            </div>
+            <div>
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">Durum</div>
+                <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:2px;">
+                    @if (Model.IsAdmin) { <span class="chip chip-success" style="font-size:11px;">Admin</span> }
+                    else { <span class="chip chip-gray" style="font-size:11px;">Kullanıcı</span> }
+                    @if (Model.IsBlocked) { <span class="chip" style="background:var(--danger-light,#fde8e8);color:var(--danger);font-size:11px;">Engelli</span> }
+                    @if (!Model.EmailConfirmed) { <span class="chip chip-gray" style="font-size:11px;">Mail Doğrulanmamış</span> }
+                    @if (Model.TwoFactorEnabled) { <span class="chip chip-success" style="font-size:11px;">2FA Aktif</span> }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="padding:24px;">
+        <h2 style="font-size:15px; font-weight:600; margin-bottom:16px;">Abonelikler (@Model.Subscriptions.Count)</h2>
+        @if (!Model.Subscriptions.Any())
+        {
+            <p style="font-size:13px; color:var(--text-muted);">Abonelik yok.</p>
+        }
+        else
+        {
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                @foreach (var s in Model.Subscriptions)
+                {
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:var(--page-bg); border-radius:8px; @(s.IsArchived ? "opacity:0.55;" : "")">
+                        <div>
+                            <div style="font-size:13px; font-weight:500;">@s.Name</div>
+                            <div style="font-size:11px; color:var(--text-muted);">@s.RenewalDate.ToString("dd.MM.yyyy")</div>
+                        </div>
+                        <div style="font-size:13px; font-weight:500;">@s.Price.ToString("N2") @s.Currency</div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="card" style="padding:24px;">
+        <h2 style="font-size:15px; font-weight:600; margin-bottom:16px;">Son Aktiviteler</h2>
+        @if (!Model.RecentAuditLogs.Any())
+        {
+            <p style="font-size:13px; color:var(--text-muted);">Aktivite yok.</p>
+        }
+        else
+        {
+            <div style="display:flex; flex-direction:column; gap:6px;">
+                @foreach (var log in Model.RecentAuditLogs)
+                {
+                    <div style="font-size:12px; padding:8px; background:var(--page-bg); border-radius:6px;">
+                        <div style="display:flex; justify-content:space-between; gap:8px;">
+                            <span style="font-weight:500;">@log.Action</span>
+                            <span style="color:var(--text-muted);">@log.CreatedAt.ToString("dd.MM.yy HH:mm")</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(log.Details))
+                        {
+                            <div style="color:var(--text-muted); margin-top:2px;">@log.Details</div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+</div>

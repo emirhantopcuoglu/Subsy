@@ -1,0 +1,24 @@
+@{
+    ViewData["Title"] = "Doğrulama Maili Gönder";
+}
+
+<div class="login-wrap">
+    <div class="login-card">
+        <div class="login-logo">sub<span>sy</span></div>
+        <div style="font-size:13px; color:var(--text-secondary); margin-bottom:24px;">Doğrulama e-postasını tekrar gönder</div>
+
+        <form asp-controller="Account" asp-action="ResendConfirmation" method="post">
+            <div class="form-group">
+                <label class="form-label">E-posta</label>
+                <input type="email" name="email" class="form-input" placeholder="ornek@email.com" autofocus />
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:10px;">
+                Gönder
+            </button>
+        </form>
+
+        <div style="margin-top:16px; text-align:center; font-size:13px;">
+            <a asp-controller="Account" asp-action="Login" style="color:var(--accent);">← Giriş sayfasına dön</a>
+        </div>
+    </div>
+</div>

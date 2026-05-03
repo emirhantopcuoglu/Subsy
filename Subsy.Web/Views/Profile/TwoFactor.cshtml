@@ -1,0 +1,62 @@
+@{
+    ViewData["Title"] = "İki Faktörlü Kimlik Doğrulama";
+    var enabled = (bool)ViewBag.TwoFactorEnabled;
+}
+
+<div style="max-width:560px;">
+    <div class="card" style="padding:28px; margin-bottom:20px;">
+        <h2 style="font-size:16px; font-weight:600; margin-bottom:4px;">İki Faktörlü Kimlik Doğrulama (2FA)</h2>
+        <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">
+            Google Authenticator, Authy veya Microsoft Authenticator gibi bir uygulama kullanarak hesabınızı koruyun.
+        </p>
+
+        @if (enabled)
+        {
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:20px;">
+                <span class="chip chip-success">2FA Aktif</span>
+            </div>
+            <form asp-controller="Profile" asp-action="DisableTwoFactor" method="post"
+                  data-confirm="2FA devre dışı bırakılacak. Hesabınız daha az korunaklı olacak."
+                  data-confirm-title="2FA'yı Devre Dışı Bırak"
+                  data-confirm-variant="danger">
+                <button type="submit" class="btn btn-ghost" style="color:var(--danger); font-size:13px;">
+                    2FA'yı Devre Dışı Bırak
+                </button>
+            </form>
+        }
+        else
+        {
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:20px;">
+                <span class="chip chip-gray">2FA Pasif</span>
+            </div>
+
+            <p style="font-size:13px; margin-bottom:16px;">
+                <strong>Kurulum adımları:</strong>
+            </p>
+            <ol style="font-size:13px; color:var(--text-secondary); line-height:2; margin-bottom:20px; padding-left:20px;">
+                <li>Google Authenticator veya Authy uygulamasını indirin.</li>
+                <li>Uygulamada "+" veya "Hesap Ekle"ye tıklayın.</li>
+                <li>Aşağıdaki QR kodu tarayın <strong>veya</strong> anahtarı elle girin.</li>
+                <li>Uygulamada görünen 6 haneli kodu aşağıya girin ve doğrulayın.</li>
+            </ol>
+
+            <div style="margin-bottom:16px;">
+                <img src="@ViewBag.QrCodeDataUri" alt="2FA QR Kod"
+                     style="width:200px; height:200px; border-radius:8px; border:1px solid var(--border); display:block; margin-bottom:12px; image-rendering:pixelated;" />
+                <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">Elle girmek için anahtar:</div>
+                <code style="font-size:13px; background:var(--page-bg); padding:6px 10px; border-radius:6px; border:1px solid var(--border); display:block; letter-spacing:1px; user-select:all;">@ViewBag.SharedKey</code>
+            </div>
+
+            <form asp-controller="Profile" asp-action="EnableTwoFactor" method="post">
+                <div class="form-group">
+                    <label class="form-label">Doğrulama Kodu</label>
+                    <input type="text" name="code" class="form-input" placeholder="000000"
+                           autocomplete="one-time-code" inputmode="numeric" maxlength="7"
+                           style="max-width:200px;" />
+                </div>
+                <button type="submit" class="btn btn-primary" style="font-size:13px;">2FA'yı Etkinleştir</button>
+            </form>
+        }
+    </div>
+</div>
+

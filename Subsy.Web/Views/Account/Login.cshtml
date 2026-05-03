@@ -1,4 +1,7 @@
 @model LoginViewModel
+@{
+    ViewData["Title"] = "Giriş Yap";
+}
 
 <div class="login-wrap">
     <div class="login-card">
@@ -6,6 +9,14 @@
         <div style="font-size:13px; color:var(--text-secondary); margin-bottom:24px;">Aboneliklerinizi yönetin</div>
 
         <div asp-validation-summary="All"></div>
+
+        @if (ViewBag.UnconfirmedEmail != null)
+        {
+            <div style="background:var(--warning-light,#fff3cd); border:1px solid var(--warning,#f0ad4e); border-radius:8px; padding:10px 14px; font-size:13px; margin-bottom:16px; color:var(--text-primary);">
+                E-posta doğrulaması bekleniyor.
+                <a asp-controller="Account" asp-action="ResendConfirmation" style="color:var(--accent); font-weight:500;">Tekrar gönder</a>
+            </div>
+        }
 
         <form asp-controller="Account" asp-action="Login" method="post">
             <div class="form-group">
@@ -20,9 +31,12 @@
                 <span asp-validation-for="Password" class="field-validation-error"></span>
             </div>
 
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:20px;">
-                <input asp-for="RememberMe" type="checkbox" style="accent-color:var(--accent); width:14px; height:14px;" />
-                <label asp-for="RememberMe" style="font-size:13px; color:var(--text-secondary); cursor:pointer; user-select:none;">Beni Hatırla</label>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <input asp-for="RememberMe" type="checkbox" style="accent-color:var(--accent); width:14px; height:14px;" />
+                    <label asp-for="RememberMe" style="font-size:13px; color:var(--text-secondary); cursor:pointer; user-select:none;">Beni Hatırla</label>
+                </div>
+                <a asp-controller="Account" asp-action="ForgotPassword" style="font-size:13px; color:var(--accent);">Şifremi Unuttum</a>
             </div>
 
             <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:10px;">Giriş Yap</button>

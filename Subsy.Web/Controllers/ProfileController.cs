@@ -1,5 +1,6 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Subsy.Application.UserProfile.Commands.ChangeUserPassword;
 using Subsy.Application.UserProfile.Commands.UpdateUserProfile;
@@ -23,10 +24,12 @@ namespace Subsy.Web.Controllers
         };
 
         private readonly IMediator _mediator;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public ProfileController(IMediator mediator)
+        public ProfileController(IMediator mediator, UserManager<IdentityUser> userManager)
         {
             _mediator = mediator;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -164,6 +167,70 @@ namespace Subsy.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // ── Two-Factor Authentication ──────────────────────────────────────────
+
+        [HttpGet]
+        public async Task<IActionResult> TwoFactor()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null) return NotFound();
+
+            var key = await _userManager.GetAuthenticatorKeyAsync(user);
+            if (string.IsNullOrEmpty(key))
+            {
+                await _userManager.ResetAuthenticatorKeyAsync(user);
+                key = await _userManager.GetAuthenticatorKeyAsync(user);
+            }
+
+            var formattedKey = FormatKey(key!);
+            var email = user.Email ?? user.UserName ?? userId;
+            var authenticatorUri = GenerateQrCodeUri("Subsy", email, key!);
+
+            ViewBag.SharedKey = formattedKey;
+            ViewBag.QrCodeDataUri = GenerateQrCodeDataUri(authenticatorUri);
+            ViewBag.TwoFactorEnabled = user.TwoFactorEnabled;
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EnableTwoFactor(string code)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null) return NotFound();
+
+            var cleanCode = code?.Replace(" ", "").Replace("-", "") ?? string.Empty;
+            var isValid = await _userManager.VerifyTwoFactorTokenAsync(
+                user, _userManager.Options.Tokens.AuthenticatorTokenProvider, cleanCode);
+
+            if (!isValid)
+            {
+                TempData["FlashError"] = "Geçersiz doğrulama kodu. Lütfen tekrar deneyin.";
+                return RedirectToAction(nameof(TwoFactor));
+            }
+
+            await _userManager.SetTwoFactorEnabledAsync(user, true);
+            TempData["FlashSuccess"] = "İki faktörlü kimlik doğrulama etkinleştirildi.";
+            return RedirectToAction(nameof(TwoFactor));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DisableTwoFactor()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null) return NotFound();
+
+            await _userManager.SetTwoFactorEnabledAsync(user, false);
+            await _userManager.ResetAuthenticatorKeyAsync(user);
+            TempData["FlashSuccess"] = "İki faktörlü kimlik doğrulama devre dışı bırakıldı.";
+            return RedirectToAction(nameof(TwoFactor));
+        }
+
+        // ── Helpers ───────────────────────────────────────────────────────────
+
         private async Task<ProfileViewModel?> BuildProfileViewModelAsync(CancellationToken ct)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
@@ -196,6 +263,37 @@ namespace Subsy.Web.Controllers
         private void AddValidationErrors(ValidationException vex)
         {
             ModelState.AddModelError(string.Empty, vex.Message);
+        }
+
+        private static string FormatKey(string unformattedKey)
+        {
+            var result = new System.Text.StringBuilder();
+            int currentPosition = 0;
+            while (currentPosition + 4 < unformattedKey.Length)
+            {
+                result.Append(unformattedKey.AsSpan(currentPosition, 4)).Append(' ');
+                currentPosition += 4;
+            }
+            if (currentPosition < unformattedKey.Length)
+                result.Append(unformattedKey.AsSpan(currentPosition));
+            return result.ToString().ToUpperInvariant();
+        }
+
+        private static string GenerateQrCodeUri(string issuer, string email, string key)
+        {
+            var encodedIssuer = Uri.EscapeDataString(issuer);
+            var encodedEmail = Uri.EscapeDataString(email);
+            var encodedKey = Uri.EscapeDataString(key);
+            return $"otpauth://totp/{encodedIssuer}:{encodedEmail}?secret={encodedKey}&issuer={encodedIssuer}&digits=6&period=30";
+        }
+
+        private static string GenerateQrCodeDataUri(string content)
+        {
+            using var qrGenerator = new QRCoder.QRCodeGenerator();
+            using var qrData = qrGenerator.CreateQrCode(content, QRCoder.QRCodeGenerator.ECCLevel.Q);
+            using var qrCode = new QRCoder.PngByteQRCode(qrData);
+            var pngBytes = qrCode.GetGraphic(6);
+            return $"data:image/png;base64,{Convert.ToBase64String(pngBytes)}";
         }
     }
 }
