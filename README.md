@@ -141,32 +141,101 @@ The Application layer is organized by feature (`Subscriptions/`, `Finance/`, `Us
 ### Prerequisites
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 
-### Setup
+### 1. Clone and build
 
 ```bash
-# Clone
 git clone https://github.com/emirhantopcuoglu/Subsy.git
 cd Subsy
-
-# Copy config examples and fill in your values
-cp Subsy.Web/appsettings.Development.json.example Subsy.Web/appsettings.Development.json
-cp Subsy.Api/appsettings.Development.json.example Subsy.Api/appsettings.Development.json
-
-# Restore and build
 dotnet build
-
-# Apply migrations
-# (Package Manager Console — Default Project: Subsy.Infrastructure, Startup: Subsy.Web)
-Update-Database -Project Subsy.Infrastructure -StartupProject Subsy.Web
-
-# Run the web app
-dotnet run --project Subsy.Web
-
-# Or run the API
-dotnet run --project Subsy.Api
 ```
 
-Secret values (email credentials, Supabase keys, JWT signing key) live in the Development config files which are gitignored.
+### 2. Set up external services
+
+The project depends on three external services. You need a free account for each:
+
+#### Mailtrap (email sandbox)
+Used for sending payment reminder emails in development. Real emails are never sent — everything is caught in Mailtrap's inbox.
+
+1. Sign up at [mailtrap.io](https://mailtrap.io)
+2. Go to **Email Testing → Inboxes → SMTP Settings**
+3. Select **.NET** from the integrations dropdown
+4. Copy your `Host`, `Port`, `Username`, and `Password`
+
+#### Supabase (profile photo storage)
+Used for storing user profile photos.
+
+1. Sign up at [supabase.com](https://supabase.com)
+2. Create a new project
+3. Go to **Project Settings → API**
+4. Copy your **Project URL** and **service_role** key (not the anon key)
+5. Go to **Storage** and create a bucket named `profile-photos`
+6. Set the bucket to **private**
+
+#### JWT signing key (API only)
+A random secret string used to sign JWT tokens. Generate one:
+
+```bash
+# Any random string of 32+ characters works, e.g.:
+openssl rand -base64 32
+```
+
+### 3. Configure secrets
+
+Sensitive values are stored via [.NET User Secrets](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets) — they live on your machine only, never in the repository.
+
+**Web app secrets:**
+
+```bash
+cd Subsy.Web
+
+dotnet user-secrets set "Email:Host" "sandbox.smtp.mailtrap.io"
+dotnet user-secrets set "Email:Port" "587"
+dotnet user-secrets set "Email:From" "noreply@subsy.app"
+dotnet user-secrets set "Email:Username" "YOUR_MAILTRAP_USERNAME"
+dotnet user-secrets set "Email:Password" "YOUR_MAILTRAP_PASSWORD"
+
+dotnet user-secrets set "Supabase:Url" "https://YOUR_PROJECT_ID.supabase.co"
+dotnet user-secrets set "Supabase:ServiceKey" "YOUR_SUPABASE_SERVICE_ROLE_KEY"
+dotnet user-secrets set "Supabase:BucketName" "profile-photos"
+
+cd ..
+```
+
+**API secrets:**
+
+```bash
+cd Subsy.Api
+dotnet user-secrets set "Jwt:Key" "YOUR_RANDOM_SECRET_MIN_32_CHARS"
+dotnet user-secrets set "Jwt:Issuer" "Subsy"
+cd ..
+```
+
+> The example files `appsettings.Development.json.example` show the expected key structure for reference.
+
+### 4. Apply database migrations
+
+Run from Visual Studio Package Manager Console:
+
+```powershell
+# Default Project: Subsy.Infrastructure | Startup Project: Subsy.Web
+Update-Database -Project Subsy.Infrastructure -StartupProject Subsy.Web
+```
+
+Or via CLI:
+
+```bash
+dotnet ef database update --project Subsy.Infrastructure --startup-project Subsy.Web
+```
+
+### 5. Run
+
+```bash
+# Web app
+dotnet run --project Subsy.Web
+
+# REST API (separate terminal)
+dotnet run --project Subsy.Api
+```
 
 ### Running Tests
 

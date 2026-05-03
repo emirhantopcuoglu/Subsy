@@ -4,16 +4,16 @@
   },
 
   "Email": {
-    "Host": "smtp.gmail.com",
+    "Host": "sandbox.smtp.mailtrap.io",
     "Port": 587,
-    "From": "noreply@yourdomain.com",
-    "Username": "your-email@gmail.com",
-    "Password": "your-app-password"
+    "From": "noreply@subsy.app",
+    "Username": "YOUR_MAILTRAP_USERNAME",
+    "Password": "YOUR_MAILTRAP_PASSWORD"
   },
 
   "Supabase": {
-    "Url": "https://your-project.supabase.co",
-    "ServiceKey": "your-service-key",
+    "Url": "https://YOUR_PROJECT_ID.supabase.co",
+    "ServiceKey": "YOUR_SUPABASE_SERVICE_ROLE_KEY",
     "BucketName": "profile-photos"
   }
 }
