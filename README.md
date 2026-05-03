@@ -4,6 +4,37 @@ A **subscription management platform** built with **.NET 8** and **Clean Archite
 
 ---
 
+## Screenshots
+
+**Landing Page**
+![Landing Page](docs/screenshots/firstlook.png)
+
+**Register**
+![Register](docs/screenshots/register.png)
+
+**Dashboard — Dark Mode**
+![Dashboard Dark](docs/screenshots/dashboard_dark_mode.png)
+
+**Dashboard — Light Mode**
+![Dashboard Light](docs/screenshots/dashboard_light_mode.png)
+
+**Active Subscriptions**
+![Active Subscriptions](docs/screenshots/active.png)
+
+**Due Today**
+![Due Today](docs/screenshots/due.png)
+
+**Calendar**
+![Calendar](docs/screenshots/calendar.png)
+
+**Archived Subscriptions**
+![Archived](docs/screenshots/archived.png)
+
+**Finance Analytics**
+![Finance Analytics](docs/screenshots/Finance_Dashboard.png)
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
