@@ -170,6 +170,24 @@
                     </svg>
                     Kullanıcılar
                 </a>
+                <a class="@NavClass("Subscriptions")" asp-area="Admin" asp-controller="Subscriptions" asp-action="Index">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+                    </svg>
+                    Abonelikler
+                </a>
+                <a class="@NavClass("AuditLogs")" asp-area="Admin" asp-controller="AuditLogs" asp-action="Index">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                    Denetim Günlüğü
+                </a>
+                <a class="@NavClass("Notifications")" asp-area="Admin" asp-controller="Notifications" asp-action="Index">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                    Duyuru Gönder
+                </a>
 
                 <span class="admin-nav-label">Sistem</span>
                 <a href="/hangfire" target="_blank" rel="noopener">
@@ -204,6 +222,13 @@
                 </button>
                 <span class="admin-topbar-user">@User.Identity?.Name</span>
             </div>
+            @if (ViewData["Admin2faEnabled"] is false)
+            {
+                <div style="background:#fef3cd; border-bottom:1px solid #ffc107; padding:10px 28px; font-size:13px; display:flex; align-items:center; gap:12px;">
+                    <span style="color:#856404;">⚠️ Güvenliğiniz için <strong>iki faktörlü kimlik doğrulama</strong> henüz etkin değil.</span>
+                    <a asp-controller="Profile" asp-action="TwoFactor" asp-area="" style="color:#533f03; font-weight:600; text-decoration:underline;">Hemen Kur →</a>
+                </div>
+            }
             <div class="admin-content">
                 @await Component.InvokeAsync("FlashMessage")
                 @RenderBody()

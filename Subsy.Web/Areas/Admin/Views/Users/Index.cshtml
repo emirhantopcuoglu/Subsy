@@ -5,8 +5,14 @@
     var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 }
 
+<div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+    <input type="text" id="userSearch" class="form-input" placeholder="Kullanıcı adı veya e-posta ara..."
+           style="max-width:320px;" />
+    <span style="font-size:13px; color:var(--text-muted);">@Model.Count kullanıcı</span>
+</div>
+
 <div class="card" style="overflow:hidden;">
-    <table class="table" style="width:100%;">
+    <table class="table" style="width:100%;" id="userTable">
         <thead>
             <tr>
                 <th>Kullanıcı Adı</th>
@@ -20,7 +26,8 @@
             @foreach (var user in Model)
             {
                 var isSelf = user.Id == currentUserId;
-                <tr style="@(user.IsBlocked ? "opacity:0.6;" : "")">
+                <tr data-search="@user.UserName.ToLower() @user.Email.ToLower()"
+                    style="@(user.IsBlocked ? "opacity:0.6;" : "")">
                     <td style="font-weight:500;">
                         @user.UserName
                         @if (isSelf)
@@ -47,10 +54,14 @@
                         </div>
                     </td>
                     <td style="text-align:right; white-space:nowrap;">
-                        @if (!isSelf)
-                        {
-                            <div style="display:flex; gap:4px; justify-content:flex-end; flex-wrap:wrap;">
+                        <div style="display:flex; gap:4px; justify-content:flex-end; flex-wrap:wrap; align-items:center;">
 
+                            @* Detay *@
+                            <a asp-area="Admin" asp-controller="Users" asp-action="Details" asp-route-userId="@user.Id"
+                               class="btn btn-ghost" style="font-size:12px;">Detay</a>
+
+                            @if (!isSelf)
+                            {
                                 @* Rol yönetimi *@
                                 @if (user.IsAdmin)
                                 {
@@ -99,6 +110,27 @@
                                     </form>
                                 }
 
+                                @* Oturumu Kapat *@
+                                <form asp-area="Admin" asp-controller="Users" asp-action="ForceLogout" method="post"
+                                      data-confirm="@user.UserName adlı kullanıcının aktif oturumu sonlandırılacak."
+                                      data-confirm-title="Oturumu Sonlandır"
+                                      data-confirm-variant="danger">
+                                    <input type="hidden" name="userId" value="@user.Id" />
+                                    <button type="submit" class="btn btn-ghost" style="font-size:12px; color:var(--warning);">
+                                        Oturumu Kapat
+                                    </button>
+                                </form>
+
+                                @* Parola Sıfırla *@
+                                <form asp-area="Admin" asp-controller="Users" asp-action="SendPasswordReset" method="post"
+                                      data-confirm="@user.UserName adlı kullanıcıya parola sıfırlama e-postası gönderilecek."
+                                      data-confirm-title="Parola Sıfırla">
+                                    <input type="hidden" name="userId" value="@user.Id" />
+                                    <button type="submit" class="btn btn-ghost" style="font-size:12px;">
+                                        Parola Sıfırla
+                                    </button>
+                                </form>
+
                                 @* Silme *@
                                 <form asp-area="Admin" asp-controller="Users" asp-action="Delete" method="post"
                                       data-confirm="@user.UserName adlı kullanıcı ve tüm verileri (abonelikler, profil) kalıcı olarak silinecek. Bu işlem geri alınamaz!"
@@ -109,16 +141,26 @@
                                         Sil
                                     </button>
                                 </form>
-
-                            </div>
-                        }
-                        else
-                        {
-                            <span style="font-size:12px; color:var(--text-muted);">—</span>
-                        }
+                            }
+                            else
+                            {
+                                <span style="font-size:12px; color:var(--text-muted);">—</span>
+                            }
+                        </div>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById('userSearch').addEventListener('input', function() {
+            var q = this.value.toLowerCase();
+            document.querySelectorAll('#userTable tbody tr').forEach(function(row) {
+                row.style.display = row.dataset.search.includes(q) ? '' : 'none';
+            });
+        });
+    </script>
+}

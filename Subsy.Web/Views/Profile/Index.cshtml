@@ -58,6 +58,12 @@
         </div>
 
         <div class="card card-p">
+            <div class="section-title" style="margin-bottom:16px;">Güvenlik</div>
+            <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">İki faktörlü kimlik doğrulama ile hesabınızı daha güvenli hale getirin.</p>
+            <a asp-controller="Profile" asp-action="TwoFactor" class="btn btn-ghost" style="font-size:13px;">İki Faktörlü Kimlik Doğrulama (2FA)</a>
+        </div>
+
+        <div class="card card-p">
             <div class="section-title" style="margin-bottom:16px;">Parola Değiştir</div>
 
             <form asp-controller="Profile" asp-action="ChangePassword" method="post">

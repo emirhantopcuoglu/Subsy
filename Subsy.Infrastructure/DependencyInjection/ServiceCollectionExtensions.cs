@@ -44,7 +44,7 @@ public static class ServiceCollectionExtensions
                 options.User.RequireUniqueEmail = true;
 
                 // SignIn
-                options.SignIn.RequireConfirmedAccount = false;
+                options.SignIn.RequireConfirmedAccount = true;
             })
             .AddEntityFrameworkStores<SubsyContext>()
             .AddDefaultTokenProviders();
@@ -87,6 +87,10 @@ public static class ServiceCollectionExtensions
             .UseSQLiteStorage());
 
         services.AddHangfireServer();
+
+        // Force logout via security stamp takes effect within this interval
+        services.Configure<SecurityStampValidatorOptions>(o =>
+            o.ValidationInterval = TimeSpan.FromMinutes(2));
 
         services.AddScoped<IAuditLogRepository, AuditLogRepository>();
         services.AddScoped<IAdminService, AdminService>();

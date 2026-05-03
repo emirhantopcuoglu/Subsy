@@ -1,0 +1,65 @@
+@using Subsy.Application.Admin.Queries.GetAllSubscriptionsAdmin
+@model IReadOnlyList<AdminSubscriptionDto>
+@{
+    ViewData["Title"] = "Tüm Abonelikler";
+}
+
+<div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+    <input type="text" id="subSearch" class="form-input" placeholder="Kullanıcı, abonelik adı ara..."
+           style="max-width:320px;" />
+    <span style="font-size:13px; color:var(--text-muted);">@Model.Count abonelik</span>
+</div>
+
+<div class="card" style="overflow:hidden;">
+    <table class="table" style="width:100%;" id="subTable">
+        <thead>
+            <tr>
+                <th>Abonelik</th>
+                <th>Kullanıcı</th>
+                <th>Ücret</th>
+                <th>Sonraki Ödeme</th>
+                <th>Durum</th>
+                <th>Kayıt</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in Model)
+            {
+                <tr data-search="@s.Name.ToLower() @s.UserName.ToLower() @s.UserEmail.ToLower()"
+                    style="@(s.IsArchived ? "opacity:0.55;" : "")">
+                    <td style="font-weight:500;">@s.Name</td>
+                    <td style="font-size:13px;">
+                        <div>@s.UserName</div>
+                        <div style="color:var(--text-muted); font-size:11px;">@s.UserEmail</div>
+                    </td>
+                    <td style="font-size:13px;">@s.Price.ToString("N2") @s.Currency</td>
+                    <td style="font-size:13px; color:@(s.RenewalDate.Date <= DateTime.Today ? "var(--danger)" : "var(--text-secondary)");">
+                        @s.RenewalDate.ToString("dd.MM.yyyy")
+                    </td>
+                    <td>
+                        @if (s.IsArchived)
+                        {
+                            <span class="chip chip-gray" style="font-size:11px;">Arşivli</span>
+                        }
+                        else
+                        {
+                            <span class="chip chip-success" style="font-size:11px;">Aktif</span>
+                        }
+                    </td>
+                    <td style="font-size:12px; color:var(--text-muted);">@s.CreatedAt.ToString("dd.MM.yy")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('subSearch').addEventListener('input', function() {
+            var q = this.value.toLowerCase();
+            document.querySelectorAll('#subTable tbody tr').forEach(function(row) {
+                row.style.display = row.dataset.search.includes(q) ? '' : 'none';
+            });
+        });
+    </script>
+}

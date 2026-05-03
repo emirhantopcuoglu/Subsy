@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Subsy.Application.Common.Interfaces;
 using Subsy.Domain.Entities;
 using Subsy.Infrastructure.Persistence;
@@ -29,5 +29,27 @@ public class AuditLogRepository : IAuditLogRepository
             .Take(count)
             .AsNoTracking()
             .ToListAsync(ct);
+    }
+
+    public async Task<(List<AuditLog> Items, int TotalCount)> GetPagedAsync(
+        string? search, int skip, int take, CancellationToken ct = default)
+    {
+        var query = _context.AuditLogs.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(l =>
+                l.Action.Contains(search) ||
+                l.EntityName.Contains(search) ||
+                (l.Details != null && l.Details.Contains(search)) ||
+                l.UserId.Contains(search));
+
+        var total = await query.CountAsync(ct);
+        var items = await query
+            .OrderByDescending(l => l.CreatedAt)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(ct);
+
+        return (items, total);
     }
 }

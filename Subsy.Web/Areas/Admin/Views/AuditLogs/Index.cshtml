@@ -1,0 +1,72 @@
+@using Subsy.Application.Common
+@using Subsy.Application.Admin.Queries.GetAuditLogs
+@model PagedResult<AuditLogDto>
+@{
+    ViewData["Title"] = "Denetim Günlüğü";
+}
+
+<div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+    <form method="get" style="display:flex; gap:8px; flex:1; min-width:200px;">
+        <input type="text" name="search" value="@ViewBag.Search" class="form-input"
+               placeholder="Kullanıcı ID, aksiyon, detay ara..." style="flex:1;" />
+        <button type="submit" class="btn btn-primary" style="font-size:13px;">Ara</button>
+        @if (!string.IsNullOrEmpty(ViewBag.Search as string))
+        {
+            <a asp-action="Index" class="btn btn-ghost" style="font-size:13px;">Temizle</a>
+        }
+    </form>
+    <span style="font-size:13px; color:var(--text-muted);">@Model.TotalCount kayıt</span>
+</div>
+
+<div class="card" style="overflow:hidden;">
+    <table class="table" style="width:100%;">
+        <thead>
+            <tr>
+                <th>Zaman</th>
+                <th>Kullanıcı</th>
+                <th>Aksiyon</th>
+                <th>Varlık</th>
+                <th>Detay</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var log in Model.Items)
+            {
+                <tr>
+                    <td style="font-size:12px; color:var(--text-muted); white-space:nowrap;">
+                        @log.CreatedAt.ToString("dd.MM.yy HH:mm")
+                    </td>
+                    <td style="font-size:13px;">@log.UserName</td>
+                    <td>
+                        <span class="chip @(log.Action.Contains("Deleted") || log.Action.Contains("Blocked") || log.Action.Contains("Revoked") ? "chip-gray" : log.Action.Contains("Created") || log.Action.Contains("Assigned") ? "chip-success" : "chip-gray")"
+                              style="font-size:11px; @(log.Action.Contains("Deleted") || log.Action.Contains("Blocked") || log.Action.Contains("Revoked") ? "background:var(--danger-light,#fde8e8);color:var(--danger,#c0392b);" : "")">
+                            @log.Action
+                        </span>
+                    </td>
+                    <td style="font-size:12px; color:var(--text-secondary);">@log.EntityName</td>
+                    <td style="font-size:12px; color:var(--text-muted); max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"
+                        title="@log.Details">
+                        @log.Details
+                    </td>
+                </tr>
+            }
+            @if (!Model.Items.Any())
+            {
+                <tr><td colspan="5" style="text-align:center; padding:32px; color:var(--text-muted);">Kayıt bulunamadı.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <div style="display:flex; justify-content:center; gap:4px; margin-top:20px; flex-wrap:wrap;">
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <a asp-action="Index" asp-route-page="@i" asp-route-search="@ViewBag.Search"
+               class="btn @(i == Model.Page ? "btn-primary" : "btn-ghost")" style="font-size:13px; min-width:36px; justify-content:center;">
+                @i
+            </a>
+        }
+    </div>
+}
