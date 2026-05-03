@@ -5,4 +5,5 @@ public record AdminUserDto(
     string UserName,
     string Email,
     bool IsAdmin,
+    bool IsBlocked,
     int SubscriptionCount);

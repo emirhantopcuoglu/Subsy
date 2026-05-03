@@ -13,5 +13,5 @@ public sealed class RevokeAdminRoleHandler : IRequestHandler<RevokeAdminRoleComm
     }
 
     public Task Handle(RevokeAdminRoleCommand request, CancellationToken cancellationToken)
-        => _adminService.RevokeAdminRoleAsync(request.UserId, cancellationToken);
+        => _adminService.RevokeAdminRoleAsync(request.UserId, request.RequestingUserId, cancellationToken);
 }

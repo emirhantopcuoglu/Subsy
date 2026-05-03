@@ -1,6 +1,8 @@
 @model IReadOnlyList<Subsy.Application.Admin.Queries.GetAllUsers.AdminUserDto>
+@using System.Security.Claims
 @{
     ViewData["Title"] = "Kullanıcılar";
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 }
 
 <div class="card" style="overflow:hidden;">
@@ -10,52 +12,109 @@
                 <th>Kullanıcı Adı</th>
                 <th>E-posta</th>
                 <th>Abonelik</th>
-                <th>Rol</th>
-                <th></th>
+                <th>Durum</th>
+                <th style="text-align:right;">İşlemler</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var user in Model)
             {
-                <tr>
-                    <td style="font-weight:500;">@user.UserName</td>
+                var isSelf = user.Id == currentUserId;
+                <tr style="@(user.IsBlocked ? "opacity:0.6;" : "")">
+                    <td style="font-weight:500;">
+                        @user.UserName
+                        @if (isSelf)
+                        {
+                            <span class="chip chip-gray" style="font-size:10px; margin-left:4px;">Sen</span>
+                        }
+                    </td>
                     <td style="color:var(--text-secondary); font-size:13px;">@user.Email</td>
                     <td style="color:var(--text-secondary); font-size:13px;">@user.SubscriptionCount</td>
                     <td>
-                        @if (user.IsAdmin)
-                        {
-                            <span class="chip chip-success">Admin</span>
-                        }
-                        else
-                        {
-                            <span class="chip chip-gray">Kullanıcı</span>
-                        }
+                        <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                            @if (user.IsAdmin)
+                            {
+                                <span class="chip chip-success">Admin</span>
+                            }
+                            else
+                            {
+                                <span class="chip chip-gray">Kullanıcı</span>
+                            }
+                            @if (user.IsBlocked)
+                            {
+                                <span class="chip" style="background:var(--danger-light); color:var(--danger);">Engelli</span>
+                            }
+                        </div>
                     </td>
                     <td style="text-align:right; white-space:nowrap;">
-                        @if (user.IsAdmin)
+                        @if (!isSelf)
                         {
-                            <form asp-area="Admin" asp-controller="Users" asp-action="RevokeAdmin" method="post"
-                                  data-confirm="@user.UserName adlı kullanıcının admin rolü kaldırılacak. Emin misiniz?"
-                                  data-confirm-title="Admin Rolünü Kaldır"
-                                  data-confirm-variant="danger"
-                                  style="display:inline;">
-                                <input type="hidden" name="userId" value="@user.Id" />
-                                <button type="submit" class="btn btn-ghost" style="font-size:12px; color:var(--danger);">
-                                    Rolü Kaldır
-                                </button>
-                            </form>
+                            <div style="display:flex; gap:4px; justify-content:flex-end; flex-wrap:wrap;">
+
+                                @* Rol yönetimi *@
+                                @if (user.IsAdmin)
+                                {
+                                    <form asp-area="Admin" asp-controller="Users" asp-action="RevokeAdmin" method="post"
+                                          data-confirm="@user.UserName adlı kullanıcının admin rolü kaldırılacak."
+                                          data-confirm-title="Admin Rolünü Kaldır"
+                                          data-confirm-variant="danger">
+                                        <input type="hidden" name="userId" value="@user.Id" />
+                                        <button type="submit" class="btn btn-ghost" style="font-size:12px; color:var(--danger);">
+                                            Rolü Kaldır
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-area="Admin" asp-controller="Users" asp-action="AssignAdmin" method="post"
+                                          data-confirm="@user.UserName adlı kullanıcıya admin rolü atanacak."
+                                          data-confirm-title="Admin Rolü Ata">
+                                        <input type="hidden" name="userId" value="@user.Id" />
+                                        <button type="submit" class="btn btn-ghost" style="font-size:12px;">
+                                            Admin Yap
+                                        </button>
+                                    </form>
+                                }
+
+                                @* Engelleme *@
+                                @if (user.IsBlocked)
+                                {
+                                    <form asp-area="Admin" asp-controller="Users" asp-action="Unblock" method="post">
+                                        <input type="hidden" name="userId" value="@user.Id" />
+                                        <button type="submit" class="btn btn-ghost" style="font-size:12px;">
+                                            Engeli Kaldır
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-area="Admin" asp-controller="Users" asp-action="Block" method="post"
+                                          data-confirm="@user.UserName adlı kullanıcı engellenecek. Giriş yapamayacak."
+                                          data-confirm-title="Kullanıcıyı Engelle"
+                                          data-confirm-variant="danger">
+                                        <input type="hidden" name="userId" value="@user.Id" />
+                                        <button type="submit" class="btn btn-ghost" style="font-size:12px; color:var(--warning);">
+                                            Engelle
+                                        </button>
+                                    </form>
+                                }
+
+                                @* Silme *@
+                                <form asp-area="Admin" asp-controller="Users" asp-action="Delete" method="post"
+                                      data-confirm="@user.UserName adlı kullanıcı ve tüm verileri (abonelikler, profil) kalıcı olarak silinecek. Bu işlem geri alınamaz!"
+                                      data-confirm-title="Kullanıcıyı Sil"
+                                      data-confirm-variant="danger">
+                                    <input type="hidden" name="userId" value="@user.Id" />
+                                    <button type="submit" class="btn btn-ghost" style="font-size:12px; color:var(--danger);">
+                                        Sil
+                                    </button>
+                                </form>
+
+                            </div>
                         }
                         else
                         {
-                            <form asp-area="Admin" asp-controller="Users" asp-action="AssignAdmin" method="post"
-                                  data-confirm="@user.UserName adlı kullanıcıya admin rolü atanacak. Emin misiniz?"
-                                  data-confirm-title="Admin Rolü Ata"
-                                  style="display:inline;">
-                                <input type="hidden" name="userId" value="@user.Id" />
-                                <button type="submit" class="btn btn-ghost" style="font-size:12px;">
-                                    Admin Yap
-                                </button>
-                            </form>
+                            <span style="font-size:12px; color:var(--text-muted);">—</span>
                         }
                     </td>
                 </tr>
@@ -63,4 +122,3 @@
         </tbody>
     </table>
 </div>
-
