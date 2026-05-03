@@ -45,6 +45,14 @@ builder.Services.AddRateLimiter(options =>
         limiterOptions.QueueLimit = 0;
     });
 
+    // Admin area: IP başına dakikada 30 istek
+    options.AddFixedWindowLimiter("admin", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 30;
+        limiterOptions.Window = TimeSpan.FromMinutes(1);
+        limiterOptions.QueueLimit = 0;
+    });
+
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
@@ -111,6 +119,10 @@ RecurringJob.AddOrUpdate<PaymentReminderJob>(
     "payment-reminder",
     job => job.ExecuteAsync(),
     "0 8 * * *"); // Cron: her gün saat 08:00
+
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] — Subsy Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        .admin-shell { display: flex; min-height: 100vh; }
+
+        .admin-sidebar {
+            width: 220px;
+            min-height: 100vh;
+            background: #0a0a10;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 50;
+            border-right: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .admin-logo {
+            padding: 20px 20px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .admin-logo-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .admin-badge {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            background: oklch(0.52 0.20 20);
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .admin-nav { flex: 1; padding: 12px 8px; display: flex; flex-direction: column; gap: 2px; }
+        .admin-nav-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+            padding: 10px 10px 4px;
+        }
+        .admin-nav a {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 8px 10px;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            transition: background 0.15s, color 0.15s;
+        }
+        .admin-nav a:hover { background: rgba(255,255,255,0.06); color: #fff; }
+        .admin-nav a.active { background: rgba(255,255,255,0.10); color: #fff; }
+        .admin-nav a svg { flex-shrink: 0; opacity: 0.8; }
+
+        .admin-footer {
+            padding: 12px;
+            border-top: 1px solid rgba(255,255,255,0.07);
+        }
+        .admin-footer a {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 8px 10px;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            transition: background 0.15s, color 0.15s;
+        }
+        .admin-footer a:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+
+        .admin-main { margin-left: 220px; flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+        .admin-topbar {
+            height: 52px;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 28px;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 30;
+        }
+        .admin-topbar-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            flex: 1;
+        }
+        .admin-topbar-user {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .admin-mode-pill {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            background: oklch(0.97 0.04 20);
+            color: oklch(0.52 0.20 20);
+            padding: 3px 8px;
+            border-radius: 99px;
+            border: 1px solid oklch(0.90 0.08 20);
+        }
+
+        .admin-content { padding: 28px; flex: 1; }
+    </style>
+</head>
+<body>
+    @{
+        var currentController = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "").ToLowerInvariant();
+
+        string NavClass(string controller) =>
+            currentController == controller.ToLowerInvariant() ? "active" : string.Empty;
+    }
+
+    <div class="admin-shell">
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <div class="admin-logo-text">
+                    sub<span style="color: oklch(0.65 0.18 260)">sy</span>
+                    <span class="admin-badge">Admin</span>
+                </div>
+            </div>
+
+            <nav class="admin-nav">
+                <span class="admin-nav-label">Genel</span>
+                <a class="@NavClass("Dashboard")" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-4v-6H9v6H5a2 2 0 0 1-2-2V9z"/>
+                    </svg>
+                    Dashboard
+                </a>
+
+                <span class="admin-nav-label">Yönetim</span>
+                <a class="@NavClass("Users")" asp-area="Admin" asp-controller="Users" asp-action="Index">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    Kullanıcılar
+                </a>
+
+                <span class="admin-nav-label">Sistem</span>
+                <a href="/hangfire" target="_blank" rel="noopener">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+                    </svg>
+                    Arka Plan İşler
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto;opacity:0.4">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                </a>
+            </nav>
+
+            <div class="admin-footer">
+                <a asp-controller="Dashboard" asp-action="Index" asp-area="">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Uygulamaya Dön
+                </a>
+            </div>
+        </aside>
+
+        <div class="admin-main">
+            <div class="admin-topbar">
+                <span class="admin-topbar-title">@ViewData["Title"]</span>
+                <span class="admin-mode-pill">Admin Modu</span>
+                <span class="admin-topbar-user">@User.Identity?.Name</span>
+            </div>
+            <div class="admin-content">
+                @await Component.InvokeAsync("FlashMessage")
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmBoxOverlay" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <span id="confirmBoxTitle" class="modal-title">İşlemi Onayla</span>
+            </div>
+            <div class="modal-body">
+                <p id="confirmBoxMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmBoxCancel" type="button" class="btn btn-ghost">Vazgeç</button>
+                <button id="confirmBoxApprove" type="button" class="btn btn-primary">Evet, devam et</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var overlay = document.getElementById("confirmBoxOverlay");
+            var titleEl = document.getElementById("confirmBoxTitle");
+            var messageEl = document.getElementById("confirmBoxMessage");
+            var cancelBtn = document.getElementById("confirmBoxCancel");
+            var approveBtn = document.getElementById("confirmBoxApprove");
+            var pendingForm = null;
+
+            var closeDialog = function () { overlay.classList.remove("open"); pendingForm = null; };
+            var openDialog = function (form) {
+                pendingForm = form;
+                titleEl.textContent = form.dataset.confirmTitle || "İşlemi Onayla";
+                messageEl.textContent = form.dataset.confirm || "";
+                approveBtn.className = "btn";
+                var variant = form.dataset.confirmVariant || "primary";
+                approveBtn.classList.add(variant === "danger" ? "btn-danger" : "btn-primary");
+                overlay.classList.add("open");
+                approveBtn.focus();
+            };
+
+            document.addEventListener("submit", function (e) {
+                var form = e.target;
+                if (!(form instanceof HTMLFormElement) || !form.dataset.confirm) return;
+                e.preventDefault(); e.stopPropagation();
+                openDialog(form);
+            }, true);
+
+            approveBtn.addEventListener("click", function () {
+                if (!pendingForm) return;
+                var f = pendingForm; closeDialog(); f.submit();
+            });
+            cancelBtn.addEventListener("click", closeDialog);
+            overlay.addEventListener("click", function (e) { if (e.target === overlay) closeDialog(); });
+            document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeDialog(); });
+        });
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

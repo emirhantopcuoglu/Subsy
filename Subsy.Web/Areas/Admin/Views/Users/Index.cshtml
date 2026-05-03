@@ -1,0 +1,66 @@
+@model IReadOnlyList<Subsy.Application.Admin.Queries.GetAllUsers.AdminUserDto>
+@{
+    ViewData["Title"] = "Kullanıcılar";
+}
+
+<div class="card" style="overflow:hidden;">
+    <table class="table" style="width:100%;">
+        <thead>
+            <tr>
+                <th>Kullanıcı Adı</th>
+                <th>E-posta</th>
+                <th>Abonelik</th>
+                <th>Rol</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td style="font-weight:500;">@user.UserName</td>
+                    <td style="color:var(--text-secondary); font-size:13px;">@user.Email</td>
+                    <td style="color:var(--text-secondary); font-size:13px;">@user.SubscriptionCount</td>
+                    <td>
+                        @if (user.IsAdmin)
+                        {
+                            <span class="chip chip-success">Admin</span>
+                        }
+                        else
+                        {
+                            <span class="chip chip-gray">Kullanıcı</span>
+                        }
+                    </td>
+                    <td style="text-align:right; white-space:nowrap;">
+                        @if (user.IsAdmin)
+                        {
+                            <form asp-area="Admin" asp-controller="Users" asp-action="RevokeAdmin" method="post"
+                                  data-confirm="@user.UserName adlı kullanıcının admin rolü kaldırılacak. Emin misiniz?"
+                                  data-confirm-title="Admin Rolünü Kaldır"
+                                  data-confirm-variant="danger"
+                                  style="display:inline;">
+                                <input type="hidden" name="userId" value="@user.Id" />
+                                <button type="submit" class="btn btn-ghost" style="font-size:12px; color:var(--danger);">
+                                    Rolü Kaldır
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-area="Admin" asp-controller="Users" asp-action="AssignAdmin" method="post"
+                                  data-confirm="@user.UserName adlı kullanıcıya admin rolü atanacak. Emin misiniz?"
+                                  data-confirm-title="Admin Rolü Ata"
+                                  style="display:inline;">
+                                <input type="hidden" name="userId" value="@user.Id" />
+                                <button type="submit" class="btn btn-ghost" style="font-size:12px;">
+                                    Admin Yap
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+

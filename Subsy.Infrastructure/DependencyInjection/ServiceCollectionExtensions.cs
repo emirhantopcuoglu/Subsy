@@ -89,6 +89,7 @@ public static class ServiceCollectionExtensions
         services.AddHangfireServer();
 
         services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+        services.AddScoped<IAdminService, AdminService>();
 
         // Exchange rate service with HttpClient + resilience (retry, circuit breaker, timeout via Polly)
         services.AddHttpClient<IExchangeRateService, ExchangeRateService>()
