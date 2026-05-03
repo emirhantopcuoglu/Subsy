@@ -13,5 +13,5 @@ public sealed class SendPasswordResetEmailHandler : IRequestHandler<SendPassword
     }
 
     public Task Handle(SendPasswordResetEmailCommand request, CancellationToken cancellationToken)
-        => _adminService.SendPasswordResetEmailAsync(request.UserId, request.CallbackUrl, cancellationToken);
+        => _adminService.SendPasswordResetEmailAsync(request.UserId, request.UserName, request.Email, request.CallbackUrl, cancellationToken);
 }

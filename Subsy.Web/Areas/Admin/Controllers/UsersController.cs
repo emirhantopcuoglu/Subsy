@@ -1,6 +1,6 @@
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using Subsy.Application.Admin.Commands.AssignAdminRole;
 using Subsy.Application.Admin.Commands.BlockUser;
 using Subsy.Application.Admin.Commands.DeleteUser;
@@ -17,10 +17,12 @@ namespace Subsy.Web.Areas.Admin.Controllers;
 public sealed class UsersController : AdminBaseController
 {
     private readonly IMediator _mediator;
+    private readonly UserManager<IdentityUser> _userManager;
 
-    public UsersController(IMediator mediator)
+    public UsersController(IMediator mediator, UserManager<IdentityUser> userManager)
     {
         _mediator = mediator;
+        _userManager = userManager;
     }
 
     [HttpGet]
@@ -45,7 +47,7 @@ public sealed class UsersController : AdminBaseController
     {
         if (string.IsNullOrWhiteSpace(userId)) return BadRequest();
 
-        await _mediator.Send(new AssignAdminRoleCommand(userId), ct);
+        await _mediator.Send(new AssignAdminRoleCommand(userId, CurrentUserId), ct);
         TempData["FlashSuccess"] = "Kullanıcıya admin rolü atandı.";
         return RedirectToAction(nameof(Index));
     }
@@ -94,7 +96,7 @@ public sealed class UsersController : AdminBaseController
     {
         if (string.IsNullOrWhiteSpace(userId)) return BadRequest();
 
-        await _mediator.Send(new UnblockUserCommand(userId), ct);
+        await _mediator.Send(new UnblockUserCommand(userId, CurrentUserId), ct);
         TempData["FlashSuccess"] = "Kullanıcının engellemesi kaldırıldı.";
         return RedirectToAction(nameof(Index));
     }
@@ -145,23 +147,20 @@ public sealed class UsersController : AdminBaseController
 
         try
         {
-            var userManager = HttpContext.RequestServices
-                .GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<Microsoft.AspNetCore.Identity.IdentityUser>>();
-
-            var user = await userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(userId);
             if (user?.Email is null)
             {
                 TempData["FlashError"] = "Kullanıcı bulunamadı.";
                 return RedirectToAction(nameof(Index));
             }
 
-            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var callbackUrl = Url.Action(
                 "ResetPassword", "Account",
                 new { userId = user.Id, token, area = "" },
                 Request.Scheme)!;
 
-            await _mediator.Send(new SendPasswordResetEmailCommand(userId, callbackUrl), ct);
+            await _mediator.Send(new SendPasswordResetEmailCommand(userId, user.UserName ?? user.Email, user.Email, callbackUrl), ct);
             TempData["FlashSuccess"] = $"{user.UserName} kullanıcısına parola sıfırlama bağlantısı gönderildi.";
         }
         catch (Exception ex)

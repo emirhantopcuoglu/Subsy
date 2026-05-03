@@ -13,5 +13,5 @@ public sealed class AssignAdminRoleHandler : IRequestHandler<AssignAdminRoleComm
     }
 
     public Task Handle(AssignAdminRoleCommand request, CancellationToken cancellationToken)
-        => _adminService.AssignAdminRoleAsync(request.UserId, cancellationToken);
+        => _adminService.AssignAdminRoleAsync(request.UserId, request.RequestingUserId, cancellationToken);
 }

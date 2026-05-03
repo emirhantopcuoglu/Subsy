@@ -2,4 +2,4 @@ using MediatR;
 
 namespace Subsy.Application.Admin.Commands.UnblockUser;
 
-public record UnblockUserCommand(string UserId) : IRequest;
+public record UnblockUserCommand(string UserId, string RequestingUserId) : IRequest;

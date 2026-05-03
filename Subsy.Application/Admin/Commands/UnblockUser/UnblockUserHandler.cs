@@ -13,5 +13,5 @@ public sealed class UnblockUserHandler : IRequestHandler<UnblockUserCommand>
     }
 
     public Task Handle(UnblockUserCommand request, CancellationToken cancellationToken)
-        => _adminService.UnblockUserAsync(request.UserId, cancellationToken);
+        => _adminService.UnblockUserAsync(request.UserId, request.RequestingUserId, cancellationToken);
 }

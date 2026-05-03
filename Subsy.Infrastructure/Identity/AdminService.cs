@@ -156,12 +156,14 @@ public sealed class AdminService : IAdminService
         }).ToList();
     }
 
-    public async Task AssignAdminRoleAsync(string targetUserId, CancellationToken ct = default)
+    public async Task AssignAdminRoleAsync(string targetUserId, string requestingUserId, CancellationToken ct = default)
     {
         var user = await FindOrThrowAsync(targetUserId);
 
         if (!await _userManager.IsInRoleAsync(user, Roles.Admin))
             await _userManager.AddToRoleAsync(user, Roles.Admin);
+
+        await WriteAuditAsync(requestingUserId, "AdminRoleAssigned", user, ct);
     }
 
     public async Task RevokeAdminRoleAsync(string targetUserId, string requestingUserId, CancellationToken ct = default)
@@ -194,13 +196,13 @@ public sealed class AdminService : IAdminService
         await WriteAuditAsync(requestingUserId, "UserBlocked", user, ct);
     }
 
-    public async Task UnblockUserAsync(string targetUserId, CancellationToken ct = default)
+    public async Task UnblockUserAsync(string targetUserId, string requestingUserId, CancellationToken ct = default)
     {
         var user = await FindOrThrowAsync(targetUserId);
 
         await _userManager.SetLockoutEndDateAsync(user, null);
 
-        await WriteAuditAsync(targetUserId, "UserUnblocked", user, ct);
+        await WriteAuditAsync(requestingUserId, "UserUnblocked", user, ct);
     }
 
     public async Task DeleteUserAsync(string targetUserId, string requestingUserId, CancellationToken ct = default)
@@ -232,20 +234,17 @@ public sealed class AdminService : IAdminService
         await WriteAuditAsync(requestingUserId, "ForceLogout", user, ct);
     }
 
-    public async Task SendPasswordResetEmailAsync(string targetUserId, string callbackUrl, CancellationToken ct = default)
+    public Task SendPasswordResetEmailAsync(string targetUserId, string userName, string email, string callbackUrl, CancellationToken ct = default)
     {
-        var user = await FindOrThrowAsync(targetUserId);
-        if (user.Email is null) return;
-
         var body = $"""
-            <h2>Merhaba {user.UserName},</h2>
+            <h2>Merhaba {userName},</h2>
             <p>Yönetici tarafından parola sıfırlama isteği oluşturuldu.</p>
             <p>Aşağıdaki bağlantıya tıklayarak parolanızı sıfırlayabilirsiniz:</p>
             <p><a href="{callbackUrl}" style="background:#5865f2;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;display:inline-block;">Parolayı Sıfırla</a></p>
             <p style="color:#888;font-size:12px;">Bu bağlantı 24 saat geçerlidir. Eğer bu isteği siz yapmadıysanız görmezden gelebilirsiniz.</p>
             """;
 
-        await _emailService.SendAsync(user.Email, "Subsy — Parola Sıfırlama", body, ct);
+        return _emailService.SendAsync(email, "Subsy — Parola Sıfırlama", body, ct);
     }
 
     public async Task<int> BroadcastEmailAsync(string subject, string body, CancellationToken ct = default)
@@ -269,7 +268,7 @@ public sealed class AdminService : IAdminService
                 await _emailService.SendAsync(user.Email!, subject, body, ct);
                 sent++;
             }
-            catch { /* per-user send failure should not abort the batch */ }
+            catch (Exception e) when (e is not OperationCanceledException) { }
         }
 
         return sent;
