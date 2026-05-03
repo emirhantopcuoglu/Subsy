@@ -158,7 +158,7 @@ public sealed class UsersController : AdminBaseController
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
             var callbackUrl = Url.Action(
                 "ResetPassword", "Account",
-                new { userId = user.Id, token },
+                new { userId = user.Id, token, area = "" },
                 Request.Scheme)!;
 
             await _mediator.Send(new SendPasswordResetEmailCommand(userId, callbackUrl), ct);
