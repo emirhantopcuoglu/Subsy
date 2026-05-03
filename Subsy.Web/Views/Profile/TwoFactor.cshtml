@@ -62,17 +62,22 @@
 @section Scripts {
     @if (!enabled)
     {
-        <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
         <script>
-            QRCode.toCanvas(document.getElementById('qrCanvas'), '@Html.Raw(ViewBag.AuthenticatorUri)', {
-                width: 200,
-                margin: 2,
-                color: { dark: '#000000', light: '#ffffff' }
-            }, function(error) {
-                if (error) {
-                    document.getElementById('qrCanvas').style.display = 'none';
-                }
-            });
+            (function () {
+                var uri = '@Html.Raw(ViewBag.AuthenticatorUri)';
+                var s = document.createElement('script');
+                s.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
+                s.onload = function () {
+                    QRCode.toCanvas(document.getElementById('qrCanvas'), uri, {
+                        width: 200,
+                        margin: 2,
+                        color: { dark: '#000000', light: '#ffffff' }
+                    }, function (error) {
+                        if (error) document.getElementById('qrCanvas').style.display = 'none';
+                    });
+                };
+                document.head.appendChild(s);
+            })();
         </script>
     }
 }
