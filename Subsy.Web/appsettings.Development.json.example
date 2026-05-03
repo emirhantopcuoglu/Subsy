@@ -1,0 +1,19 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=subsy.db"
+  },
+
+  "Email": {
+    "Host": "smtp.gmail.com",
+    "Port": 587,
+    "From": "noreply@yourdomain.com",
+    "Username": "your-email@gmail.com",
+    "Password": "your-app-password"
+  },
+
+  "Supabase": {
+    "Url": "https://your-project.supabase.co",
+    "ServiceKey": "your-service-key",
+    "BucketName": "profile-photos"
+  }
+}

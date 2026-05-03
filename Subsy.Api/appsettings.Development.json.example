@@ -1,0 +1,10 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=subsy.db"
+  },
+
+  "Jwt": {
+    "Key": "your-secret-key-min-32-characters-long",
+    "Issuer": "Subsy"
+  }
+}

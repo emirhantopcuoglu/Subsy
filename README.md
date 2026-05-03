@@ -161,6 +161,20 @@ Update-Database -Project Subsy.Infrastructure -StartupProject Subsy.Web
 
 ---
 
+## Local Configuration
+
+Secret values (email credentials, Supabase keys, JWT signing key) are never committed.
+Copy the example files and fill in your own values:
+
+```bash
+cp Subsy.Web/appsettings.Development.json.example Subsy.Web/appsettings.Development.json
+cp Subsy.Api/appsettings.Development.json.example Subsy.Api/appsettings.Development.json
+```
+
+Both files are in `.gitignore` — they will not be committed.
+
+---
+
 ## Run
 
 Start:
