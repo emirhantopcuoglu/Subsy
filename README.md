@@ -1,8 +1,5 @@
 # Subsy
 
-[![CI](https://github.com/emirhantopcuoglu/Subsy/actions/workflows/ci.yml/badge.svg)](https://github.com/emirhantopcuoglu/Subsy/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/emirhantopcuoglu/Subsy/branch/main/graph/badge.svg)](https://codecov.io/gh/emirhantopcuoglu/Subsy)
-
 Subsy is a **Clean Architecture subscription management web application** built with **.NET 8 (ASP.NET Core MVC)**.
 
 It allows users to manage, track, and analyze their recurring subscriptions in a structured, production-oriented backend architecture.
